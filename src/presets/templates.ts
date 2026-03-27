@@ -1,9 +1,24 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_ROOT = resolve(__dirname, "../../templates");
+/**
+ * Finds the package root by walking up from the current file
+ * until we find a directory containing package.json.
+ * Works both from source (src/presets/) and bundled output (dist/).
+ */
+function findPackageRoot(): string {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  while (dir !== dirname(dir)) {
+    if (existsSync(join(dir, "package.json"))) {
+      return dir;
+    }
+    dir = dirname(dir);
+  }
+  throw new Error("Could not find package root (no package.json found)");
+}
+
+const TEMPLATES_ROOT = resolve(findPackageRoot(), "templates");
 
 /**
  * Recursively reads all files under `templates/<presetName>/`

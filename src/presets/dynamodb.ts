@@ -40,6 +40,7 @@ output "dynamodb_table_arn" {
 
 const DYNAMODB_TABLE_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import type * as lambda from "aws-cdk-lib/aws-lambda";
 import type { Construct } from "constructs";
 
 export class DynamoDbTable extends Construct {
@@ -62,6 +63,12 @@ export class DynamoDbTable extends Construct {
       description: "DynamoDB table name",
     });
   }
+
+  /** Grant read/write access and set TABLE_NAME env var on a Lambda function. */
+  grantLambdaAccess(handler: lambda.Function): void {
+    this.table.grantReadWriteData(handler);
+    handler.addEnvironment("TABLE_NAME", this.table.tableName);
+  }
 }
 `;
 
@@ -70,6 +77,8 @@ export function createDynamoDbPreset(): Preset {
 
   return {
     name: "dynamodb",
+
+    requires: ["lambda"],
 
     files: {
       ...templates,
@@ -95,7 +104,8 @@ export function createDynamoDbPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { DynamoDbTable } from "./constructs/dynamodb";',
-            constructs: '    new DynamoDbTable(this, "DynamoDbTable");',
+            constructs:
+              '    const dynamoDbTable = new DynamoDbTable(this, "DynamoDbTable");\n    dynamoDbTable.grantLambdaAccess(lambdaFunction.handler);',
           },
         },
       },

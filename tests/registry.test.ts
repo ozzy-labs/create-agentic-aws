@@ -20,8 +20,12 @@ describe("createRegistry", () => {
     expect(registry.has("copilot")).toBe(true);
   });
 
-  it("has correct preset count for M2", () => {
-    // base + 2 languages + 3 agents = 6
-    expect(registry.size).toBe(6);
+  it("includes iac presets", () => {
+    expect(registry.has("cdk")).toBe(true);
+  });
+
+  it("has correct preset count for M3", () => {
+    // base + 2 languages + 3 agents + 1 IaC = 7
+    expect(registry.size).toBe(7);
   });
 });

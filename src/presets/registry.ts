@@ -1,6 +1,7 @@
 import type { Preset, PresetName } from "../types.js";
 import { createAmazonQPreset } from "./amazon-q.js";
 import { createBasePreset } from "./base.js";
+import { createCdkPreset } from "./cdk.js";
 import { createClaudeCodePreset } from "./claude-code.js";
 import { createCopilotPreset } from "./copilot.js";
 import { createPythonPreset } from "./python.js";
@@ -15,7 +16,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createAmazonQPreset(),
     createClaudeCodePreset(),
     createCopilotPreset(),
-    // IaC presets (cdk, terraform) will be added in M3/M4
+    createCdkPreset(),
     // Service presets will be added in M3-M6
   ];
 

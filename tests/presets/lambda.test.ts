@@ -40,6 +40,17 @@ describe("lambda preset", () => {
       expect(lambda.files["lambda/handlers/index.ts"]).toBeDefined();
       expect(lambda.files["lambda/handlers/index.ts"]).toContain("export const handler");
     });
+
+    it("includes powertools configuration", () => {
+      expect(lambda.files["lambda/powertools.ts"]).toBeDefined();
+      expect(lambda.files["lambda/powertools.ts"]).toContain("Logger");
+      expect(lambda.files["lambda/powertools.ts"]).toContain("Tracer");
+      expect(lambda.files["lambda/powertools.ts"]).toContain("Metrics");
+    });
+
+    it("handler imports powertools logger", () => {
+      expect(lambda.files["lambda/handlers/index.ts"]).toContain("logger");
+    });
   });
 
   // IaC contributions (CDK)
@@ -75,6 +86,14 @@ describe("lambda preset", () => {
       const pkg = lambda.merge["package.json"] as Record<string, unknown>;
       const devDeps = pkg.devDependencies as Record<string, string>;
       expect(devDeps["@types/aws-lambda"]).toBeDefined();
+    });
+
+    it("adds powertools packages to root devDependencies", () => {
+      const pkg = lambda.merge["package.json"] as Record<string, unknown>;
+      const devDeps = pkg.devDependencies as Record<string, string>;
+      expect(devDeps["@aws-lambda-powertools/logger"]).toBeDefined();
+      expect(devDeps["@aws-lambda-powertools/tracer"]).toBeDefined();
+      expect(devDeps["@aws-lambda-powertools/metrics"]).toBeDefined();
     });
   });
 

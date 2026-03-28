@@ -1,7 +1,8 @@
 import type { Handler } from "aws-lambda";
+import { logger } from "../powertools";
 
 export const handler: Handler = async (event) => {
-  console.log("Event:", JSON.stringify(event, null, 2));
+  logger.info("Processing event", { event });
 
   return {
     statusCode: 200,

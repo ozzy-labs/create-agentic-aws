@@ -51,6 +51,7 @@ export const en = {
   // Wizard choices — AI
   "ai.bedrock": "Bedrock",
   "ai.bedrock-kb": "Bedrock Knowledge Bases",
+  "ai.bedrock-agents": "Bedrock Agents",
   "ai.opensearch": "OpenSearch",
 
   // Wizard choices — Data

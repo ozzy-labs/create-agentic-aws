@@ -145,7 +145,7 @@ resource "null_resource" "action_group_build" {
   }
 
   provisioner "local-exec" {
-    command = "npx esbuild lambda/handlers/action-group.ts --bundle --platform=node --target=node22 --outfile=lambda/handlers/dist/action-group.mjs --format=esm"
+    command = "npx esbuild lambda/handlers/action-group.ts --bundle --platform=node --target=node24 --outfile=lambda/handlers/dist/action-group.mjs --format=esm"
   }
 }
 

@@ -1,10 +1,22 @@
 import type { Preset } from "../types.js";
 import { readTemplates } from "./templates.js";
 
-const LAMBDA_TF = `data "archive_file" "lambda" {
+const LAMBDA_TF = `resource "null_resource" "lambda_build" {
+  triggers = {
+    source_hash = sha256(join("", [for f in fileset("\${path.module}/../lambda/handlers", "**/*.ts") : filemd5("\${path.module}/../lambda/handlers/\${f}")]))
+  }
+
+  provisioner "local-exec" {
+    command = "npx esbuild lambda/handlers/index.ts --bundle --platform=node --target=node22 --outfile=lambda/handlers/dist/index.mjs --format=esm"
+  }
+}
+
+data "archive_file" "lambda" {
   type        = "zip"
-  source_dir  = "\${path.module}/../lambda/handlers"
+  source_file = "\${path.module}/../lambda/handlers/dist/index.mjs"
   output_path = "\${path.module}/.build/lambda.zip"
+
+  depends_on = [null_resource.lambda_build]
 }
 
 resource "aws_lambda_function" "this" {
@@ -12,7 +24,7 @@ resource "aws_lambda_function" "this" {
   role             = aws_iam_role.lambda.arn
   handler          = "index.handler"
   runtime          = "nodejs24.x"
-  memory_size      = 256
+  memory_size      = var.lambda_memory_size
   timeout          = 30
   filename         = data.archive_file.lambda.output_path
   source_code_hash = data.archive_file.lambda.output_base64sha256

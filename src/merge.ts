@@ -174,6 +174,46 @@ export function mergeHcl(template: string, ...blocks: string[]): string {
 }
 
 // ---------------------------------------------------------------------------
+// TypeScript merge (marker-based injection for shared .ts files)
+// ---------------------------------------------------------------------------
+
+/**
+ * Merges contributions into a TypeScript template using comment markers.
+ *
+ * Templates contain markers like `// [merge: imports]` and `// [merge: constructs]`.
+ * Each contribution is a `Record<string, string>` mapping marker names to code blocks.
+ * Code is injected after the corresponding marker comment.
+ */
+export function mergeTypeScript(base: string, ...patches: Record<string, string>[]): string {
+  if (patches.length === 0) return base;
+
+  // Accumulate code per marker
+  const accumulated = new Map<string, string[]>();
+  for (const patch of patches) {
+    for (const [marker, code] of Object.entries(patch)) {
+      const existing = accumulated.get(marker) ?? [];
+      existing.push(code);
+      accumulated.set(marker, existing);
+    }
+  }
+
+  let result = base;
+  for (const [marker, codes] of accumulated) {
+    const markerComment = `// [merge: ${marker}]`;
+    const index = result.indexOf(markerComment);
+    if (index === -1) continue;
+
+    const lineEnd = result.indexOf("\n", index);
+    const insertAt = lineEnd === -1 ? result.length : lineEnd + 1;
+
+    const injection = `${codes.join("\n")}\n`;
+    result = result.slice(0, insertAt) + injection + result.slice(insertAt);
+  }
+
+  return result;
+}
+
+// ---------------------------------------------------------------------------
 // File path dispatcher
 // ---------------------------------------------------------------------------
 
@@ -198,6 +238,10 @@ export function mergeFile(path: string, base: string, contributions: unknown[]):
 
   if (path.endsWith(".md")) {
     return mergeMarkdown(base, contributions as MarkdownSection[]);
+  }
+
+  if (path.endsWith(".ts")) {
+    return mergeTypeScript(base, ...(contributions as Record<string, string>[]));
   }
 
   // Default: text merge (e.g. .gitignore)

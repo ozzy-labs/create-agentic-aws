@@ -72,7 +72,7 @@ resource "aws_rds_cluster_instance" "writer" {
 
 resource "aws_db_subnet_group" "this" {
   name       = "\${var.project_name}-\${var.environment}-aurora-subnet"
-  subnet_ids = var.private_subnet_ids
+  subnet_ids = aws_subnet.private[*].id
 
   tags = {
     Name = "\${var.project_name}-aurora-subnet-group"
@@ -81,7 +81,7 @@ resource "aws_db_subnet_group" "this" {
 
 resource "aws_security_group" "aurora" {
   name_prefix = "\${var.project_name}-aurora-"
-  vpc_id      = var.vpc_id
+  vpc_id      = aws_vpc.this.id
 
   ingress {
     from_port   = 5432

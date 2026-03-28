@@ -57,7 +57,7 @@ export class Ec2Instance extends Construct {
 const EC2_TF = `resource "aws_instance" "this" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.ec2_instance_type
-  subnet_id              = var.private_subnet_ids[0]
+  subnet_id              = aws_subnet.private[0].id
   vpc_security_group_ids = [aws_security_group.ec2.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2.name
   user_data              = file("\${path.module}/../ec2/userdata.sh")
@@ -84,7 +84,7 @@ data "aws_ami" "amazon_linux" {
 
 resource "aws_security_group" "ec2" {
   name_prefix = "\${var.project_name}-ec2-"
-  vpc_id      = var.vpc_id
+  vpc_id      = aws_vpc.this.id
 
   # TODO: Add ingress rules for your use case.
   # ingress {

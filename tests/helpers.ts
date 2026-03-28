@@ -1,6 +1,6 @@
 import { expect } from "vitest";
 
-import { generate } from "../src/generator.js";
+import { generate } from "../src/generator/index.js";
 import { createRegistry } from "../src/presets/registry.js";
 import type { GenerateResult, PresetName, WizardAnswers } from "../src/types.js";
 

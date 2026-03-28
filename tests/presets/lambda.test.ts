@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { generate, resolvePresets } from "../../src/generator.js";
 import { createBasePreset } from "../../src/presets/base.js";
 import { createCdkPreset } from "../../src/presets/cdk.js";
+import { createDynamoDbPreset } from "../../src/presets/dynamodb.js";
 import { createLambdaPreset } from "../../src/presets/lambda.js";
 import { createPythonPreset } from "../../src/presets/python.js";
 import { createTerraformPreset } from "../../src/presets/terraform.js";
@@ -174,6 +175,70 @@ describe("lambda preset", () => {
     });
   });
 
+  // IaC contributions (Terraform)
+  describe("iac contributions (terraform)", () => {
+    const allPresets = [
+      createBasePreset(),
+      createTypescriptPreset(),
+      createTerraformPreset(),
+      lambda,
+    ];
+    const registry = makeRegistry(...allPresets);
+
+    it("generates lambda.tf with esbuild build step", () => {
+      const result = generate(makeAnswers({ iac: "terraform" }), registry);
+      const tf = result.readText("infra/lambda.tf");
+      expect(tf).toContain('resource "null_resource" "lambda_build"');
+      expect(tf).toContain("npx esbuild");
+    });
+
+    it("uses var.lambda_memory_size instead of hardcoded value", () => {
+      const result = generate(makeAnswers({ iac: "terraform" }), registry);
+      const tf = result.readText("infra/lambda.tf");
+      expect(tf).toContain("memory_size      = var.lambda_memory_size");
+      expect(tf).not.toMatch(/memory_size\s+=\s+256/);
+    });
+
+    it("archive_file depends on build step", () => {
+      const result = generate(makeAnswers({ iac: "terraform" }), registry);
+      const tf = result.readText("infra/lambda.tf");
+      expect(tf).toContain("depends_on = [null_resource.lambda_build]");
+    });
+
+    it("archive_file uses built output", () => {
+      const result = generate(makeAnswers({ iac: "terraform" }), registry);
+      const tf = result.readText("infra/lambda.tf");
+      expect(tf).toContain("lambda/handlers/dist/index.mjs");
+    });
+  });
+
+  // DynamoDB → Lambda integration (Terraform)
+  describe("dynamodb integration (terraform)", () => {
+    const allPresets = [
+      createBasePreset(),
+      createTypescriptPreset(),
+      createTerraformPreset(),
+      lambda,
+      createDynamoDbPreset(),
+    ];
+    const registry = makeRegistry(...allPresets);
+
+    it("adds TABLE_NAME environment variable to lambda.tf", () => {
+      const result = generate(makeAnswers({ iac: "terraform", data: ["dynamodb"] }), registry);
+      const tf = result.readText("infra/lambda.tf");
+      expect(tf).toContain("TABLE_NAME   = aws_dynamodb_table.this.name");
+    });
+
+    it("adds IAM policy for DynamoDB access", () => {
+      const result = generate(makeAnswers({ iac: "terraform", data: ["dynamodb"] }), registry);
+      const tf = result.readText("infra/lambda.tf");
+      expect(tf).toContain('resource "aws_iam_role_policy" "lambda_dynamodb"');
+      expect(tf).toContain("dynamodb:GetItem");
+      expect(tf).toContain("dynamodb:PutItem");
+      expect(tf).toContain("dynamodb:Query");
+    });
+  });
+
   // Python Lambda runtime (Terraform + Python, no TypeScript)
   describe("python lambda runtime", () => {
     const allPresets = [createBasePreset(), createPythonPreset(), createTerraformPreset(), lambda];
@@ -210,6 +275,14 @@ describe("lambda preset", () => {
       expect(tf).toContain('runtime          = "python3.12"');
       expect(tf).toContain('handler          = "handler.handler"');
       expect(tf).not.toContain("nodejs24.x");
+    });
+
+    it("removes esbuild build step for Python runtime", () => {
+      const result = generate(pythonAnswers, registry);
+      const tf = result.readText("infra/lambda.tf");
+      expect(tf).not.toContain("null_resource");
+      expect(tf).not.toContain("npx esbuild");
+      expect(tf).toContain("source_dir");
     });
 
     it("adds aws-lambda-powertools to pyproject.toml", () => {

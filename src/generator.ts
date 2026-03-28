@@ -199,6 +199,11 @@ export function generate(
     applyLambdaPythonRuntime(files, vars);
   }
 
+  // --- Step 2.11: DynamoDB → Lambda integration (Terraform) ---
+  if (presetNames.has("dynamodb") && presetNames.has("lambda")) {
+    applyDynamoDbLambdaIntegration(answers.iac, files);
+  }
+
   // --- Step 3: Shared file deep merge ---
   mergeSharedFiles(presets, files, vars);
 
@@ -544,6 +549,51 @@ function applyRedshiftProvisionedMode(iac: IacPresetName, files: Map<string, str
 }
 
 // ---------------------------------------------------------------------------
+// Step 2.11: DynamoDB → Lambda integration (Terraform)
+// ---------------------------------------------------------------------------
+
+function applyDynamoDbLambdaIntegration(iac: IacPresetName, files: Map<string, string>): void {
+  if (iac === "cdk") return; // CDK uses grantLambdaAccess() in app-stack.ts
+
+  const lambdaTf = files.get("infra/lambda.tf");
+  if (!lambdaTf) return;
+
+  // Add TABLE_NAME environment variable
+  const patched = lambdaTf.replace(
+    '      NODE_OPTIONS = "--enable-source-maps"',
+    `      NODE_OPTIONS = "--enable-source-maps"
+      TABLE_NAME   = aws_dynamodb_table.this.name`,
+  );
+
+  // Append IAM policy for DynamoDB access
+  const dynamoDbPolicy = `
+resource "aws_iam_role_policy" "lambda_dynamodb" {
+  role = aws_iam_role.lambda.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+      ]
+      Resource = [
+        aws_dynamodb_table.this.arn,
+        "\${aws_dynamodb_table.this.arn}/index/*",
+      ]
+    }]
+  })
+}
+`;
+
+  files.set("infra/lambda.tf", patched + dynamoDbPolicy);
+}
+
+// ---------------------------------------------------------------------------
 // Step 2.9: Lambda Python runtime (TypeScript → Python)
 // ---------------------------------------------------------------------------
 
@@ -568,21 +618,32 @@ function applyLambdaPythonRuntime(files: Map<string, string>, vars: Record<strin
     files.set(path, substituteVars(content, vars));
   }
 
-  // Update Terraform lambda.tf: swap runtime and handler
+  // Update Terraform lambda.tf: swap runtime, handler, and remove esbuild build step
   const tf = files.get("infra/lambda.tf");
   if (tf) {
-    files.set(
-      "infra/lambda.tf",
-      tf
-        .replace(
-          '  handler          = "index.handler"\n  runtime          = "nodejs24.x"',
-          LAMBDA_PYTHON_TF_RUNTIME,
-        )
-        .replace(
-          `  environment {\n    variables = {\n      NODE_OPTIONS = "--enable-source-maps"\n    }\n  }`,
-          LAMBDA_PYTHON_TF_ENV,
-        ),
-    );
+    let patched = tf
+      .replace(
+        '  handler          = "index.handler"\n  runtime          = "nodejs24.x"',
+        LAMBDA_PYTHON_TF_RUNTIME,
+      )
+      .replace(
+        `  environment {\n    variables = {\n      NODE_OPTIONS = "--enable-source-maps"\n    }\n  }`,
+        LAMBDA_PYTHON_TF_ENV,
+      );
+
+    // Replace esbuild build step + single-file archive with directory archive
+    patched = patched
+      .replace(/resource "null_resource" "lambda_build" \{[\s\S]*?\n\}\n\n/, "")
+      .replace(
+        /data "archive_file" "lambda" \{[\s\S]*?\n\}/,
+        `data "archive_file" "lambda" {
+  type        = "zip"
+  source_dir  = "\${path.module}/../lambda/handlers"
+  output_path = "\${path.module}/.build/lambda.zip"
+}`,
+      );
+
+    files.set("infra/lambda.tf", patched);
   }
 }
 

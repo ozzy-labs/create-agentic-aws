@@ -131,6 +131,16 @@ describe("ecs preset", () => {
     });
   });
 
+  // Merge contributions
+  describe("merge contributions", () => {
+    it("adds hadolint hook to lefthook pre-commit", () => {
+      const lefthook = ecs.merge["lefthook.yaml"] as Record<string, unknown>;
+      const preCommit = lefthook["pre-commit"] as Record<string, unknown>;
+      const commands = preCommit.commands as Record<string, unknown>;
+      expect(commands.hadolint).toBeDefined();
+    });
+  });
+
   // VPC auto-resolution
   describe("vpc auto-resolution", () => {
     const allPresets = [

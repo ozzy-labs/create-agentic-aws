@@ -3,6 +3,7 @@ import { readTemplates } from "./templates.js";
 
 const EVENTBRIDGE_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as events from "aws-cdk-lib/aws-events";
+import type * as lambda from "aws-cdk-lib/aws-lambda";
 import type { Construct } from "constructs";
 
 export class EventBus extends Construct {
@@ -30,6 +31,12 @@ export class EventBus extends Construct {
       value: this.bus.eventBusArn,
       description: "EventBridge event bus ARN",
     });
+  }
+
+  /** Grant a Lambda function permission to publish events and set EVENT_BUS_NAME env var. */
+  grantLambdaPublish(handler: lambda.Function): void {
+    this.bus.grantPutEventsTo(handler);
+    handler.addEnvironment("EVENT_BUS_NAME", this.bus.eventBusName);
   }
 }
 `;

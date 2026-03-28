@@ -139,6 +139,7 @@ const DEVCONTAINER_JSON = `{
         "DavidAnson.vscode-markdownlint",
         "redhat.vscode-yaml",
         "tamasfe.even-better-toml",
+        "exiasr.hadolint",
         "amazonwebservices.aws-toolkit-vscode"
       ]
     }

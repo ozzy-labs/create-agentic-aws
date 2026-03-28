@@ -17,6 +17,7 @@ import { createLambdaPreset } from "./lambda.js";
 import { createPythonPreset } from "./python.js";
 import { createRdsPreset } from "./rds.js";
 import { createS3Preset } from "./s3.js";
+import { createSnsPreset } from "./sns.js";
 import { createSqsPreset } from "./sqs.js";
 import { createTerraformPreset } from "./terraform.js";
 import { createTypescriptPreset } from "./typescript.js";
@@ -47,6 +48,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createEc2Preset(),
     createAuroraPreset(),
     createRdsPreset(),
+    createSnsPreset(),
     // Service presets will be added in M6
   ];
 

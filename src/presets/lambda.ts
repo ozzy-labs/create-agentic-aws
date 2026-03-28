@@ -11,7 +11,7 @@ resource "aws_lambda_function" "this" {
   function_name    = "\${var.project_name}-handler"
   role             = aws_iam_role.lambda.arn
   handler          = "index.handler"
-  runtime          = "nodejs22.x"
+  runtime          = "nodejs24.x"
   memory_size      = 256
   timeout          = 30
   filename         = data.archive_file.lambda.output_path
@@ -79,7 +79,7 @@ export class LambdaFunction extends Construct {
     super(scope, id);
 
     this.handler = new NodejsFunction(this, "Handler", {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       entry: join(__dirname, "..", "..", "..", "lambda", "handlers", "index.ts"),
       handler: "handler",
       memorySize: 256,

@@ -40,7 +40,7 @@ describe("ecs preset", () => {
   describe("owned files", () => {
     it("includes Dockerfile", () => {
       expect(ecs.files["ecs/Dockerfile"]).toBeDefined();
-      expect(ecs.files["ecs/Dockerfile"]).toContain("FROM node:22-slim");
+      expect(ecs.files["ecs/Dockerfile"]).toContain("FROM node:24-slim");
     });
 
     it("includes app entry point", () => {

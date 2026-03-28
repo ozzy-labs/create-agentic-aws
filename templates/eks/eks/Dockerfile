@@ -1,4 +1,4 @@
-FROM node:22-slim AS builder
+FROM node:24-slim AS builder
 
 RUN corepack enable
 WORKDIR /app
@@ -7,7 +7,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm run build
 
-FROM node:22-slim
+FROM node:24-slim
 
 RUN corepack enable
 WORKDIR /app

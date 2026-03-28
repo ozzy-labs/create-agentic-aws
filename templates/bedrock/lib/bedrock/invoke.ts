@@ -1,7 +1,8 @@
 import { ConverseCommand, type Message } from "@aws-sdk/client-bedrock-runtime";
 import { bedrockClient } from "./client";
 
-const DEFAULT_MODEL_ID = "anthropic.claude-sonnet-4-20250514";
+const DEFAULT_MODEL_ID =
+  process.env.BEDROCK_MODEL_ID ?? "anthropic.claude-sonnet-4-20250514";
 
 export interface InvokeOptions {
   modelId?: string;

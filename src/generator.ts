@@ -260,6 +260,10 @@ function distributeMcpServers(
 
     files.set(configPath, `${JSON.stringify(merged, null, 2)}\n`);
   }
+
+  // Generate .mcp.json.example with all collected MCP servers
+  const example = { mcpServers: allServers };
+  files.set(".mcp.json.example", `${JSON.stringify(example, null, 2)}\n`);
 }
 
 // ---------------------------------------------------------------------------

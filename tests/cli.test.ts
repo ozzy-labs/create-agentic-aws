@@ -55,12 +55,36 @@ describe("notifyVpcAutoResolution", () => {
     expect(() => notifyVpcAutoResolution([], [])).not.toThrow();
   });
 
-  it("does not throw when VPC trigger is present", () => {
+  it("does not throw when VPC trigger is present in compute", () => {
     expect(() => notifyVpcAutoResolution(["ecs"], [])).not.toThrow();
   });
 
   it("detects VPC trigger from data presets", () => {
     expect(() => notifyVpcAutoResolution([], ["aurora"])).not.toThrow();
+  });
+
+  it("does not trigger for non-VPC services (lambda only)", () => {
+    expect(() => notifyVpcAutoResolution(["lambda"], [])).not.toThrow();
+  });
+
+  it("does not trigger for non-VPC data services (s3, dynamodb)", () => {
+    expect(() => notifyVpcAutoResolution([], ["s3", "dynamodb"])).not.toThrow();
+  });
+
+  it("triggers for eks in compute", () => {
+    expect(() => notifyVpcAutoResolution(["eks"], [])).not.toThrow();
+  });
+
+  it("triggers for ec2 in compute", () => {
+    expect(() => notifyVpcAutoResolution(["ec2"], [])).not.toThrow();
+  });
+
+  it("triggers for rds in data", () => {
+    expect(() => notifyVpcAutoResolution([], ["rds"])).not.toThrow();
+  });
+
+  it("handles mixed compute and data with VPC triggers", () => {
+    expect(() => notifyVpcAutoResolution(["ecs", "lambda"], ["aurora", "s3"])).not.toThrow();
   });
 });
 

@@ -7,6 +7,7 @@ import {
   mergeMarkdown,
   mergeText,
   mergeToml,
+  mergeTypeScript,
   mergeYaml,
 } from "../src/merge.js";
 
@@ -222,6 +223,67 @@ describe("mergeHcl", () => {
 });
 
 // ---------------------------------------------------------------------------
+// TypeScript merge
+// ---------------------------------------------------------------------------
+
+describe("mergeTypeScript", () => {
+  const base = [
+    'import { Construct } from "constructs";',
+    "// [merge: imports]",
+    "",
+    "export class AppStack {",
+    "  constructor(scope: Construct) {",
+    "    // [merge: constructs]",
+    "  }",
+    "}",
+  ].join("\n");
+
+  it("injects code after marker comment", () => {
+    const result = mergeTypeScript(base, {
+      imports: 'import { Bucket } from "aws-cdk-lib/aws-s3";',
+    });
+    expect(result).toContain('import { Bucket } from "aws-cdk-lib/aws-s3";');
+    const lines = result.split("\n");
+    const markerIdx = lines.findIndex((l) => l.includes("// [merge: imports]"));
+    expect(lines[markerIdx + 1]).toContain("Bucket");
+  });
+
+  it("injects into multiple markers", () => {
+    const result = mergeTypeScript(base, {
+      imports: 'import { Queue } from "aws-cdk-lib/aws-sqs";',
+      constructs: "new Queue(this, 'Queue');",
+    });
+    expect(result).toContain("Queue");
+    expect(result).toContain("new Queue");
+  });
+
+  it("accumulates multiple patches for same marker", () => {
+    const result = mergeTypeScript(
+      base,
+      { imports: "import A from 'a';" },
+      { imports: "import B from 'b';" },
+    );
+    expect(result).toContain("import A from 'a';");
+    expect(result).toContain("import B from 'b';");
+  });
+
+  it("returns base when no patches", () => {
+    expect(mergeTypeScript(base)).toBe(base);
+  });
+
+  it("skips injection when marker not found", () => {
+    const result = mergeTypeScript(base, { nonexistent: "some code" });
+    expect(result).toBe(base);
+  });
+
+  it("handles marker at end of file without trailing newline", () => {
+    const noTrailingNewline = "// [merge: tail]";
+    const result = mergeTypeScript(noTrailingNewline, { tail: "injected code" });
+    expect(result).toContain("injected code");
+  });
+});
+
+// ---------------------------------------------------------------------------
 // File dispatcher
 // ---------------------------------------------------------------------------
 
@@ -267,6 +329,18 @@ describe("mergeFile", () => {
     const result = mergeFile(".gitignore", base, ["line2"]);
     expect(result).toContain("line1");
     expect(result).toContain("line2");
+  });
+
+  it("dispatches .ts to mergeTypeScript", () => {
+    const base = "// [merge: imports]\nexport {};\n";
+    const result = mergeFile("infra/lib/app-stack.ts", base, [{ imports: "import A from 'a';" }]);
+    expect(result).toContain("import A from 'a';");
+  });
+
+  it("dispatches .jsonc to mergeJson", () => {
+    const base = '{"a": 1}';
+    const result = mergeFile("settings.jsonc", base, [{ b: 2 }]);
+    expect(JSON.parse(result)).toEqual({ a: 1, b: 2 });
   });
 
   it("returns base when no contributions", () => {

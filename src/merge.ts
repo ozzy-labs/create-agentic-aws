@@ -111,6 +111,9 @@ export function mergeMarkdown(template: string, sections: readonly MarkdownSecti
     result = injectMarkdownSection(result, section);
   }
 
+  // Normalize consecutive blank lines (3+ → 2)
+  result = result.replace(/\n{3,}/g, "\n\n");
+
   return result;
 }
 

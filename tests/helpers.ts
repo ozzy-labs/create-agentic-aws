@@ -73,6 +73,15 @@ export function expectFilesAbsent(result: GenerateResult, paths: string[]): void
   }
 }
 
+/** Assert no markdown files have 3+ consecutive blank lines. */
+export function expectNoExcessiveBlankLines(result: GenerateResult): void {
+  for (const [path, content] of result.files) {
+    if (path.endsWith(".md")) {
+      expect(/\n{3,}/.test(content), `Excessive blank lines (3+) found in ${path}`).toBe(false);
+    }
+  }
+}
+
 /** Runtime packages that must NOT be in devDependencies. */
 const RUNTIME_PACKAGES = ["@aws-lambda-powertools/", "@aws-sdk/", "@middy/"];
 

@@ -247,8 +247,8 @@ export function generate(
       files.set(
         "README.md",
         readme.replace(
-          "Serverless search and analytics collection",
-          "Managed search and analytics cluster (VPC)",
+          "**Amazon OpenSearch Serverless**: Serverless search and analytics collection",
+          "**Amazon OpenSearch Service**: Managed search and analytics cluster (VPC)",
         ),
       );
     }

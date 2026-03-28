@@ -76,6 +76,9 @@ export function resolvePresets(
       break;
     }
   }
+  if (answers.lambdaOptions?.vpcPlacement) {
+    selected.add("vpc");
+  }
 
   // Resolve transitive dependencies (requires)
   const resolved = new Set<PresetName>(selected);

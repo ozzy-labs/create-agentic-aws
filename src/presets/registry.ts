@@ -4,6 +4,7 @@ import { createBasePreset } from "./base.js";
 import { createCdkPreset } from "./cdk.js";
 import { createClaudeCodePreset } from "./claude-code.js";
 import { createCopilotPreset } from "./copilot.js";
+import { createLambdaPreset } from "./lambda.js";
 import { createPythonPreset } from "./python.js";
 import { createTypescriptPreset } from "./typescript.js";
 
@@ -17,6 +18,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createClaudeCodePreset(),
     createCopilotPreset(),
     createCdkPreset(),
+    createLambdaPreset(),
     // Service presets will be added in M3-M6
   ];
 

@@ -24,8 +24,12 @@ describe("createRegistry", () => {
     expect(registry.has("cdk")).toBe(true);
   });
 
+  it("includes service presets", () => {
+    expect(registry.has("lambda")).toBe(true);
+  });
+
   it("has correct preset count for M3", () => {
-    // base + 2 languages + 3 agents + 1 IaC = 7
-    expect(registry.size).toBe(7);
+    // base + 2 languages + 3 agents + 1 IaC + 1 service = 8
+    expect(registry.size).toBe(8);
   });
 });

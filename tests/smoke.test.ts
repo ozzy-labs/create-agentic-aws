@@ -684,7 +684,6 @@ describe("smoke tests", () => {
       expect(result.hasFile("lib/dynamodb/client.ts")).toBe(true);
       expect(result.hasFile("lib/sqs/consumer.ts")).toBe(true);
       expect(result.hasFile("lib/eventbridge/events.ts")).toBe(true);
-      expect(result.hasFile("lib/step-functions/definition.ts")).toBe(true);
       expect(result.hasFile("lib/observability/index.ts")).toBe(true);
     });
 

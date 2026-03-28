@@ -24,6 +24,8 @@ export const ja: Record<MessageKey, string> = {
 
   data: "データ & ストレージ",
   dataHint: "複数選択可",
+  dataPipeline: "データパイプライン & 分析",
+  dataPipelineHint: "複数選択可",
   integration: "アプリケーション統合",
   integrationHint: "複数選択可",
   networking: "ネットワーク & API",
@@ -61,6 +63,9 @@ export const ja: Record<MessageKey, string> = {
   "data.dynamodb": "DynamoDB",
   "data.aurora": "Aurora",
   "data.rds": "RDS",
+
+  // Wizard choices — Data Pipeline
+  "dataPipeline.kinesis": "Kinesis Data Streams",
 
   // Wizard choices — Integration
   "integration.sqs": "SQS",

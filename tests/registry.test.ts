@@ -46,8 +46,8 @@ describe("createRegistry", () => {
   });
 
   it("has correct preset count", () => {
-    // base + 2 languages + 3 agents + 2 IaC + 20 services + 1 infra = 29
-    expect(registry.size).toBe(29);
+    // base + 2 languages + 3 agents + 2 IaC + 21 services + 1 infra = 30
+    expect(registry.size).toBe(30);
   });
 
   it("passes validation (no circular deps, no missing refs)", () => {

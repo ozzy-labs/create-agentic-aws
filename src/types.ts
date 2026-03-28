@@ -24,6 +24,8 @@ export type AiPresetName = "bedrock" | "bedrock-kb" | "bedrock-agents" | "opense
 
 export type DataPresetName = "s3" | "dynamodb" | "aurora" | "rds";
 
+export type DataPipelinePresetName = "kinesis";
+
 export type IntegrationPresetName = "sqs" | "sns" | "eventbridge" | "step-functions";
 
 export type NetworkingPresetName = "api-gateway" | "cloudfront";
@@ -43,6 +45,7 @@ export type PresetName =
   | ComputePresetName
   | AiPresetName
   | DataPresetName
+  | DataPipelinePresetName
   | IntegrationPresetName
   | NetworkingPresetName
   | SecurityPresetName
@@ -116,6 +119,7 @@ export interface WizardAnswers {
   readonly compute: readonly ComputePresetName[];
   readonly ai: readonly AiPresetName[];
   readonly data: readonly DataPresetName[];
+  readonly dataPipeline: readonly DataPipelinePresetName[];
   readonly integration: readonly IntegrationPresetName[];
   readonly networking: readonly NetworkingPresetName[];
   readonly security: readonly SecurityPresetName[];

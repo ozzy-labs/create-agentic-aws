@@ -139,6 +139,28 @@ function substituteVars(content: string, vars: Record<string, string>): string {
   return content.replace(/\{\{(\w+)\}\}/g, (match, key: string) => vars[key] ?? match);
 }
 
+function requireFile(files: Map<string, string>, path: string, context: string): string {
+  const content = files.get(path);
+  if (content === undefined) {
+    throw new Error(`[${context}] Required file not found: "${path}"`);
+  }
+  return content;
+}
+
+function safeReplace(
+  content: string,
+  search: string | RegExp,
+  replacement: string,
+  context: string,
+): string {
+  const result = content.replace(search, replacement);
+  if (result === content) {
+    const pattern = search instanceof RegExp ? search.source : search;
+    throw new Error(`[${context}] Replacement pattern not found: "${pattern.slice(0, 80)}"`);
+  }
+  return result;
+}
+
 function defaultEmptyContent(path: string): string {
   if (path.endsWith(".json") || path.endsWith(".jsonc")) return "{}";
   if (path.endsWith(".yaml") || path.endsWith(".yml")) return "";
@@ -223,57 +245,62 @@ export function generate(
 
   // --- Step 5.5: RDS engine label in README ---
   if (answers.rdsOptions?.engine === "mysql") {
-    const readme = files.get("README.md");
-    if (readme) {
-      files.set(
-        "README.md",
-        readme.replace("PostgreSQL relational database", "MySQL relational database"),
-      );
-    }
+    const readme = requireFile(files, "README.md", "readmeRdsLabel");
+    files.set(
+      "README.md",
+      safeReplace(
+        readme,
+        "PostgreSQL relational database",
+        "MySQL relational database",
+        "readmeRdsLabel",
+      ),
+    );
   }
 
   // --- Step 5.6: Lambda Python label in README ---
   if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {
-    const readme = files.get("README.md");
-    if (readme) {
-      files.set(
-        "README.md",
-        readme
-          .replace("Serverless compute (Node.js 24)", "Serverless compute (Python 3.12)")
-          .replace(
-            "Structured logging, metrics, tracing",
-            "Structured logging, metrics, tracing (Python)",
-          ),
-      );
-    }
+    let readme = requireFile(files, "README.md", "readmeLambdaPythonLabel");
+    readme = safeReplace(
+      readme,
+      "Serverless compute (Node.js 24)",
+      "Serverless compute (Python 3.12)",
+      "readmeLambdaPythonLabel",
+    );
+    readme = safeReplace(
+      readme,
+      "Structured logging, metrics, tracing",
+      "Structured logging, metrics, tracing (Python)",
+      "readmeLambdaPythonLabel",
+    );
+    files.set("README.md", readme);
   }
 
   // --- Step 5.7: OpenSearch managed-cluster label in README ---
   if (answers.openSearchOptions?.mode === "managed-cluster") {
-    const readme = files.get("README.md");
-    if (readme) {
-      files.set(
-        "README.md",
-        readme.replace(
-          "**Amazon OpenSearch Serverless**: Serverless search and analytics collection",
-          "**Amazon OpenSearch Service**: Managed search and analytics cluster (VPC)",
-        ),
-      );
-    }
+    const readme = requireFile(files, "README.md", "readmeOpenSearchLabel");
+    files.set(
+      "README.md",
+      safeReplace(
+        readme,
+        "**Amazon OpenSearch Serverless**: Serverless search and analytics collection",
+        "**Amazon OpenSearch Service**: Managed search and analytics cluster (VPC)",
+        "readmeOpenSearchLabel",
+      ),
+    );
   }
 
   // --- Step 5.8: Redshift provisioned label in README ---
   if (answers.redshiftOptions?.mode === "provisioned") {
-    const readme = files.get("README.md");
-    if (readme) {
-      files.set(
-        "README.md",
-        readme.replace(
-          "Serverless data warehouse (namespace + workgroup)",
-          "Provisioned data warehouse cluster",
-        ),
-      );
-    }
+    const readme = requireFile(files, "README.md", "readmeRedshiftLabel");
+    files.set(
+      "README.md",
+      safeReplace(
+        readme,
+        "Serverless data warehouse (namespace + workgroup)",
+        "Provisioned data warehouse cluster",
+        "readmeRedshiftLabel",
+      ),
+    );
   }
 
   // --- Step 6: Strip merge markers from generated .ts files ---
@@ -326,21 +353,21 @@ function collectIacContributions(
 // ---------------------------------------------------------------------------
 
 function applyLambdaVpcPlacement(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyLambdaVpcPlacement";
   if (iac === "cdk") {
-    const appStack = files.get("infra/lib/app-stack.ts");
-    if (appStack) {
-      files.set(
-        "infra/lib/app-stack.ts",
-        appStack.replace(
-          'new LambdaFunction(this, "LambdaFunction")',
-          'new LambdaFunction(this, "LambdaFunction", { vpc: vpc.vpc })',
-        ),
-      );
-    }
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    files.set(
+      "infra/lib/app-stack.ts",
+      safeReplace(
+        appStack,
+        'new LambdaFunction(this, "LambdaFunction")',
+        'new LambdaFunction(this, "LambdaFunction", { vpc: vpc.vpc })',
+        ctx,
+      ),
+    );
   } else {
-    const lambdaTf = files.get("infra/lambda.tf");
-    if (lambdaTf) {
-      const vpcConfig = `
+    const lambdaTf = requireFile(files, "infra/lambda.tf", ctx);
+    const vpcConfig = `
 resource "aws_security_group" "lambda" {
   name_prefix = "\${var.project_name}-lambda-"
   vpc_id      = aws_vpc.this.id
@@ -353,27 +380,30 @@ resource "aws_security_group" "lambda" {
   }
 }
 `;
-      // Insert vpc_config block and VPC execution role policy
-      let patched = lambdaTf.replace(
-        "  environment {",
-        `  vpc_config {
+    // Insert vpc_config block and VPC execution role policy
+    let patched = safeReplace(
+      lambdaTf,
+      "  environment {",
+      `  vpc_config {
     subnet_ids         = aws_subnet.private[*].id
     security_group_ids = [aws_security_group.lambda.id]
   }
 
   environment {`,
-      );
-      patched = patched.replace(
-        'resource "aws_iam_role_policy_attachment" "lambda_basic" {',
-        `resource "aws_iam_role_policy_attachment" "lambda_vpc" {
+      ctx,
+    );
+    patched = safeReplace(
+      patched,
+      'resource "aws_iam_role_policy_attachment" "lambda_basic" {',
+      `resource "aws_iam_role_policy_attachment" "lambda_vpc" {
   role       = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic" {`,
-      );
-      files.set("infra/lambda.tf", patched + vpcConfig);
-    }
+      ctx,
+    );
+    files.set("infra/lambda.tf", patched + vpcConfig);
   }
 }
 
@@ -382,29 +412,25 @@ resource "aws_iam_role_policy_attachment" "lambda_basic" {`,
 // ---------------------------------------------------------------------------
 
 function applyRdsEngineOption(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyRdsEngineOption";
   if (iac === "cdk") {
-    const construct = files.get("infra/lib/constructs/rds.ts");
-    if (construct) {
-      files.set(
-        "infra/lib/constructs/rds.ts",
-        construct.replace(
-          "engine: rds.DatabaseInstanceEngine.postgres({\n        version: rds.PostgresEngineVersion.VER_16_4,\n      })",
-          "engine: rds.DatabaseInstanceEngine.mysql({\n        version: rds.MysqlEngineVersion.VER_8_0_40,\n      })",
-        ),
-      );
-    }
+    const construct = requireFile(files, "infra/lib/constructs/rds.ts", ctx);
+    files.set(
+      "infra/lib/constructs/rds.ts",
+      safeReplace(
+        construct,
+        "engine: rds.DatabaseInstanceEngine.postgres({\n        version: rds.PostgresEngineVersion.VER_16_4,\n      })",
+        "engine: rds.DatabaseInstanceEngine.mysql({\n        version: rds.MysqlEngineVersion.VER_8_0_40,\n      })",
+        ctx,
+      ),
+    );
   } else {
-    const tf = files.get("infra/rds.tf");
-    if (tf) {
-      files.set(
-        "infra/rds.tf",
-        tf
-          .replace('engine         = "postgres"', 'engine         = "mysql"')
-          .replace('engine_version = "16.4"', 'engine_version = "8.0.40"')
-          .replace("from_port   = 5432", "from_port   = 3306")
-          .replace("to_port     = 5432", "to_port     = 3306"),
-      );
-    }
+    let tf = requireFile(files, "infra/rds.tf", ctx);
+    tf = safeReplace(tf, 'engine         = "postgres"', 'engine         = "mysql"', ctx);
+    tf = safeReplace(tf, 'engine_version = "16.4"', 'engine_version = "8.0.40"', ctx);
+    tf = safeReplace(tf, "from_port   = 5432", "from_port   = 3306", ctx);
+    tf = safeReplace(tf, "to_port     = 5432", "to_port     = 3306", ctx);
+    files.set("infra/rds.tf", tf);
   }
 }
 
@@ -413,36 +439,36 @@ function applyRdsEngineOption(iac: IacPresetName, files: Map<string, string>): v
 // ---------------------------------------------------------------------------
 
 function applyOpenSearchManagedMode(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyOpenSearchManagedMode";
   if (iac === "cdk") {
     files.set("infra/lib/constructs/opensearch.ts", OPENSEARCH_MANAGED_CONSTRUCT);
-    const appStack = files.get("infra/lib/app-stack.ts");
-    if (appStack) {
-      files.set(
-        "infra/lib/app-stack.ts",
-        appStack
-          .replace(
-            'import { OpenSearchCollection } from "./constructs/opensearch";',
-            'import { OpenSearchDomain } from "./constructs/opensearch";',
-          )
-          .replace(
-            '    new OpenSearchCollection(this, "OpenSearchCollection");',
-            '    new OpenSearchDomain(this, "OpenSearchDomain", { vpc: vpc.vpc });',
-          ),
-      );
-    }
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    let patched = safeReplace(
+      appStack,
+      'import { OpenSearchCollection } from "./constructs/opensearch";',
+      'import { OpenSearchDomain } from "./constructs/opensearch";',
+      ctx,
+    );
+    patched = safeReplace(
+      patched,
+      '    new OpenSearchCollection(this, "OpenSearchCollection");',
+      '    new OpenSearchDomain(this, "OpenSearchDomain", { vpc: vpc.vpc });',
+      ctx,
+    );
+    files.set("infra/lib/app-stack.ts", patched);
   } else {
     files.set("infra/opensearch.tf", OPENSEARCH_MANAGED_TF);
     // Replace serverless outputs with managed outputs
-    const outputs = files.get("infra/outputs.tf");
-    if (outputs) {
-      files.set(
-        "infra/outputs.tf",
-        outputs.replace(
-          /output "opensearch_collection_endpoint"[\s\S]*?}\n\noutput "opensearch_collection_arn"[\s\S]*?}\n/,
-          OPENSEARCH_MANAGED_TF_OUTPUTS,
-        ),
-      );
-    }
+    const outputs = requireFile(files, "infra/outputs.tf", ctx);
+    files.set(
+      "infra/outputs.tf",
+      safeReplace(
+        outputs,
+        /output "opensearch_collection_endpoint"[\s\S]*?}\n\noutput "opensearch_collection_arn"[\s\S]*?}\n/,
+        OPENSEARCH_MANAGED_TF_OUTPUTS,
+        ctx,
+      ),
+    );
   }
 }
 
@@ -451,65 +477,73 @@ function applyOpenSearchManagedMode(iac: IacPresetName, files: Map<string, strin
 // ---------------------------------------------------------------------------
 
 function applyBedrockKbOpenSearchWiring(answers: WizardAnswers, files: Map<string, string>): void {
+  const ctx = "applyBedrockKbOpenSearchWiring";
   const isServerless = answers.openSearchOptions?.mode !== "managed-cluster";
 
   if (answers.iac === "cdk") {
-    const appStack = files.get("infra/lib/app-stack.ts");
-    if (appStack) {
-      const arnRef = isServerless
-        ? "opensearchCollection.collection.attrArn"
-        : "opensearchDomain.domain.domainArn";
-      const varName = isServerless ? "opensearchCollection" : "opensearchDomain";
-      const constructClass = isServerless ? "OpenSearchCollection" : "OpenSearchDomain";
-      let patched = appStack
-        .replace(
-          `    new ${constructClass}(this,`,
-          `    const ${varName} = new ${constructClass}(this,`,
-        )
-        .replace(
-          '{ collectionArn: "TODO: Set your OpenSearch Serverless collection ARN" }',
-          `{ collectionArn: ${arnRef} }`,
-        );
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    const arnRef = isServerless
+      ? "opensearchCollection.collection.attrArn"
+      : "opensearchDomain.domain.domainArn";
+    const varName = isServerless ? "opensearchCollection" : "opensearchDomain";
+    const constructClass = isServerless ? "OpenSearchCollection" : "OpenSearchDomain";
+    let patched = safeReplace(
+      appStack,
+      `    new ${constructClass}(this,`,
+      `    const ${varName} = new ${constructClass}(this,`,
+      ctx,
+    );
+    patched = safeReplace(
+      patched,
+      '{ collectionArn: "TODO: Set your OpenSearch Serverless collection ARN" }',
+      `{ collectionArn: ${arnRef} }`,
+      ctx,
+    );
 
-      // Move the OpenSearch construct line before BedrockKnowledgeBase so the
-      // variable is declared before it is referenced.
-      const lines = patched.split("\n");
-      const osIdx = lines.findIndex((l) => l.includes(`const ${varName} = new ${constructClass}(`));
-      const kbIdx = lines.findIndex((l) => l.includes("new BedrockKnowledgeBase("));
-      if (osIdx !== -1 && kbIdx !== -1 && osIdx > kbIdx) {
-        const [osLine] = lines.splice(osIdx, 1);
-        lines.splice(kbIdx, 0, osLine);
-        patched = lines.join("\n");
-      }
-
-      files.set("infra/lib/app-stack.ts", patched);
+    // Move the OpenSearch construct line before BedrockKnowledgeBase so the
+    // variable is declared before it is referenced.
+    const lines = patched.split("\n");
+    const osIdx = lines.findIndex((l) => l.includes(`const ${varName} = new ${constructClass}(`));
+    const kbIdx = lines.findIndex((l) => l.includes("new BedrockKnowledgeBase("));
+    if (osIdx !== -1 && kbIdx !== -1 && osIdx > kbIdx) {
+      const [osLine] = lines.splice(osIdx, 1);
+      lines.splice(kbIdx, 0, osLine);
+      patched = lines.join("\n");
     }
+
+    files.set("infra/lib/app-stack.ts", patched);
   } else {
-    const kbTf = files.get("infra/bedrock-kb.tf");
-    if (kbTf) {
-      if (isServerless) {
-        files.set(
-          "infra/bedrock-kb.tf",
-          kbTf.replace(
-            'collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"',
-            "collection_arn    = aws_opensearchserverless_collection.this.arn",
-          ),
-        );
-      } else {
-        files.set(
-          "infra/bedrock-kb.tf",
-          kbTf
-            .replace('type = "OPENSEARCH_SERVERLESS"', 'type = "OPENSEARCH_MANAGED_CLUSTER"')
-            .replace(
-              "opensearch_serverless_configuration",
-              "opensearch_managed_cluster_configuration",
-            )
-            .replace(
-              'collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"',
-              "domain_arn        = aws_opensearch_domain.this.arn",
-            ),
-        );
-      }
+    const kbTf = requireFile(files, "infra/bedrock-kb.tf", ctx);
+    if (isServerless) {
+      files.set(
+        "infra/bedrock-kb.tf",
+        safeReplace(
+          kbTf,
+          'collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"',
+          "collection_arn    = aws_opensearchserverless_collection.this.arn",
+          ctx,
+        ),
+      );
+    } else {
+      let patched = safeReplace(
+        kbTf,
+        'type = "OPENSEARCH_SERVERLESS"',
+        'type = "OPENSEARCH_MANAGED_CLUSTER"',
+        ctx,
+      );
+      patched = safeReplace(
+        patched,
+        "opensearch_serverless_configuration",
+        "opensearch_managed_cluster_configuration",
+        ctx,
+      );
+      patched = safeReplace(
+        patched,
+        'collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"',
+        "domain_arn        = aws_opensearch_domain.this.arn",
+        ctx,
+      );
+      files.set("infra/bedrock-kb.tf", patched);
     }
   }
 }
@@ -519,35 +553,35 @@ function applyBedrockKbOpenSearchWiring(answers: WizardAnswers, files: Map<strin
 // ---------------------------------------------------------------------------
 
 function applyRedshiftProvisionedMode(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyRedshiftProvisionedMode";
   if (iac === "cdk") {
     files.set("infra/lib/constructs/redshift.ts", REDSHIFT_PROVISIONED_CONSTRUCT);
-    const appStack = files.get("infra/lib/app-stack.ts");
-    if (appStack) {
-      files.set(
-        "infra/lib/app-stack.ts",
-        appStack
-          .replace(
-            'import { RedshiftServerless } from "./constructs/redshift";',
-            'import { RedshiftCluster } from "./constructs/redshift";',
-          )
-          .replace(
-            '    new RedshiftServerless(this, "RedshiftServerless", { vpc: vpc.vpc });',
-            '    new RedshiftCluster(this, "RedshiftCluster", { vpc: vpc.vpc });',
-          ),
-      );
-    }
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    let patched = safeReplace(
+      appStack,
+      'import { RedshiftServerless } from "./constructs/redshift";',
+      'import { RedshiftCluster } from "./constructs/redshift";',
+      ctx,
+    );
+    patched = safeReplace(
+      patched,
+      '    new RedshiftServerless(this, "RedshiftServerless", { vpc: vpc.vpc });',
+      '    new RedshiftCluster(this, "RedshiftCluster", { vpc: vpc.vpc });',
+      ctx,
+    );
+    files.set("infra/lib/app-stack.ts", patched);
   } else {
     files.set("infra/redshift.tf", REDSHIFT_PROVISIONED_TF);
-    const outputs = files.get("infra/outputs.tf");
-    if (outputs) {
-      files.set(
-        "infra/outputs.tf",
-        outputs.replace(
-          /output "redshift_workgroup_endpoint"[\s\S]*?}\n\noutput "redshift_namespace_name"[\s\S]*?}\n/,
-          REDSHIFT_PROVISIONED_TF_OUTPUTS,
-        ),
-      );
-    }
+    const outputs = requireFile(files, "infra/outputs.tf", ctx);
+    files.set(
+      "infra/outputs.tf",
+      safeReplace(
+        outputs,
+        /output "redshift_workgroup_endpoint"[\s\S]*?}\n\noutput "redshift_namespace_name"[\s\S]*?}\n/,
+        REDSHIFT_PROVISIONED_TF_OUTPUTS,
+        ctx,
+      ),
+    );
   }
 }
 
@@ -556,16 +590,18 @@ function applyRedshiftProvisionedMode(iac: IacPresetName, files: Map<string, str
 // ---------------------------------------------------------------------------
 
 function applyDynamoDbLambdaIntegration(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyDynamoDbLambdaIntegration";
   if (iac === "cdk") return; // CDK uses grantLambdaAccess() in app-stack.ts
 
-  const lambdaTf = files.get("infra/lambda.tf");
-  if (!lambdaTf) return;
+  const lambdaTf = requireFile(files, "infra/lambda.tf", ctx);
 
   // Add TABLE_NAME environment variable
-  const patched = lambdaTf.replace(
+  const patched = safeReplace(
+    lambdaTf,
     '      NODE_OPTIONS = "--enable-source-maps"',
     `      NODE_OPTIONS = "--enable-source-maps"
       TABLE_NAME   = aws_dynamodb_table.this.name`,
+    ctx,
   );
 
   // Append IAM policy for DynamoDB access
@@ -622,29 +658,40 @@ function applyLambdaPythonRuntime(files: Map<string, string>, vars: Record<strin
   }
 
   // Update Terraform lambda.tf: swap runtime, handler, and remove esbuild build step
+  // Optional: only present when IaC is Terraform
   const tf = files.get("infra/lambda.tf");
   if (tf) {
-    let patched = tf
-      .replace(
-        '  handler          = "index.handler"\n  runtime          = "nodejs24.x"',
-        LAMBDA_PYTHON_TF_RUNTIME,
-      )
-      .replace(
-        `  environment {\n    variables = {\n      NODE_OPTIONS = "--enable-source-maps"\n    }\n  }`,
-        LAMBDA_PYTHON_TF_ENV,
-      );
+    const ctx = "applyLambdaPythonRuntime";
+    let patched = safeReplace(
+      tf,
+      '  handler          = "index.handler"\n  runtime          = "nodejs24.x"',
+      LAMBDA_PYTHON_TF_RUNTIME,
+      ctx,
+    );
+    patched = safeReplace(
+      patched,
+      `  environment {\n    variables = {\n      NODE_OPTIONS = "--enable-source-maps"\n    }\n  }`,
+      LAMBDA_PYTHON_TF_ENV,
+      ctx,
+    );
 
     // Replace esbuild build step + single-file archive with directory archive
-    patched = patched
-      .replace(/resource "null_resource" "lambda_build" \{[\s\S]*?\n\}\n\n/, "")
-      .replace(
-        /data "archive_file" "lambda" \{[\s\S]*?\n\}/,
-        `data "archive_file" "lambda" {
+    patched = safeReplace(
+      patched,
+      /resource "null_resource" "lambda_build" \{[\s\S]*?\n\}\n\n/,
+      "",
+      ctx,
+    );
+    patched = safeReplace(
+      patched,
+      /data "archive_file" "lambda" \{[\s\S]*?\n\}/,
+      `data "archive_file" "lambda" {
   type        = "zip"
   source_dir  = "\${path.module}/../lambda/handlers"
   output_path = "\${path.module}/.build/lambda.zip"
 }`,
-      );
+      ctx,
+    );
 
     files.set("infra/lambda.tf", patched);
   }

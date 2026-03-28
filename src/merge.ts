@@ -31,7 +31,12 @@ const deepMergeUnion = deepmergeCustom({
 
 export function mergeJson(base: string, ...patches: Record<string, unknown>[]): string {
   if (patches.length === 0) return base;
-  const baseObj = JSON.parse(base) as Record<string, unknown>;
+  let baseObj: Record<string, unknown>;
+  try {
+    baseObj = JSON.parse(base) as Record<string, unknown>;
+  } catch (err) {
+    throw new Error(`mergeJson: failed to parse base JSON: ${(err as Error).message}`);
+  }
   const merged = deepMergeUnion(baseObj, ...patches) as Record<string, unknown>;
   return `${JSON.stringify(merged, null, 2)}\n`;
 }
@@ -42,21 +47,29 @@ export function mergeJson(base: string, ...patches: Record<string, unknown>[]): 
 
 export function mergeYaml(base: string, ...patches: Record<string, unknown>[]): string {
   if (patches.length === 0) return base;
-  const baseObj = (parseYaml(base) as Record<string, unknown>) ?? {};
+  let baseObj: Record<string, unknown>;
+  try {
+    baseObj = (parseYaml(base) as Record<string, unknown>) ?? {};
+  } catch (err) {
+    throw new Error(`mergeYaml: failed to parse base YAML: ${(err as Error).message}`);
+  }
   const merged = deepMergeUnion(baseObj, ...patches) as Record<string, unknown>;
   return stringifyYaml(merged, { lineWidth: 0 });
 }
 
 // ---------------------------------------------------------------------------
-// TOML merge (no special array handling — TOML arrays are less common)
+// TOML merge (unique union arrays, consistent with JSON/YAML)
 // ---------------------------------------------------------------------------
-
-const deepMergeDefault = deepmergeCustom({});
 
 export function mergeToml(base: string, ...patches: Record<string, unknown>[]): string {
   if (patches.length === 0) return base;
-  const baseObj = (base.trim() ? parseToml(base) : {}) as Record<string, unknown>;
-  const merged = deepMergeDefault(baseObj, ...patches) as Record<string, unknown>;
+  let baseObj: Record<string, unknown>;
+  try {
+    baseObj = (base.trim() ? parseToml(base) : {}) as Record<string, unknown>;
+  } catch (err) {
+    throw new Error(`mergeToml: failed to parse base TOML: ${(err as Error).message}`);
+  }
+  const merged = deepMergeUnion(baseObj, ...patches) as Record<string, unknown>;
   return stringifyToml(merged);
 }
 

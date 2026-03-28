@@ -204,6 +204,9 @@ export function generate(
     applyDynamoDbLambdaIntegration(answers.iac, files);
   }
 
+  // --- Step 2.12: Ensure tsconfig.json base when presets contribute to it ---
+  ensureTsconfigBase(presets, files);
+
   // --- Step 3: Shared file deep merge ---
   mergeSharedFiles(presets, files, vars);
 
@@ -687,6 +690,24 @@ function applyLambdaPythonDeps(files: Map<string, string>): void {
         'requires-python = ">=3.12"\ndependencies = ["aws-lambda-powertools>=3"]',
       ),
     );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 2.12: Ensure tsconfig.json base template exists
+// ---------------------------------------------------------------------------
+
+function ensureTsconfigBase(presets: readonly Preset[], files: Map<string, string>): void {
+  if (files.has("tsconfig.json")) return;
+
+  const hasTsconfigMerge = presets.some((p) => "tsconfig.json" in p.merge);
+  if (!hasTsconfigMerge) return;
+
+  // Insert base tsconfig from typescript template so merge contributions
+  // have proper compilerOptions, exclude, etc.
+  const tsconfigTemplate = readTemplates("typescript")["tsconfig.json"];
+  if (tsconfigTemplate) {
+    files.set("tsconfig.json", tsconfigTemplate);
   }
 }
 

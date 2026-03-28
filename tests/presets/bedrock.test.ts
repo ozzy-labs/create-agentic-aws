@@ -3,6 +3,7 @@ import { generate } from "../../src/generator.js";
 import { createBasePreset } from "../../src/presets/base.js";
 import { createBedrockPreset } from "../../src/presets/bedrock.js";
 import { createCdkPreset } from "../../src/presets/cdk.js";
+import { createTerraformPreset } from "../../src/presets/terraform.js";
 import { createTypescriptPreset } from "../../src/presets/typescript.js";
 import type { Preset, PresetName, WizardAnswers } from "../../src/types.js";
 
@@ -86,6 +87,23 @@ describe("bedrock preset", () => {
       const pkg = bedrock.merge["package.json"] as Record<string, unknown>;
       const deps = pkg.dependencies as Record<string, string>;
       expect(deps["@aws-sdk/client-bedrock-runtime"]).toBeDefined();
+    });
+  });
+
+  describe("tsconfig.json auto-resolution (terraform without typescript)", () => {
+    const allPresets = [createBasePreset(), createTerraformPreset(), bedrock];
+    const registry = makeRegistry(...allPresets);
+
+    it("generates tsconfig.json with compilerOptions when TypeScript preset is absent", () => {
+      const result = generate(makeAnswers({ iac: "terraform" }), registry);
+      expect(result.hasFile("tsconfig.json")).toBe(true);
+      const tsconfig = result.readJson<{ compilerOptions: object; include: string[] }>(
+        "tsconfig.json",
+      );
+      expect(tsconfig.compilerOptions).toBeDefined();
+      expect(tsconfig.compilerOptions).toHaveProperty("target");
+      expect(tsconfig.compilerOptions).toHaveProperty("module");
+      expect(tsconfig.include).toContain("lib");
     });
   });
 

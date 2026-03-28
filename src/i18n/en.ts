@@ -65,6 +65,7 @@ export const en = {
   // Wizard choices — Data Pipeline
   "dataPipeline.kinesis": "Kinesis Data Streams",
   "dataPipeline.glue": "Glue",
+  "dataPipeline.redshift": "Redshift",
 
   // Wizard choices — Integration
   "integration.sqs": "SQS",
@@ -125,6 +126,11 @@ export const en = {
   "rds.engine": "RDS engine",
   "rds.engine.mysql": "MySQL",
   "rds.engine.postgresql": "PostgreSQL",
+
+  // Sub-options — Redshift
+  "redshift.mode": "Redshift mode",
+  "redshift.mode.serverless": "Serverless",
+  "redshift.mode.provisioned": "Provisioned",
 
   // Sub-options — OpenSearch
   "opensearch.mode": "OpenSearch mode",

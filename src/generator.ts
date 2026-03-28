@@ -4,6 +4,11 @@ import {
   OPENSEARCH_MANAGED_TF,
   OPENSEARCH_MANAGED_TF_OUTPUTS,
 } from "./presets/opensearch.js";
+import {
+  REDSHIFT_PROVISIONED_CONSTRUCT,
+  REDSHIFT_PROVISIONED_TF,
+  REDSHIFT_PROVISIONED_TF_OUTPUTS,
+} from "./presets/redshift.js";
 import { readTemplates } from "./presets/templates.js";
 import type {
   IacPresetName,
@@ -44,6 +49,7 @@ const PRESET_ORDER: readonly PresetName[] = [
   "rds",
   "kinesis",
   "glue",
+  "redshift",
   "sqs",
   "sns",
   "eventbridge",
@@ -55,7 +61,14 @@ const PRESET_ORDER: readonly PresetName[] = [
 ];
 
 // Presets that auto-resolve VPC
-const VPC_TRIGGERS: ReadonlySet<PresetName> = new Set(["ecs", "eks", "ec2", "aurora", "rds"]);
+const VPC_TRIGGERS: ReadonlySet<PresetName> = new Set([
+  "ecs",
+  "eks",
+  "ec2",
+  "aurora",
+  "rds",
+  "redshift",
+]);
 
 // ---------------------------------------------------------------------------
 // Preset resolution
@@ -170,7 +183,12 @@ export function generate(
     applyOpenSearchManagedMode(answers.iac, files);
   }
 
-  // --- Step 2.8: Lambda Python runtime ---
+  // --- Step 2.8: Redshift provisioned mode ---
+  if (answers.redshiftOptions?.mode === "provisioned") {
+    applyRedshiftProvisionedMode(answers.iac, files);
+  }
+
+  // --- Step 2.9: Lambda Python runtime ---
   const presetNames = new Set(presets.map((p) => p.name));
   if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {
     applyLambdaPythonRuntime(files, vars);
@@ -226,6 +244,20 @@ export function generate(
         readme.replace(
           "Serverless search and analytics collection",
           "Managed search and analytics cluster (VPC)",
+        ),
+      );
+    }
+  }
+
+  // --- Step 5.8: Redshift provisioned label in README ---
+  if (answers.redshiftOptions?.mode === "provisioned") {
+    const readme = files.get("README.md");
+    if (readme) {
+      files.set(
+        "README.md",
+        readme.replace(
+          "Serverless data warehouse (namespace + workgroup)",
+          "Provisioned data warehouse cluster",
         ),
       );
     }
@@ -402,7 +434,44 @@ function applyOpenSearchManagedMode(iac: IacPresetName, files: Map<string, strin
 }
 
 // ---------------------------------------------------------------------------
-// Step 2.8: Lambda Python runtime (TypeScript → Python)
+// Step 2.8: Redshift provisioned mode (Serverless → Provisioned)
+// ---------------------------------------------------------------------------
+
+function applyRedshiftProvisionedMode(iac: IacPresetName, files: Map<string, string>): void {
+  if (iac === "cdk") {
+    files.set("infra/lib/constructs/redshift.ts", REDSHIFT_PROVISIONED_CONSTRUCT);
+    const appStack = files.get("infra/lib/app-stack.ts");
+    if (appStack) {
+      files.set(
+        "infra/lib/app-stack.ts",
+        appStack
+          .replace(
+            'import { RedshiftServerless } from "./constructs/redshift";',
+            'import { RedshiftCluster } from "./constructs/redshift";',
+          )
+          .replace(
+            '    new RedshiftServerless(this, "RedshiftServerless", { vpc: vpc.vpc });',
+            '    new RedshiftCluster(this, "RedshiftCluster", { vpc: vpc.vpc });',
+          ),
+      );
+    }
+  } else {
+    files.set("infra/redshift.tf", REDSHIFT_PROVISIONED_TF);
+    const outputs = files.get("infra/outputs.tf");
+    if (outputs) {
+      files.set(
+        "infra/outputs.tf",
+        outputs.replace(
+          /output "redshift_workgroup_endpoint"[\s\S]*?}\n\noutput "redshift_namespace_name"[\s\S]*?}\n/,
+          REDSHIFT_PROVISIONED_TF_OUTPUTS,
+        ),
+      );
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 2.9: Lambda Python runtime (TypeScript → Python)
 // ---------------------------------------------------------------------------
 
 const LAMBDA_PYTHON_TF_RUNTIME = `  handler          = "handler.handler"

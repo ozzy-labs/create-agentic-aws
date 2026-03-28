@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
+import { parseArgs as nodeParseArgs } from "node:util";
 
 import * as p from "@clack/prompts";
 import pc from "picocolors";
@@ -20,23 +21,30 @@ import { writeFiles } from "./utils.js";
 export interface CliArgs {
   dryRun: boolean;
   lang?: Locale;
+  defaultName?: string;
+  parentDir: string;
 }
 
 export function parseArgs(argv: string[]): CliArgs {
-  const args: CliArgs = { dryRun: false };
+  const { values, positionals } = nodeParseArgs({
+    args: argv.slice(2),
+    options: {
+      lang: { type: "string" },
+      "dry-run": { type: "boolean", default: false },
+    },
+    allowPositionals: true,
+    strict: false,
+  });
 
-  for (const arg of argv.slice(2)) {
-    if (arg === "--dry-run") {
-      args.dryRun = true;
-    } else if (arg.startsWith("--lang=")) {
-      const lang = arg.slice("--lang=".length);
-      if (lang === "en" || lang === "ja") {
-        args.lang = lang;
-      }
-    }
-  }
+  const positionalArg = positionals[0];
+  const lang = values.lang as string | undefined;
 
-  return args;
+  return {
+    dryRun: values["dry-run"] as boolean,
+    lang: lang === "en" || lang === "ja" ? lang : undefined,
+    defaultName: positionalArg ? basename(positionalArg) : undefined,
+    parentDir: positionalArg ? resolve(process.cwd(), dirname(positionalArg)) : process.cwd(),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -54,7 +62,7 @@ async function main(): Promise<void> {
   }
 
   // Run wizard
-  const answers = await runWizard();
+  const answers = await runWizard(args.defaultName);
 
   // Build registry and generate
   const registry = createRegistry();
@@ -66,12 +74,17 @@ async function main(): Promise<void> {
     p.note(tree, "Files to generate (dry-run)");
   } else {
     // Write files
-    const outputDir = resolve(process.cwd(), answers.projectName);
+    const outputDir = resolve(args.parentDir, answers.projectName);
     writeFiles(result, outputDir);
+
+    const relPath =
+      resolve(process.cwd(), outputDir) === resolve(process.cwd(), answers.projectName)
+        ? answers.projectName
+        : outputDir;
 
     p.outro(pc.green(t("outro")));
     p.log.info(t("outroNext"));
-    p.log.info(t("outroNextCd", { projectName: answers.projectName }));
+    p.log.info(t("outroNextCd", { projectName: relPath }));
     p.log.info(t("outroNextSetup"));
   }
 }

@@ -44,7 +44,7 @@ function guard<T>(value: T | symbol): T {
 // Wizard
 // ---------------------------------------------------------------------------
 
-export async function runWizard(): Promise<WizardAnswers> {
+export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
   p.intro(pc.bgCyan(pc.black(` ${t("intro")} `)));
 
   // 1. Project name
@@ -52,6 +52,7 @@ export async function runWizard(): Promise<WizardAnswers> {
     await p.text({
       message: t("projectName"),
       placeholder: t("projectNamePlaceholder"),
+      initialValue: defaultName ?? "",
       validate(value) {
         if (!value.trim()) return "Required";
         if (value.length > 100) return "Must be 100 characters or fewer";

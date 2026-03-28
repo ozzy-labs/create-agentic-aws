@@ -60,7 +60,8 @@ const PACKAGE_JSON = `{
   "devDependencies": {
     "@commitlint/cli": "^20.0.0",
     "@commitlint/config-conventional": "^20.0.0",
-    "lefthook": "^2.1.0"
+    "lefthook": "^2.1.0",
+    "markdownlint-cli2": "^0.21.0"
   }
 }
 `;
@@ -69,9 +70,12 @@ const MISE_TOML = `[tools]
 node = "22"
 pnpm = "10"
 "pipx:yamllint" = "latest"
-"go:github.com/google/yamlfmt/cmd/yamlfmt" = "latest"
-"npm:markdownlint-cli2" = "latest"
-"npm:@commitlint/cli" = "latest"
+yamlfmt = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+taplo = "latest"
+actionlint = "latest"
+gitleaks = "latest"
 awscli = "latest"
 
 [env]

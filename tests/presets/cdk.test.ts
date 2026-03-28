@@ -64,10 +64,9 @@ describe("cdk preset", () => {
       expect(gitignore).toContain("infra/cdk.out/");
     });
 
-    it("adds aws-cdk and cfn-lint to mise tools", () => {
+    it("adds cfn-lint to mise tools", () => {
       const mise = cdk.merge[".mise.toml"] as Record<string, unknown>;
       const tools = mise.tools as Record<string, string>;
-      expect(tools["npm:aws-cdk"]).toBeDefined();
       expect(tools["pipx:cfn-lint"]).toBeDefined();
     });
 

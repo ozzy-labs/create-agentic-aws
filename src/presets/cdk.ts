@@ -17,7 +17,6 @@ export function createCdkPreset(): Preset {
       ".gitignore": "# CDK\ninfra/cdk.out/",
       ".mise.toml": {
         tools: {
-          "npm:aws-cdk": "latest",
           "pipx:cfn-lint": "latest",
         },
       },

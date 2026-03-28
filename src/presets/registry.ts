@@ -7,6 +7,7 @@ import { createClaudeCodePreset } from "./claude-code.js";
 import { createCopilotPreset } from "./copilot.js";
 import { createLambdaPreset } from "./lambda.js";
 import { createPythonPreset } from "./python.js";
+import { createS3Preset } from "./s3.js";
 import { createTypescriptPreset } from "./typescript.js";
 
 /** Build the preset registry with all available presets. */
@@ -21,6 +22,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createCdkPreset(),
     createLambdaPreset(),
     createApiGatewayPreset(),
+    createS3Preset(),
     // Service presets will be added in M3-M6
   ];
 

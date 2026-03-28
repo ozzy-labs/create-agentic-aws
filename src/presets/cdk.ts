@@ -35,11 +35,15 @@ export function createCdkPreset(): Preset {
             steps: [
               {
                 name: "CDK install",
-                run: "cd infra && npm install",
+                run: "cd infra && pnpm install",
               },
               {
                 name: "CDK synth",
                 run: "cd infra && npx cdk synth --quiet",
+              },
+              {
+                name: "CDK test",
+                run: "cd infra && pnpm test",
               },
               {
                 name: "Lint (cfn-lint)",
@@ -68,13 +72,14 @@ export function createCdkPreset(): Preset {
 
     ciSteps: {
       buildSteps: [
-        { name: "CDK install", run: "cd infra && npm install" },
+        { name: "CDK install", run: "cd infra && pnpm install" },
         { name: "CDK synth", run: "cd infra && npx cdk synth --quiet" },
+        { name: "CDK test", run: "cd infra && pnpm test" },
       ],
       lintSteps: [{ name: "Lint (cfn-lint)", run: "cfn-lint infra/cdk.out/**/*.template.json" }],
     },
 
-    setupExtra: "cd infra && npm install",
+    setupExtra: "cd infra && pnpm install",
 
     markdown: {
       "README.md": [

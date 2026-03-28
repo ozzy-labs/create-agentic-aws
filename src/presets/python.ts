@@ -38,9 +38,18 @@ export function createPythonPreset(): Preset {
         jobs: {
           ci: {
             steps: [
-              { name: "Lint (ruff)", run: "ruff check ." },
-              { name: "Format (ruff)", run: "ruff format --check ." },
-              { name: "Typecheck (mypy)", run: "mypy ." },
+              {
+                name: "Lint (ruff)",
+                run: 'if find . -name "*.py" -not -path "./node_modules/*" | head -1 | grep -q .; then ruff check .; fi',
+              },
+              {
+                name: "Format (ruff)",
+                run: 'if find . -name "*.py" -not -path "./node_modules/*" | head -1 | grep -q .; then ruff format --check .; fi',
+              },
+              {
+                name: "Typecheck (mypy)",
+                run: 'if find . -name "*.py" -not -path "./node_modules/*" | head -1 | grep -q .; then mypy .; fi',
+              },
             ],
           },
         },
@@ -69,9 +78,18 @@ export function createPythonPreset(): Preset {
 
     ciSteps: {
       lintSteps: [
-        { name: "Lint (ruff)", run: "ruff check ." },
-        { name: "Format (ruff)", run: "ruff format --check ." },
-        { name: "Typecheck (mypy)", run: "mypy ." },
+        {
+          name: "Lint (ruff)",
+          run: 'if find . -name "*.py" -not -path "./node_modules/*" | head -1 | grep -q .; then ruff check .; fi',
+        },
+        {
+          name: "Format (ruff)",
+          run: 'if find . -name "*.py" -not -path "./node_modules/*" | head -1 | grep -q .; then ruff format --check .; fi',
+        },
+        {
+          name: "Typecheck (mypy)",
+          run: 'if find . -name "*.py" -not -path "./node_modules/*" | head -1 | grep -q .; then mypy .; fi',
+        },
       ],
     },
 

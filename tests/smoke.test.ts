@@ -4,6 +4,7 @@ import {
   expectAllJsonValid,
   expectNoExcessiveBlankLines,
   expectNoLeftoverPlaceholders,
+  expectNoMergeMarkers,
   expectPresetsIncluded,
   expectRuntimeDepsCorrect,
   generateProject,
@@ -237,6 +238,10 @@ describe("smoke tests", () => {
 
     it("has no excessive blank lines in markdown files", () => {
       expectNoExcessiveBlankLines(result);
+    });
+
+    it("has no leftover merge markers in .ts files", () => {
+      expectNoMergeMarkers(result);
     });
 
     it("generates infra directory structure", () => {

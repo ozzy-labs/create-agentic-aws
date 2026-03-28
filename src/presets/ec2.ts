@@ -162,8 +162,7 @@ export function createEc2Preset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { Ec2Instance } from "./constructs/ec2";',
-            constructs:
-              '    // Note: pass vpc.vpc from Vpc construct\n    // new Ec2Instance(this, "Ec2Instance", { vpc: vpc.vpc });',
+            constructs: '    new Ec2Instance(this, "Ec2Instance", { vpc: vpc.vpc });',
           },
         },
       },

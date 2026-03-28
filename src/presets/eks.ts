@@ -184,8 +184,7 @@ export function createEksPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { EksCluster } from "./constructs/eks";',
-            constructs:
-              '    // Note: pass vpc.vpc from Vpc construct\n    // new EksCluster(this, "EksCluster", { vpc: vpc.vpc });',
+            constructs: '    new EksCluster(this, "EksCluster", { vpc: vpc.vpc });',
           },
         },
       },

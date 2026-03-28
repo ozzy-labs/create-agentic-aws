@@ -178,7 +178,7 @@ export function createVpcPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { Vpc } from "./constructs/vpc";',
-            constructs: '    new Vpc(this, "Vpc");',
+            constructs: '    const vpc = new Vpc(this, "Vpc");',
           },
         },
       },

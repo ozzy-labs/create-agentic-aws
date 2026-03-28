@@ -131,8 +131,7 @@ export function createAuroraPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { AuroraCluster } from "./constructs/aurora";',
-            constructs:
-              '    // Note: pass vpc.vpc from Vpc construct\n    // new AuroraCluster(this, "AuroraCluster", { vpc: vpc.vpc });',
+            constructs: '    new AuroraCluster(this, "AuroraCluster", { vpc: vpc.vpc });',
           },
         },
       },

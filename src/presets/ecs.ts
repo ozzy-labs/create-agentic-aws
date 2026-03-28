@@ -211,8 +211,7 @@ export function createEcsPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { EcsService } from "./constructs/ecs";',
-            constructs:
-              '    // Note: pass vpc.vpc from Vpc construct\n    // new EcsService(this, "EcsService", { vpc: vpc.vpc });',
+            constructs: '    new EcsService(this, "EcsService", { vpc: vpc.vpc });',
           },
         },
       },

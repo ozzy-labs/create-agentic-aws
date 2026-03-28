@@ -67,6 +67,7 @@ export const ja: Record<MessageKey, string> = {
   // Wizard choices — Data Pipeline
   "dataPipeline.kinesis": "Kinesis Data Streams",
   "dataPipeline.glue": "Glue",
+  "dataPipeline.redshift": "Redshift",
 
   // Wizard choices — Integration
   "integration.sqs": "SQS",
@@ -127,6 +128,11 @@ export const ja: Record<MessageKey, string> = {
   "rds.engine": "RDS エンジン",
   "rds.engine.mysql": "MySQL",
   "rds.engine.postgresql": "PostgreSQL",
+
+  // Sub-options — Redshift
+  "redshift.mode": "Redshift モード",
+  "redshift.mode.serverless": "Serverless",
+  "redshift.mode.provisioned": "Provisioned",
 
   // Sub-options — OpenSearch
   "opensearch.mode": "OpenSearch モード",

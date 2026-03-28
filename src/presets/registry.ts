@@ -23,6 +23,7 @@ import { createLambdaPreset } from "./lambda.js";
 import { createOpenSearchPreset } from "./opensearch.js";
 import { createPythonPreset } from "./python.js";
 import { createRdsPreset } from "./rds.js";
+import { createRedshiftPreset } from "./redshift.js";
 import { createS3Preset } from "./s3.js";
 import { createSnsPreset } from "./sns.js";
 import { createSqsPreset } from "./sqs.js";
@@ -62,6 +63,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createRdsPreset(),
     createKinesisPreset(),
     createGluePreset(),
+    createRedshiftPreset(),
     createSnsPreset(),
     createEventBridgePreset(),
     createStepFunctionsPreset(),

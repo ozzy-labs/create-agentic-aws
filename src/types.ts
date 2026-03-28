@@ -24,7 +24,7 @@ export type AiPresetName = "bedrock" | "bedrock-kb" | "bedrock-agents" | "opense
 
 export type DataPresetName = "s3" | "dynamodb" | "aurora" | "rds";
 
-export type DataPipelinePresetName = "kinesis" | "glue";
+export type DataPipelinePresetName = "kinesis" | "glue" | "redshift";
 
 export type IntegrationPresetName = "sqs" | "sns" | "eventbridge" | "step-functions";
 
@@ -104,6 +104,12 @@ export interface OpenSearchOptions {
   readonly mode: OpenSearchMode;
 }
 
+export type RedshiftMode = "serverless" | "provisioned";
+
+export interface RedshiftOptions {
+  readonly mode: RedshiftMode;
+}
+
 export interface ApiGatewayOptions {
   readonly type: ApiGatewayType;
 }
@@ -134,6 +140,7 @@ export interface WizardAnswers {
   readonly auroraOptions?: AuroraOptions;
   readonly rdsOptions?: RdsOptions;
   readonly openSearchOptions?: OpenSearchOptions;
+  readonly redshiftOptions?: RedshiftOptions;
   readonly apiGatewayOptions?: ApiGatewayOptions;
 }
 

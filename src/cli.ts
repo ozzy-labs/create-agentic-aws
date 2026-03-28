@@ -28,6 +28,8 @@ import type {
   OpenSearchOptions,
   RdsEngine,
   RdsOptions,
+  RedshiftMode,
+  RedshiftOptions,
   SecurityPresetName,
   WizardAnswers,
 } from "./types.js";
@@ -175,10 +177,17 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
       options: [
         { value: "kinesis", label: t("dataPipeline.kinesis") },
         { value: "glue", label: t("dataPipeline.glue") },
+        { value: "redshift", label: t("dataPipeline.redshift") },
       ],
       required: false,
     }),
   );
+
+  let redshiftOptions: RedshiftOptions | undefined;
+
+  if (dataPipeline.includes("redshift")) {
+    redshiftOptions = await askRedshiftOptions();
+  }
 
   // 8. Application Integration
   const integration = guard(
@@ -231,7 +240,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
   );
 
   // Auto-resolve VPC if needed
-  notifyVpcAutoResolution(compute, data, openSearchOptions);
+  notifyVpcAutoResolution(compute, data, openSearchOptions, redshiftOptions);
 
   // 11. Languages (auto-resolved ones excluded)
   const autoLanguages = resolveAutoLanguages(iac);
@@ -257,6 +266,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     auroraOptions,
     rdsOptions,
     openSearchOptions,
+    redshiftOptions,
     apiGatewayOptions,
   };
 }
@@ -361,6 +371,19 @@ async function askRdsOptions(): Promise<RdsOptions> {
   return { engine };
 }
 
+async function askRedshiftOptions(): Promise<RedshiftOptions> {
+  const mode = guard(
+    await p.select<RedshiftMode>({
+      message: t("redshift.mode"),
+      options: [
+        { value: "serverless", label: t("redshift.mode.serverless") },
+        { value: "provisioned", label: t("redshift.mode.provisioned") },
+      ],
+    }),
+  );
+  return { mode };
+}
+
 async function askOpenSearchOptions(): Promise<OpenSearchOptions> {
   const mode = guard(
     await p.select<OpenSearchMode>({
@@ -397,12 +420,15 @@ export function notifyVpcAutoResolution(
   compute: readonly ComputePresetName[],
   data: readonly DataPresetName[],
   openSearchOptions?: OpenSearchOptions,
+  redshiftOptions?: RedshiftOptions,
 ): void {
   const trigger = [...compute, ...data].find((s) => VPC_TRIGGERS.has(s));
   if (trigger) {
     p.log.info(pc.dim(t("autoResolvedVpc", { service: trigger.toUpperCase() })));
   } else if (openSearchOptions?.mode === "managed-cluster") {
     p.log.info(pc.dim(t("autoResolvedVpc", { service: "OPENSEARCH" })));
+  } else if (redshiftOptions) {
+    p.log.info(pc.dim(t("autoResolvedVpc", { service: "REDSHIFT" })));
   }
 }
 

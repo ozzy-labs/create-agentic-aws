@@ -85,6 +85,34 @@ describe("resolvePresets", () => {
     expect(result.map((p) => p.name)).toContain("vpc");
   });
 
+  it("auto-resolves VPC when Lambda vpcPlacement is true", () => {
+    const registry = makeRegistry(
+      makePreset("base"),
+      makePreset("cdk"),
+      makePreset("lambda"),
+      makePreset("vpc"),
+    );
+    const result = resolvePresets(
+      makeAnswers({ compute: ["lambda"], lambdaOptions: { vpcPlacement: true } }),
+      registry,
+    );
+    expect(result.map((p) => p.name)).toContain("vpc");
+  });
+
+  it("does not auto-resolve VPC when Lambda vpcPlacement is false", () => {
+    const registry = makeRegistry(
+      makePreset("base"),
+      makePreset("cdk"),
+      makePreset("lambda"),
+      makePreset("vpc"),
+    );
+    const result = resolvePresets(
+      makeAnswers({ compute: ["lambda"], lambdaOptions: { vpcPlacement: false } }),
+      registry,
+    );
+    expect(result.map((p) => p.name)).not.toContain("vpc");
+  });
+
   it("resolves transitive requires dependencies", () => {
     const registry = makeRegistry(
       makePreset("base"),
@@ -365,5 +393,36 @@ describe("GenerateResult", () => {
     const registry = makeRegistry(makePreset("base"), makePreset("cdk"));
     const result = generate(makeAnswers(), registry);
     expect(result.readText("missing.txt")).toBeUndefined();
+  });
+
+  it("readYaml parses YAML files", () => {
+    const registry = makeRegistry(
+      makePreset("base", { files: { "config.yaml": "key: value\nnested:\n  a: 1\n" } }),
+      makePreset("cdk"),
+    );
+    const result = generate(makeAnswers(), registry);
+    expect(result.readYaml("config.yaml")).toEqual({ key: "value", nested: { a: 1 } });
+  });
+
+  it("readYaml throws for missing files", () => {
+    const registry = makeRegistry(makePreset("base"), makePreset("cdk"));
+    const result = generate(makeAnswers(), registry);
+    expect(() => result.readYaml("missing.yaml")).toThrow("File not found");
+  });
+
+  it("readToml parses TOML files", () => {
+    const registry = makeRegistry(
+      makePreset("base", { files: { "config.toml": '[tools]\nnode = "22"\n' } }),
+      makePreset("cdk"),
+    );
+    const result = generate(makeAnswers(), registry);
+    const toml = result.readToml<{ tools: { node: string } }>("config.toml");
+    expect(toml.tools.node).toBe("22");
+  });
+
+  it("readToml throws for missing files", () => {
+    const registry = makeRegistry(makePreset("base"), makePreset("cdk"));
+    const result = generate(makeAnswers(), registry);
+    expect(() => result.readToml("missing.toml")).toThrow("File not found");
   });
 });

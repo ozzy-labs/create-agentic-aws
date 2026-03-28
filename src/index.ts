@@ -17,12 +17,12 @@ import { writeFiles } from "./utils.js";
 // CLI argument parsing
 // ---------------------------------------------------------------------------
 
-interface CliArgs {
+export interface CliArgs {
   dryRun: boolean;
   lang?: Locale;
 }
 
-function parseArgs(argv: string[]): CliArgs {
+export function parseArgs(argv: string[]): CliArgs {
   const args: CliArgs = { dryRun: false };
 
   for (const arg of argv.slice(2)) {

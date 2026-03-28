@@ -36,10 +36,11 @@ describe("createRegistry", () => {
     expect(registry.has("cloudwatch")).toBe(true);
     expect(registry.has("vpc")).toBe(true);
     expect(registry.has("ecs")).toBe(true);
+    expect(registry.has("eks")).toBe(true);
   });
 
   it("has correct preset count for M5", () => {
-    // base + 2 languages + 3 agents + 2 IaC + 9 services + 1 infra = 18
-    expect(registry.size).toBe(18);
+    // base + 2 languages + 3 agents + 2 IaC + 10 services + 1 infra = 19
+    expect(registry.size).toBe(19);
   });
 });

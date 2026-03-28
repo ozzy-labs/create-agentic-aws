@@ -354,4 +354,102 @@ describe("smoke tests", () => {
       expect(readme).toContain("CloudWatch");
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // M4: Terraform smoke patterns
+  // ---------------------------------------------------------------------------
+
+  describe("Pattern 9: Serverless API (Terraform)", () => {
+    const result = generateProject({
+      iac: "terraform",
+      compute: ["lambda"],
+      data: ["s3", "dynamodb"],
+      networking: ["api-gateway"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates Terraform infra structure", () => {
+      expect(result.hasFile("infra/main.tf")).toBe(true);
+      expect(result.hasFile("infra/variables.tf")).toBe(true);
+      expect(result.hasFile("infra/outputs.tf")).toBe(true);
+      expect(result.hasFile(".tflint.hcl")).toBe(true);
+    });
+
+    it("generates all service .tf files", () => {
+      expect(result.hasFile("infra/lambda.tf")).toBe(true);
+      expect(result.hasFile("infra/api-gateway.tf")).toBe(true);
+      expect(result.hasFile("infra/s3.tf")).toBe(true);
+      expect(result.hasFile("infra/dynamodb.tf")).toBe(true);
+      expect(result.hasFile("infra/cloudwatch.tf")).toBe(true);
+    });
+
+    it("does NOT generate CDK files", () => {
+      expect(result.hasFile("infra/bin/app.ts")).toBe(false);
+      expect(result.hasFile("infra/cdk.json")).toBe(false);
+      expect(result.hasFile("infra/lib/app-stack.ts")).toBe(false);
+    });
+
+    it("generates application boilerplate (IaC-independent)", () => {
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(true);
+      expect(result.hasFile("lib/dynamodb/client.ts")).toBe(true);
+      expect(result.hasFile("lib/observability/index.ts")).toBe(true);
+    });
+
+    it("outputs.tf contains all service outputs", () => {
+      const outputs = result.readText("infra/outputs.tf");
+      expect(outputs).toContain("lambda_function_name");
+      expect(outputs).toContain("api_gateway_url");
+      expect(outputs).toContain("s3_bucket_name");
+      expect(outputs).toContain("dynamodb_table_name");
+      expect(outputs).toContain("cloudwatch_dashboard_name");
+    });
+  });
+
+  describe("Pattern 10: Serverless Full (Terraform)", () => {
+    const result = generateProject({
+      iac: "terraform",
+      compute: ["lambda"],
+      data: ["s3", "dynamodb"],
+      integration: ["sqs"],
+      networking: ["api-gateway", "cloudfront"],
+      security: ["cognito"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates all 8 service .tf files", () => {
+      const services = [
+        "lambda",
+        "api-gateway",
+        "s3",
+        "dynamodb",
+        "sqs",
+        "cloudfront",
+        "cognito",
+        "cloudwatch",
+      ];
+      for (const name of services) {
+        expect(result.hasFile(`infra/${name}.tf`), `Missing: infra/${name}.tf`).toBe(true);
+      }
+    });
+
+    it("has large file count from all presets", () => {
+      expect(result.files.size).toBeGreaterThan(25);
+    });
+  });
 });

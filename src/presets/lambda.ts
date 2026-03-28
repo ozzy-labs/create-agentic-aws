@@ -107,13 +107,14 @@ export function createLambdaPreset(): Preset {
 
     merge: {
       "tsconfig.json": {
-        include: ["lambda"],
+        include: ["lambda", "lib"],
       },
       "package.json": {
         dependencies: {
           "@aws-lambda-powertools/logger": "^2.14.0",
           "@aws-lambda-powertools/metrics": "^2.14.0",
           "@aws-lambda-powertools/tracer": "^2.14.0",
+          "@middy/core": "^6.0.0",
         },
         devDependencies: {
           "@types/aws-lambda": "^8.10.0",
@@ -154,7 +155,7 @@ export function createLambdaPreset(): Preset {
         {
           heading: "## Tech Stack",
           content:
-            "- **AWS Lambda**: Serverless compute (Node.js 22)\n- **Lambda Powertools**: Structured logging, tracing",
+            "- **AWS Lambda**: Serverless compute (Node.js 24)\n- **Lambda Powertools**: Structured logging, metrics, tracing",
         },
       ],
     },

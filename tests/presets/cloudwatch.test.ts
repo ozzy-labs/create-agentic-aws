@@ -4,8 +4,10 @@ import { generate } from "../../src/generator.js";
 import { createBasePreset } from "../../src/presets/base.js";
 import { createCdkPreset } from "../../src/presets/cdk.js";
 import { createCloudWatchPreset } from "../../src/presets/cloudwatch.js";
+import { createEcsPreset } from "../../src/presets/ecs.js";
 import { createLambdaPreset } from "../../src/presets/lambda.js";
 import { createTypescriptPreset } from "../../src/presets/typescript.js";
+import { createVpcPreset } from "../../src/presets/vpc.js";
 import type { Preset, PresetName, WizardAnswers } from "../../src/types.js";
 
 function makeAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswers {
@@ -35,20 +37,8 @@ describe("cloudwatch preset", () => {
     expect(cw.name).toBe("cloudwatch");
   });
 
-  // Owned files (Powertools integration)
-  describe("owned files", () => {
-    it("includes observability index re-exporting from lambda/powertools", () => {
-      expect(cw.files["lib/observability/index.ts"]).toBeDefined();
-      expect(cw.files["lib/observability/index.ts"]).toContain("logger");
-      expect(cw.files["lib/observability/index.ts"]).toContain("tracer");
-      expect(cw.files["lib/observability/index.ts"]).toContain("metrics");
-    });
-
-    it("includes middleware wrapper", () => {
-      expect(cw.files["lib/observability/middleware.ts"]).toBeDefined();
-      expect(cw.files["lib/observability/middleware.ts"]).toContain("withObservability");
-      expect(cw.files["lib/observability/middleware.ts"]).toContain("middy");
-    });
+  it("does not require lambda", () => {
+    expect(cw.requires).toBeUndefined();
   });
 
   // IaC contributions (CDK)
@@ -62,10 +52,11 @@ describe("cloudwatch preset", () => {
       );
     });
 
-    it("construct creates dashboard", () => {
+    it("construct creates standalone dashboard without lambda dependency", () => {
       const construct = cdkContrib?.files["infra/lib/constructs/cloudwatch.ts"];
       expect(construct).toContain("Dashboard");
       expect(construct).toContain("dashboardName");
+      expect(construct).not.toContain("lambda");
     });
 
     it("merges cloudwatch instantiation into app-stack.ts", () => {
@@ -77,18 +68,13 @@ describe("cloudwatch preset", () => {
 
   // Merge contributions
   describe("merge contributions", () => {
-    it("adds Powertools and middy to root dependencies", () => {
-      const pkg = cw.merge["package.json"] as Record<string, unknown>;
-      const deps = pkg.dependencies as Record<string, string>;
-      expect(deps["@aws-lambda-powertools/logger"]).toBeDefined();
-      expect(deps["@aws-lambda-powertools/metrics"]).toBeDefined();
-      expect(deps["@aws-lambda-powertools/tracer"]).toBeDefined();
-      expect(deps["@middy/core"]).toBeDefined();
+    it("has empty merge (no lambda-specific dependencies)", () => {
+      expect(Object.keys(cw.merge)).toHaveLength(0);
     });
   });
 
   // Integration with generator
-  describe("integration with generator", () => {
+  describe("integration with generator (with Lambda)", () => {
     const allPresets = [
       createBasePreset(),
       createTypescriptPreset(),
@@ -98,33 +84,54 @@ describe("cloudwatch preset", () => {
     ];
     const registry = makeRegistry(...allPresets);
 
-    it("generates observability files", () => {
-      const result = generate(makeAnswers(), registry);
-      expect(result.hasFile("lib/observability/index.ts")).toBe(true);
-      expect(result.hasFile("lib/observability/middleware.ts")).toBe(true);
-    });
-
     it("generates cloudwatch construct file", () => {
-      const result = generate(makeAnswers(), registry);
+      const result = generate(makeAnswers({ compute: ["lambda"] }), registry);
       expect(result.hasFile("infra/lib/constructs/cloudwatch.ts")).toBe(true);
     });
 
     it("injects cloudwatch import into app-stack.ts", () => {
-      const result = generate(makeAnswers(), registry);
+      const result = generate(makeAnswers({ compute: ["lambda"] }), registry);
       const appStack = result.readText("infra/lib/app-stack.ts");
       expect(appStack).toContain('import { CloudWatchDashboard } from "./constructs/cloudwatch"');
     });
 
     it("injects cloudwatch construct into app-stack.ts", () => {
-      const result = generate(makeAnswers(), registry);
+      const result = generate(makeAnswers({ compute: ["lambda"] }), registry);
       const appStack = result.readText("infra/lib/app-stack.ts");
       expect(appStack).toContain("new CloudWatchDashboard");
     });
+  });
 
-    it("observability index re-exports from lambda/powertools", () => {
-      const result = generate(makeAnswers({ projectName: "test-app" }), registry);
-      const index = result.readText("lib/observability/index.ts");
-      expect(index).toContain("lambda/powertools");
+  // Integration WITHOUT Lambda — key scenario for this fix
+  describe("integration with generator (without Lambda)", () => {
+    const allPresets = [
+      createBasePreset(),
+      createTypescriptPreset(),
+      createCdkPreset(),
+      createVpcPreset(),
+      createEcsPreset(),
+      cw,
+    ];
+    const registry = makeRegistry(...allPresets);
+
+    it("does not generate lambda files", () => {
+      const result = generate(makeAnswers({ compute: ["ecs"] }), registry);
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(false);
+      expect(result.hasFile("infra/lib/constructs/lambda.ts")).toBe(false);
+    });
+
+    it("generates cloudwatch construct without lambda reference", () => {
+      const result = generate(makeAnswers({ compute: ["ecs"] }), registry);
+      const construct = result.readText("infra/lib/constructs/cloudwatch.ts");
+      expect(construct).toContain("class CloudWatchDashboard");
+      expect(construct).not.toContain("lambda");
+    });
+
+    it("app-stack.ts does not reference lambdaFunction", () => {
+      const result = generate(makeAnswers({ compute: ["ecs"] }), registry);
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("CloudWatchDashboard");
+      expect(appStack).not.toContain("lambdaFunction");
     });
   });
 });

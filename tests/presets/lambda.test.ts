@@ -36,9 +36,9 @@ describe("lambda preset", () => {
 
   // Owned files
   describe("owned files", () => {
-    it("includes lambda handler boilerplate", () => {
+    it("includes lambda handler with observability middleware", () => {
       expect(lambda.files["lambda/handlers/index.ts"]).toBeDefined();
-      expect(lambda.files["lambda/handlers/index.ts"]).toContain("baseHandler as handler");
+      expect(lambda.files["lambda/handlers/index.ts"]).toContain("withObservability");
     });
 
     it("includes powertools configuration", () => {
@@ -50,6 +50,19 @@ describe("lambda preset", () => {
 
     it("handler imports powertools logger", () => {
       expect(lambda.files["lambda/handlers/index.ts"]).toContain("logger");
+    });
+
+    it("includes observability index re-exporting from lambda/powertools", () => {
+      expect(lambda.files["lib/observability/index.ts"]).toBeDefined();
+      expect(lambda.files["lib/observability/index.ts"]).toContain("logger");
+      expect(lambda.files["lib/observability/index.ts"]).toContain("tracer");
+      expect(lambda.files["lib/observability/index.ts"]).toContain("metrics");
+    });
+
+    it("includes observability middleware wrapper", () => {
+      expect(lambda.files["lib/observability/middleware.ts"]).toBeDefined();
+      expect(lambda.files["lib/observability/middleware.ts"]).toContain("withObservability");
+      expect(lambda.files["lib/observability/middleware.ts"]).toContain("middy");
     });
   });
 
@@ -94,6 +107,7 @@ describe("lambda preset", () => {
       expect(deps["@aws-lambda-powertools/logger"]).toBeDefined();
       expect(deps["@aws-lambda-powertools/tracer"]).toBeDefined();
       expect(deps["@aws-lambda-powertools/metrics"]).toBeDefined();
+      expect(deps["@middy/core"]).toBeDefined();
     });
   });
 
@@ -105,6 +119,18 @@ describe("lambda preset", () => {
     it("generates lambda handler file", () => {
       const result = generate(makeAnswers(), registry);
       expect(result.hasFile("lambda/handlers/index.ts")).toBe(true);
+    });
+
+    it("generates observability files", () => {
+      const result = generate(makeAnswers(), registry);
+      expect(result.hasFile("lib/observability/index.ts")).toBe(true);
+      expect(result.hasFile("lib/observability/middleware.ts")).toBe(true);
+    });
+
+    it("observability index re-exports from lambda/powertools", () => {
+      const result = generate(makeAnswers({ projectName: "test-app" }), registry);
+      const index = result.readText("lib/observability/index.ts");
+      expect(index).toContain("lambda/powertools");
     });
 
     it("generates lambda construct file", () => {

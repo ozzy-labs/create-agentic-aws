@@ -21,7 +21,9 @@ function makeAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswers {
     agents: [],
     iac: "cdk",
     compute: [],
+    ai: [],
     data: [],
+    dataPipeline: [],
     integration: [],
     networking: [],
     security: [],
@@ -210,9 +212,60 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 12. Kitchen sink (CDK) ──────────────────────────────────────────
+  // ── 12. AI stack (CDK) ───────────────────────────────────────────────
   {
-    name: "13-kitchen-sink-cdk",
+    name: "13-ai-stack-cdk",
+    description: "Bedrock + Bedrock KB + Bedrock Agents + OpenSearch Serverless (CDK)",
+    overrides: {
+      projectName: "ai-stack-cdk",
+      agents: ["claude-code"],
+      ai: ["bedrock", "bedrock-kb", "bedrock-agents", "opensearch"],
+      openSearchOptions: { mode: "serverless" },
+    },
+  },
+
+  // ── 13. AI + managed services (Terraform) ──────────────────────────
+  {
+    name: "14-ai-managed-terraform",
+    description: "Bedrock Agents + OpenSearch Managed Cluster (Terraform)",
+    overrides: {
+      projectName: "ai-managed-terraform",
+      iac: "terraform",
+      ai: ["bedrock-agents", "opensearch"],
+      openSearchOptions: { mode: "managed-cluster" },
+    },
+  },
+
+  // ── 14. Data pipeline (CDK) ─────────────────────────────────────────
+  {
+    name: "15-data-pipeline-cdk",
+    description: "Kinesis + Glue + Redshift Serverless + S3 (CDK)",
+    overrides: {
+      projectName: "data-pipeline-cdk",
+      data: ["s3"],
+      dataPipeline: ["kinesis", "glue", "redshift"],
+      redshiftOptions: { mode: "serverless" },
+      languages: ["python"],
+    },
+  },
+
+  // ── 15. Data warehouse (Terraform) ──────────────────────────────────
+  {
+    name: "16-data-warehouse-terraform",
+    description: "Redshift Provisioned + Glue + S3 (Terraform)",
+    overrides: {
+      projectName: "data-warehouse-terraform",
+      iac: "terraform",
+      data: ["s3"],
+      dataPipeline: ["glue", "redshift"],
+      redshiftOptions: { mode: "provisioned" },
+      languages: ["python"],
+    },
+  },
+
+  // ── 16. Kitchen sink (CDK) ──────────────────────────────────────────
+  {
+    name: "17-kitchen-sink-cdk",
     description: "All agents + all services + CDK (maximum combination)",
     overrides: {
       projectName: "kitchen-sink-cdk",
@@ -222,9 +275,13 @@ const projects: TestProject[] = [
       ecsOptions: { launchType: "managed-instances", loadBalancer: "alb" },
       eksOptions: { mode: "managed-node-group", loadBalancer: "nlb" },
       ec2Options: { loadBalancer: "alb" },
+      ai: ["bedrock", "bedrock-kb", "bedrock-agents", "opensearch"],
+      openSearchOptions: { mode: "serverless" },
       data: ["s3", "dynamodb", "aurora", "rds"],
       auroraOptions: { capacity: "serverless-v2", engine: "postgresql" },
       rdsOptions: { engine: "mysql" },
+      dataPipeline: ["kinesis", "glue", "redshift"],
+      redshiftOptions: { mode: "serverless" },
       integration: ["sqs", "sns", "eventbridge", "step-functions"],
       networking: ["api-gateway", "cloudfront"],
       apiGatewayOptions: { type: "rest" },
@@ -234,9 +291,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 13. Kitchen sink (Terraform) ────────────────────────────────────
+  // ── 17. Kitchen sink (Terraform) ────────────────────────────────────
   {
-    name: "14-kitchen-sink-terraform",
+    name: "18-kitchen-sink-terraform",
     description: "All agents + all services + Terraform (maximum combination)",
     overrides: {
       projectName: "kitchen-sink-terraform",
@@ -247,9 +304,13 @@ const projects: TestProject[] = [
       ecsOptions: { launchType: "ec2", loadBalancer: "nlb" },
       eksOptions: { mode: "fargate", loadBalancer: "alb" },
       ec2Options: { loadBalancer: "none" },
+      ai: ["bedrock", "bedrock-kb", "bedrock-agents", "opensearch"],
+      openSearchOptions: { mode: "managed-cluster" },
       data: ["s3", "dynamodb", "aurora", "rds"],
       auroraOptions: { capacity: "provisioned", engine: "mysql" },
       rdsOptions: { engine: "postgresql" },
+      dataPipeline: ["kinesis", "glue", "redshift"],
+      redshiftOptions: { mode: "provisioned" },
       integration: ["sqs", "sns", "eventbridge", "step-functions"],
       networking: ["api-gateway", "cloudfront"],
       apiGatewayOptions: { type: "http" },
@@ -259,9 +320,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 14. Lambda in VPC ───────────────────────────────────────────────
+  // ── 18. Lambda in VPC ───────────────────────────────────────────────
   {
-    name: "15-lambda-vpc",
+    name: "19-lambda-vpc",
     description: "Lambda with VPC placement + S3 (CDK)",
     overrides: {
       projectName: "lambda-vpc",
@@ -271,9 +332,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 15. Dual language ───────────────────────────────────────────────
+  // ── 19. Dual language ───────────────────────────────────────────────
   {
-    name: "16-dual-language",
+    name: "20-dual-language",
     description: "TypeScript + Python with Lambda (CDK)",
     overrides: {
       projectName: "dual-language",

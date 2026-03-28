@@ -42,7 +42,7 @@ mapped_frame = ApplyMapping.apply(
 glue_context.write_dynamic_frame.from_options(
     frame=mapped_frame,
     connection_type="s3",
-    connection_options={"path": "s3://TARGET_BUCKET/output/"},
+    connection_options={"path": "s3://{{projectName}}-glue-output/output/"},
     format="parquet",
     transformation_ctx="sink",
 )

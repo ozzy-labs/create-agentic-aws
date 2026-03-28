@@ -47,7 +47,7 @@ export const handler: Handler<ActionGroupEvent, ActionGroupResponse> = async (ev
 
   console.log("Action Group invoked", { actionGroup, apiPath, httpMethod });
 
-  // TODO: Implement your action group logic based on apiPath and httpMethod
+  // NEXT: Implement your action group logic based on apiPath and httpMethod
   const result = {
     message: `Action ${apiPath} executed successfully`,
     parameters: parameters ?? [],

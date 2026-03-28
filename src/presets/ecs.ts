@@ -178,6 +178,7 @@ export function createEcsPreset(): Preset {
 
   return {
     name: "ecs",
+    requires: ["vpc"],
 
     files: {
       ...templates,

@@ -111,6 +111,7 @@ output "rds_master_secret_arn" {
 export function createRdsPreset(): Preset {
   return {
     name: "rds",
+    requires: ["vpc"],
 
     files: {},
 

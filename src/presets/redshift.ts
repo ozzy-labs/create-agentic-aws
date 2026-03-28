@@ -225,6 +225,7 @@ output "redshift_cluster_id" {
 export function createRedshiftPreset(): Preset {
   return {
     name: "redshift",
+    requires: ["vpc"],
 
     files: {},
 

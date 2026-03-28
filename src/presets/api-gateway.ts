@@ -4,7 +4,7 @@ const API_GATEWAY_TF = `resource "aws_apigatewayv2_api" "this" {
   name          = "\${var.project_name}-api"
   protocol_type = "HTTP"
 
-  # TODO: Restrict allow_origins to your domain in production
+  # NEXT: Restrict allow_origins to your domain in production
   cors_configuration {
     allow_origins = ["*"]
     allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
@@ -78,7 +78,7 @@ export class ApiGateway extends Construct {
           tracingEnabled: true,
         },
         defaultCorsPreflightOptions: {
-          // TODO: Restrict to your domain in production (e.g. ['https://example.com'])
+          // NEXT: Restrict to your domain in production (e.g. ['https://example.com'])
           allowOrigins: apigateway.Cors.ALL_ORIGINS,
           allowMethods: apigateway.Cors.ALL_METHODS,
         },
@@ -97,7 +97,7 @@ export class ApiGateway extends Construct {
       this.httpApi = new apigatewayv2.HttpApi(this, "HttpApi", {
         apiName: id,
         corsPreflight: {
-          // TODO: Restrict to your domain in production (e.g. ['https://example.com'])
+          // NEXT: Restrict to your domain in production (e.g. ['https://example.com'])
           allowOrigins: ["*"],
           allowMethods: [apigatewayv2.CorsHttpMethod.ANY],
           allowHeaders: ["Content-Type", "Authorization"],

@@ -118,6 +118,7 @@ output "aurora_master_secret_arn" {
 export function createAuroraPreset(): Preset {
   return {
     name: "aurora",
+    requires: ["vpc"],
 
     files: {},
 

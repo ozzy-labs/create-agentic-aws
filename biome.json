@@ -11,7 +11,8 @@
       "*.jsonc",
       "!**/node_modules",
       "!**/dist",
-      "!**/templates"
+      "!**/templates",
+      "!tmp"
     ],
     "ignoreUnknown": true
   },

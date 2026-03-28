@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { readFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { parseArgs as nodeParseArgs } from "node:util";
 
@@ -31,10 +32,25 @@ export function parseArgs(argv: string[]): CliArgs {
     options: {
       lang: { type: "string" },
       "dry-run": { type: "boolean", default: false },
+      help: { type: "boolean", default: false, short: "h" },
+      version: { type: "boolean", default: false, short: "v" },
     },
     allowPositionals: true,
     strict: false,
   });
+
+  if (values.help) {
+    console.log(HELP_TEXT);
+    process.exit(0);
+  }
+
+  if (values.version) {
+    const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf-8")) as {
+      version: string;
+    };
+    console.log(pkg.version);
+    process.exit(0);
+  }
 
   const positionalArg = positionals[0];
   const lang = values.lang as string | undefined;
@@ -46,6 +62,19 @@ export function parseArgs(argv: string[]): CliArgs {
     parentDir: positionalArg ? resolve(process.cwd(), dirname(positionalArg)) : process.cwd(),
   };
 }
+
+const HELP_TEXT = `Usage: create-agentic-aws [options] [project-path]
+
+Options:
+  -h, --help           Show this help message
+  -v, --version        Show version number
+  --lang <en|ja>       Set UI language (default: auto-detect)
+  --dry-run            Show file tree without writing files
+
+Examples:
+  create-agentic-aws my-project
+  create-agentic-aws --lang=ja my-project
+  create-agentic-aws --dry-run my-project`;
 
 // ---------------------------------------------------------------------------
 // Main

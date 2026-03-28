@@ -124,8 +124,7 @@ export function createRdsPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { RdsInstance } from "./constructs/rds";',
-            constructs:
-              '    // Note: pass vpc.vpc from Vpc construct\n    // new RdsInstance(this, "RdsInstance", { vpc: vpc.vpc });',
+            constructs: '    new RdsInstance(this, "RdsInstance", { vpc: vpc.vpc });',
           },
         },
       },

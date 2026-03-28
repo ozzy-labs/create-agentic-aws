@@ -10,12 +10,16 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import type { Construct } from "constructs";
 
+export interface BedrockKnowledgeBaseProps {
+  readonly collectionArn: string;
+}
+
 export class BedrockKnowledgeBase extends Construct {
   public readonly knowledgeBase: bedrock.CfnKnowledgeBase;
   public readonly dataSource: bedrock.CfnDataSource;
   public readonly bucket: s3.Bucket;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: BedrockKnowledgeBaseProps) {
     super(scope, id);
 
     // S3 bucket for knowledge base documents
@@ -40,7 +44,7 @@ export class BedrockKnowledgeBase extends Construct {
 
     this.bucket.grantRead(role);
 
-    // Knowledge base with default OpenSearch Serverless vector store
+    // Knowledge base with OpenSearch Serverless vector store
     this.knowledgeBase = new bedrock.CfnKnowledgeBase(this, "KnowledgeBase", {
       name: cdk.Names.uniqueId(this).slice(0, 32),
       roleArn: role.roleArn,
@@ -53,7 +57,7 @@ export class BedrockKnowledgeBase extends Construct {
       storageConfiguration: {
         type: "OPENSEARCH_SERVERLESS",
         opensearchServerlessConfiguration: {
-          collectionArn: "PLACEHOLDER",
+          collectionArn: props.collectionArn,
           fieldMapping: {
             metadataField: "metadata",
             textField: "text",
@@ -173,7 +177,7 @@ resource "aws_bedrockagent_knowledge_base" "this" {
   storage_configuration {
     type = "OPENSEARCH_SERVERLESS"
     opensearch_serverless_configuration {
-      collection_arn    = "PLACEHOLDER"
+      collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"
       vector_index_name = "kb-index"
       field_mapping {
         metadata_field = "metadata"
@@ -230,7 +234,8 @@ export function createBedrockKbPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { BedrockKnowledgeBase } from "./constructs/bedrock-kb";',
-            constructs: '    new BedrockKnowledgeBase(this, "BedrockKnowledgeBase");',
+            constructs:
+              '    new BedrockKnowledgeBase(this, "BedrockKnowledgeBase", { collectionArn: "TODO: Set your OpenSearch Serverless collection ARN" });',
           },
         },
       },

@@ -183,13 +183,18 @@ export function generate(
     applyOpenSearchManagedMode(answers.iac, files);
   }
 
-  // --- Step 2.8: Redshift provisioned mode ---
+  // --- Step 2.8: Bedrock KB + OpenSearch wiring ---
+  const presetNames = new Set(presets.map((p) => p.name));
+  if (presetNames.has("bedrock-kb") && presetNames.has("opensearch")) {
+    applyBedrockKbOpenSearchWiring(answers, files);
+  }
+
+  // --- Step 2.9: Redshift provisioned mode ---
   if (answers.redshiftOptions?.mode === "provisioned") {
     applyRedshiftProvisionedMode(answers.iac, files);
   }
 
-  // --- Step 2.9: Lambda Python runtime ---
-  const presetNames = new Set(presets.map((p) => p.name));
+  // --- Step 2.10: Lambda Python runtime ---
   if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {
     applyLambdaPythonRuntime(files, vars);
   }
@@ -434,7 +439,52 @@ function applyOpenSearchManagedMode(iac: IacPresetName, files: Map<string, strin
 }
 
 // ---------------------------------------------------------------------------
-// Step 2.8: Redshift provisioned mode (Serverless → Provisioned)
+// Step 2.8: Bedrock KB + OpenSearch ARN wiring
+// ---------------------------------------------------------------------------
+
+function applyBedrockKbOpenSearchWiring(answers: WizardAnswers, files: Map<string, string>): void {
+  const isServerless = answers.openSearchOptions?.mode !== "managed-cluster";
+
+  if (answers.iac === "cdk") {
+    const appStack = files.get("infra/lib/app-stack.ts");
+    if (appStack) {
+      const arnRef = isServerless
+        ? "opensearchCollection.collection.attrArn"
+        : "opensearchDomain.domain.domainArn";
+      const varName = isServerless ? "opensearchCollection" : "opensearchDomain";
+      const constructClass = isServerless ? "OpenSearchCollection" : "OpenSearchDomain";
+      files.set(
+        "infra/lib/app-stack.ts",
+        appStack
+          .replace(
+            `    new ${constructClass}(this,`,
+            `    const ${varName} = new ${constructClass}(this,`,
+          )
+          .replace(
+            '{ collectionArn: "TODO: Set your OpenSearch Serverless collection ARN" }',
+            `{ collectionArn: ${arnRef} }`,
+          ),
+      );
+    }
+  } else {
+    const kbTf = files.get("infra/bedrock-kb.tf");
+    if (kbTf) {
+      const arnRef = isServerless
+        ? "aws_opensearchserverless_collection.this.arn"
+        : "aws_opensearch_domain.this.arn";
+      files.set(
+        "infra/bedrock-kb.tf",
+        kbTf.replace(
+          'collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"',
+          `collection_arn    = ${arnRef}`,
+        ),
+      );
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 2.9: Redshift provisioned mode (Serverless → Provisioned)
 // ---------------------------------------------------------------------------
 
 function applyRedshiftProvisionedMode(iac: IacPresetName, files: Map<string, string>): void {

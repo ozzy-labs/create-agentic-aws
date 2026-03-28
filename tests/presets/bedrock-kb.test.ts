@@ -5,8 +5,10 @@ import { createBasePreset } from "../../src/presets/base.js";
 import { createBedrockPreset } from "../../src/presets/bedrock.js";
 import { createBedrockKbPreset } from "../../src/presets/bedrock-kb.js";
 import { createCdkPreset } from "../../src/presets/cdk.js";
+import { createOpenSearchPreset } from "../../src/presets/opensearch.js";
 import { createTerraformPreset } from "../../src/presets/terraform.js";
 import { createTypescriptPreset } from "../../src/presets/typescript.js";
+import { createVpcPreset } from "../../src/presets/vpc.js";
 import type { Preset, PresetName, WizardAnswers } from "../../src/types.js";
 
 function makeAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswers {
@@ -208,6 +210,114 @@ describe("bedrock-kb preset", () => {
       const outputs = result.readText("infra/outputs.tf");
       expect(outputs).toContain("bedrock_policy_arn");
       expect(outputs).toContain("bedrock_kb_id");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // OpenSearch wiring — CDK (serverless)
+  // -------------------------------------------------------------------------
+
+  describe("opensearch wiring (cdk, serverless)", () => {
+    const allPresets = [
+      createBasePreset(),
+      createTypescriptPreset(),
+      createCdkPreset(),
+      createBedrockPreset(),
+      bedrockKb,
+      createOpenSearchPreset(),
+    ];
+    const registry = makeRegistry(...allPresets);
+
+    it("wires OpenSearch collection ARN into app-stack.ts", () => {
+      const result = generate(
+        makeAnswers({
+          ai: ["bedrock-kb", "opensearch"],
+          openSearchOptions: { mode: "serverless" },
+        }),
+        registry,
+      );
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("opensearchCollection.collection.attrArn");
+      expect(appStack).not.toContain("TODO:");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // OpenSearch wiring — Terraform (serverless)
+  // -------------------------------------------------------------------------
+
+  describe("opensearch wiring (terraform, serverless)", () => {
+    const allPresets = [
+      createBasePreset(),
+      createTerraformPreset(),
+      createBedrockPreset(),
+      bedrockKb,
+      createOpenSearchPreset(),
+    ];
+    const registry = makeRegistry(...allPresets);
+
+    it("wires OpenSearch collection ARN into bedrock-kb.tf", () => {
+      const result = generate(
+        makeAnswers({
+          iac: "terraform",
+          ai: ["bedrock-kb", "opensearch"],
+          openSearchOptions: { mode: "serverless" },
+        }),
+        registry,
+      );
+      const kbTf = result.readText("infra/bedrock-kb.tf");
+      expect(kbTf).toContain("aws_opensearchserverless_collection.this.arn");
+      expect(kbTf).not.toContain("TODO:");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // OpenSearch wiring — Terraform (managed-cluster)
+  // -------------------------------------------------------------------------
+
+  describe("opensearch wiring (terraform, managed-cluster)", () => {
+    const allPresets = [
+      createBasePreset(),
+      createTerraformPreset(),
+      createVpcPreset(),
+      createBedrockPreset(),
+      bedrockKb,
+      createOpenSearchPreset(),
+    ];
+    const registry = makeRegistry(...allPresets);
+
+    it("wires OpenSearch domain ARN into bedrock-kb.tf for managed-cluster", () => {
+      const result = generate(
+        makeAnswers({
+          iac: "terraform",
+          ai: ["bedrock-kb", "opensearch"],
+          openSearchOptions: { mode: "managed-cluster" },
+        }),
+        registry,
+      );
+      const kbTf = result.readText("infra/bedrock-kb.tf");
+      expect(kbTf).toContain("aws_opensearch_domain.this.arn");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // No OpenSearch — keeps TODO placeholder
+  // -------------------------------------------------------------------------
+
+  describe("without opensearch", () => {
+    const allPresets = [
+      createBasePreset(),
+      createTypescriptPreset(),
+      createCdkPreset(),
+      createBedrockPreset(),
+      bedrockKb,
+    ];
+    const registry = makeRegistry(...allPresets);
+
+    it("keeps TODO placeholder in app-stack.ts when opensearch is not selected", () => {
+      const result = generate(makeAnswers(), registry);
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("TODO:");
     });
   });
 });

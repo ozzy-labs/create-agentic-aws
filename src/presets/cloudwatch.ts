@@ -48,6 +48,7 @@ export class CloudWatchDashboard extends Construct {
       defaultInterval: cdk.Duration.hours(3),
     });
 
+    // Lambda metrics
     this.dashboard.addWidgets(
       new cloudwatch.GraphWidget({
         title: "Lambda Invocations",
@@ -66,6 +67,11 @@ export class CloudWatchDashboard extends Construct {
         left: [props.handler.metricThrottles()],
       }),
     );
+  }
+
+  /** Add custom metric widgets to the dashboard. */
+  addWidgets(...widgets: cloudwatch.IWidget[]): void {
+    this.dashboard.addWidgets(...widgets);
   }
 }
 `;

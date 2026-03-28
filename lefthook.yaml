@@ -39,6 +39,9 @@ pre-commit:
       run: gitleaks protect --staged --no-banner
 
 pre-push:
+  parallel: true
   commands:
     typecheck:
       run: npx tsc --noEmit
+    test:
+      run: pnpm test

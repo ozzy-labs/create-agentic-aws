@@ -195,6 +195,14 @@ export function createEcsPreset(): Preset {
         recommendations: ["exiasr.hadolint"],
       },
       "lefthook.yaml": {
+        "pre-commit": {
+          commands: {
+            hadolint: {
+              glob: "**/Dockerfile*",
+              run: "hadolint {staged_files}",
+            },
+          },
+        },
         "pre-push": {
           commands: {
             "typecheck-ecs": {

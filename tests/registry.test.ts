@@ -34,10 +34,11 @@ describe("createRegistry", () => {
     expect(registry.has("cloudfront")).toBe(true);
     expect(registry.has("cognito")).toBe(true);
     expect(registry.has("cloudwatch")).toBe(true);
+    expect(registry.has("vpc")).toBe(true);
   });
 
-  it("has correct preset count for M4", () => {
-    // base + 2 languages + 3 agents + 2 IaC + 8 services = 16
-    expect(registry.size).toBe(16);
+  it("has correct preset count for M5", () => {
+    // base + 2 languages + 3 agents + 2 IaC + 8 services + 1 infra = 17
+    expect(registry.size).toBe(17);
   });
 });

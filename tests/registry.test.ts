@@ -27,10 +27,11 @@ describe("createRegistry", () => {
   it("includes service presets", () => {
     expect(registry.has("lambda")).toBe(true);
     expect(registry.has("api-gateway")).toBe(true);
+    expect(registry.has("s3")).toBe(true);
   });
 
   it("has correct preset count for M3", () => {
-    // base + 2 languages + 3 agents + 1 IaC + 2 services = 9
-    expect(registry.size).toBe(9);
+    // base + 2 languages + 3 agents + 1 IaC + 3 services = 10
+    expect(registry.size).toBe(10);
   });
 });

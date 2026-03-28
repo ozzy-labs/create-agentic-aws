@@ -145,10 +145,10 @@ describe("glue preset", () => {
       expect(result.hasFile("glue/jobs/etl_job.py")).toBe(true);
     });
 
-    it("substitutes projectName in job script", () => {
+    it("uses DATABASE_NAME job parameter in job script", () => {
       const result = generate(makeAnswers(), registry);
       const script = result.readText("glue/jobs/etl_job.py");
-      expect(script).toContain("my-project_db");
+      expect(script).toContain('args["DATABASE_NAME"]');
     });
   });
 

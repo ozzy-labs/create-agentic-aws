@@ -241,4 +241,63 @@ describe("pairwise tests", () => {
       expect(outputs).toContain("vpc_id");
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // M6: Event-driven combinations
+  // ---------------------------------------------------------------------------
+
+  describe("SQS + SNS + EventBridge (event-driven pipeline)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      integration: ["sqs", "sns", "eventbridge"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates all three construct files", () => {
+      expect(result.hasFile("infra/lib/constructs/sqs.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/sns.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/eventbridge.ts")).toBe(true);
+    });
+
+    it("generates EventBridge schema and SQS consumer", () => {
+      expect(result.hasFile("lib/eventbridge/events.ts")).toBe(true);
+      expect(result.hasFile("lib/eventbridge/publisher.ts")).toBe(true);
+      expect(result.hasFile("lib/sqs/consumer.ts")).toBe(true);
+    });
+  });
+
+  describe("Lambda + Step Functions (orchestrated workflow)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["lambda"],
+      integration: ["step-functions"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("generates both construct files", () => {
+      expect(result.hasFile("infra/lib/constructs/lambda.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/step-functions.ts")).toBe(true);
+    });
+
+    it("generates Lambda handler and workflow definition", () => {
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(true);
+      expect(result.hasFile("lib/step-functions/definition.ts")).toBe(true);
+    });
+
+    it("app-stack.ts contains both constructs", () => {
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("LambdaFunction");
+      expect(appStack).toContain("StepFunctionsWorkflow");
+    });
+  });
 });

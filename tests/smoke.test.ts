@@ -612,4 +612,124 @@ describe("smoke tests", () => {
       expect(result.files.size).toBeGreaterThan(40);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // M6: Event-driven + Final full patterns
+  // ---------------------------------------------------------------------------
+
+  describe("Pattern 16: Full with all services (CDK)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["lambda", "ecs"],
+      data: ["s3", "dynamodb"],
+      integration: ["sqs", "sns", "eventbridge", "step-functions"],
+      networking: ["api-gateway", "cloudfront"],
+      security: ["cognito"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates all service constructs including M6", () => {
+      const constructs = [
+        "lambda",
+        "ecs",
+        "vpc",
+        "s3",
+        "dynamodb",
+        "sqs",
+        "sns",
+        "eventbridge",
+        "step-functions",
+        "api-gateway",
+        "cloudfront",
+        "cognito",
+        "cloudwatch",
+      ];
+      for (const name of constructs) {
+        expect(
+          result.hasFile(`infra/lib/constructs/${name}.ts`),
+          `Missing construct: ${name}`,
+        ).toBe(true);
+      }
+    });
+
+    it("generates all application boilerplate", () => {
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(true);
+      expect(result.hasFile("ecs/Dockerfile")).toBe(true);
+      expect(result.hasFile("lib/dynamodb/client.ts")).toBe(true);
+      expect(result.hasFile("lib/sqs/consumer.ts")).toBe(true);
+      expect(result.hasFile("lib/eventbridge/events.ts")).toBe(true);
+      expect(result.hasFile("lib/step-functions/definition.ts")).toBe(true);
+      expect(result.hasFile("lib/observability/index.ts")).toBe(true);
+    });
+
+    it("has maximum file count from all presets", () => {
+      expect(result.files.size).toBeGreaterThan(50);
+    });
+  });
+
+  describe("Pattern 17: Full with all services (Terraform)", () => {
+    const result = generateProject({
+      iac: "terraform",
+      compute: ["lambda", "ecs"],
+      data: ["s3", "dynamodb"],
+      integration: ["sqs", "sns", "eventbridge", "step-functions"],
+      networking: ["api-gateway", "cloudfront"],
+      security: ["cognito"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates all service .tf files including M6", () => {
+      const services = [
+        "lambda",
+        "ecs",
+        "vpc",
+        "s3",
+        "dynamodb",
+        "sqs",
+        "sns",
+        "eventbridge",
+        "step-functions",
+        "api-gateway",
+        "cloudfront",
+        "cognito",
+        "cloudwatch",
+      ];
+      for (const name of services) {
+        expect(result.hasFile(`infra/${name}.tf`), `Missing: infra/${name}.tf`).toBe(true);
+      }
+    });
+
+    it("outputs.tf contains outputs from all services", () => {
+      const outputs = result.readText("infra/outputs.tf");
+      expect(outputs).toContain("lambda_function_name");
+      expect(outputs).toContain("ecs_cluster_name");
+      expect(outputs).toContain("vpc_id");
+      expect(outputs).toContain("s3_bucket_name");
+      expect(outputs).toContain("dynamodb_table_name");
+      expect(outputs).toContain("sqs_queue_url");
+      expect(outputs).toContain("sns_topic_arn");
+      expect(outputs).toContain("eventbridge_bus_name");
+      expect(outputs).toContain("step_functions_state_machine_arn");
+      expect(outputs).toContain("api_gateway_url");
+      expect(outputs).toContain("cloudfront_domain_name");
+      expect(outputs).toContain("cognito_user_pool_id");
+      expect(outputs).toContain("cloudwatch_dashboard_name");
+    });
+  });
 });

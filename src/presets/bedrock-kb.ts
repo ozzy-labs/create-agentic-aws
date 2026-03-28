@@ -220,7 +220,7 @@ export function createBedrockKbPreset(): Preset {
   return {
     name: "bedrock-kb",
 
-    requires: ["bedrock"],
+    requires: ["bedrock", "opensearch"],
 
     files: {},
 

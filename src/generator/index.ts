@@ -11,6 +11,7 @@ import { substituteVars } from "./helpers.js";
 import { resolvePresets } from "./resolve.js";
 import {
   applyBedrockKbOpenSearchWiring,
+  applyCognitoApiGatewayAuth,
   applyDynamoDbLambdaIntegration,
   applyLambdaPythonDeps,
   applyLambdaPythonRuntime,
@@ -73,6 +74,9 @@ export function generate(
   }
   if (presetNames.has("dynamodb") && presetNames.has("lambda")) {
     applyDynamoDbLambdaIntegration(answers.iac, files);
+  }
+  if (presetNames.has("cognito") && presetNames.has("api-gateway") && answers.iac === "terraform") {
+    applyCognitoApiGatewayAuth(files);
   }
   ensureTsconfigBase(presets, files);
 

@@ -119,6 +119,7 @@ const REDSHIFT_SERVERLESS_TF = `resource "aws_redshiftserverless_namespace" "thi
 }
 
 resource "aws_redshiftserverless_workgroup" "this" {
+  depends_on         = [aws_redshiftserverless_namespace.this]
   namespace_name     = aws_redshiftserverless_namespace.this.namespace_name
   workgroup_name     = "\${var.project_name}-\${var.environment}-wg"
   base_capacity      = 32

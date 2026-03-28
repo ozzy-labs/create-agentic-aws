@@ -138,7 +138,8 @@ const DEVCONTAINER_JSON = `{
         "EditorConfig.EditorConfig",
         "DavidAnson.vscode-markdownlint",
         "redhat.vscode-yaml",
-        "tamasfe.even-better-toml"
+        "tamasfe.even-better-toml",
+        "amazonwebservices.aws-toolkit-vscode"
       ]
     }
   }
@@ -203,7 +204,8 @@ const VSCODE_EXTENSIONS = `{
     "DavidAnson.vscode-markdownlint",
     "redhat.vscode-yaml",
     "tamasfe.even-better-toml",
-    "exiasr.hadolint"
+    "exiasr.hadolint",
+    "amazonwebservices.aws-toolkit-vscode"
   ]
 }
 `;

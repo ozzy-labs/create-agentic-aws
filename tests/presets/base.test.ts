@@ -128,6 +128,30 @@ describe("base preset", () => {
   });
 
   // -----------------------------------------------------------------------
+  // VSCode extensions
+  // -----------------------------------------------------------------------
+
+  describe("vscode extensions template", () => {
+    it("includes AWS Toolkit extension", () => {
+      expect(base.files[".vscode/extensions.json"]).toContain(
+        "amazonwebservices.aws-toolkit-vscode",
+      );
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // devcontainer
+  // -----------------------------------------------------------------------
+
+  describe("devcontainer template", () => {
+    it("includes AWS Toolkit extension", () => {
+      expect(base.files[".devcontainer/devcontainer.json"]).toContain(
+        "amazonwebservices.aws-toolkit-vscode",
+      );
+    });
+  });
+
+  // -----------------------------------------------------------------------
   // MCP servers
   // -----------------------------------------------------------------------
 

@@ -20,6 +20,7 @@ import { createRdsPreset } from "./rds.js";
 import { createS3Preset } from "./s3.js";
 import { createSnsPreset } from "./sns.js";
 import { createSqsPreset } from "./sqs.js";
+import { createStepFunctionsPreset } from "./step-functions.js";
 import { createTerraformPreset } from "./terraform.js";
 import { createTypescriptPreset } from "./typescript.js";
 import { createVpcPreset } from "./vpc.js";
@@ -51,7 +52,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createRdsPreset(),
     createSnsPreset(),
     createEventBridgePreset(),
-    // Service presets will be added in M6
+    createStepFunctionsPreset(),
   ];
 
   return new Map(presets.map((p) => [p.name, p]));

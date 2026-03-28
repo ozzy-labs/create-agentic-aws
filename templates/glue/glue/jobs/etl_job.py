@@ -13,7 +13,7 @@ from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 
 # Initialize Glue context
-args = getResolvedOptions(sys.argv, ["JOB_NAME"])
+args = getResolvedOptions(sys.argv, ["JOB_NAME", "DATABASE_NAME"])
 sc = SparkContext()
 glue_context = GlueContext(sc)
 spark = glue_context.spark_session
@@ -22,7 +22,7 @@ job.init(args["JOB_NAME"], args)
 
 # Read from Glue Data Catalog
 source_frame = glue_context.create_dynamic_frame.from_catalog(
-    database="{{projectName}}_db",
+    database=args["DATABASE_NAME"],
     table_name="source_table",
     transformation_ctx="source",
 )

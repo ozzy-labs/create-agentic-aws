@@ -61,6 +61,7 @@ export class GlueEtl extends Construct {
         "--job-language": "python",
         "--enable-metrics": "true",
         "--enable-continuous-cloudwatch-log": "true",
+        "--DATABASE_NAME": this.database.ref,
       },
     });
 
@@ -156,6 +157,7 @@ resource "aws_glue_job" "etl" {
     "--job-language"                          = "python"
     "--enable-metrics"                        = "true"
     "--enable-continuous-cloudwatch-log"       = "true"
+    "--DATABASE_NAME"                         = aws_glue_catalog_database.this.name
   }
 }
 `;

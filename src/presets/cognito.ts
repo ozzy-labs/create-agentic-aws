@@ -94,6 +94,20 @@ export class CognitoAuth extends Construct {
 }
 `;
 
+const COGNITO_TF_APIGW_AUTHORIZER = `
+resource "aws_apigatewayv2_authorizer" "cognito" {
+  api_id           = aws_apigatewayv2_api.this.id
+  authorizer_type  = "JWT"
+  name             = "CognitoJwtAuthorizer"
+  identity_sources = ["$request.header.Authorization"]
+
+  jwt_configuration {
+    audience = [aws_cognito_user_pool_client.this.id]
+    issuer   = "https://cognito-idp.\${var.aws_region}.amazonaws.com/\${aws_cognito_user_pool.this.id}"
+  }
+}
+`;
+
 export function createCognitoPreset(): Preset {
   return {
     name: "cognito",
@@ -113,7 +127,7 @@ export function createCognitoPreset(): Preset {
           "infra/lib/app-stack.ts": {
             imports: 'import { CognitoAuth } from "./constructs/cognito";',
             constructs:
-              '    const cognitoAuth = new CognitoAuth(this, "CognitoAuth");\n    apiGateway.addAuthorizer(cognitoAuth.userPool);',
+              '    const cognitoAuth = new CognitoAuth(this, "CognitoAuth");\n    apiGateway.addAuthorizer(cognitoAuth.userPool, cognitoAuth.userPoolClient);',
           },
         },
       },
@@ -123,6 +137,7 @@ export function createCognitoPreset(): Preset {
         },
         merge: {
           "infra/outputs.tf": COGNITO_TF_OUTPUTS,
+          "infra/api-gateway.tf": COGNITO_TF_APIGW_AUTHORIZER,
         },
       },
     },

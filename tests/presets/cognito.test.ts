@@ -6,6 +6,7 @@ import { createCdkPreset } from "../../src/presets/cdk.js";
 import { createCognitoPreset } from "../../src/presets/cognito.js";
 import { createTypescriptPreset } from "../../src/presets/typescript.js";
 import type { Preset, PresetName, WizardAnswers } from "../../src/types.js";
+import { generateProject } from "../helpers.js";
 
 function makeAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswers {
   return {
@@ -100,6 +101,56 @@ describe("cognito preset", () => {
       const construct = result.readText("infra/lib/constructs/cognito.ts");
       expect(construct).toContain("UserPoolId");
       expect(construct).toContain("UserPoolClientId");
+    });
+  });
+
+  // CDK: addAuthorizer passes userPoolClient for HTTP API JWT support
+  describe("CDK HTTP API JWT authorizer", () => {
+    it("passes userPoolClient to addAuthorizer", () => {
+      const merge = cognito.iacContributions?.cdk?.merge?.["infra/lib/app-stack.ts"] as Record<
+        string,
+        string
+      >;
+      expect(merge.constructs).toContain("cognitoAuth.userPoolClient");
+    });
+
+    it("construct addAuthorizer method supports HTTP API JWT", () => {
+      const result = generateProject({
+        networking: ["api-gateway"],
+        apiGatewayOptions: { type: "http" },
+        security: ["cognito"],
+      });
+      const construct = result.readText("infra/lib/constructs/api-gateway.ts");
+      expect(construct).toContain("CfnAuthorizer");
+      expect(construct).toContain("JwtAuthorizer");
+      expect(construct).toContain('authorizerType: "JWT"');
+    });
+  });
+
+  // Terraform: JWT authorizer
+  describe("Terraform JWT authorizer", () => {
+    it("adds jwt authorizer resource to api-gateway.tf", () => {
+      const result = generateProject({
+        iac: "terraform",
+        networking: ["api-gateway"],
+        apiGatewayOptions: { type: "http" },
+        security: ["cognito"],
+      });
+      const apigwTf = result.readText("infra/api-gateway.tf");
+      expect(apigwTf).toContain("aws_apigatewayv2_authorizer");
+      expect(apigwTf).toContain('authorizer_type  = "JWT"');
+    });
+
+    it("adds authorization_type to default route", () => {
+      const result = generateProject({
+        iac: "terraform",
+        networking: ["api-gateway"],
+        apiGatewayOptions: { type: "http" },
+        security: ["cognito"],
+      });
+      const apigwTf = result.readText("infra/api-gateway.tf");
+      expect(apigwTf).toContain('authorization_type = "JWT"');
+      expect(apigwTf).toContain("authorizer_id      = aws_apigatewayv2_authorizer.cognito.id");
     });
   });
 });

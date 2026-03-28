@@ -7,7 +7,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
-import { generate } from "../src/generator.js";
+import { generate } from "../src/generator/index.js";
 import { createRegistry } from "../src/presets/registry.js";
 import type { GenerateResult, WizardAnswers } from "../src/types.js";
 

@@ -478,3 +478,16 @@ export function applyReadmeLabels(
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Cognito + API Gateway (Terraform): add authorization to default route
+// ---------------------------------------------------------------------------
+
+export function applyCognitoApiGatewayAuth(files: Map<string, string>): void {
+  const ctx = "applyCognitoApiGatewayAuth";
+  const apigwTf = requireFile(files, "infra/api-gateway.tf", ctx);
+  const lambdaRef = "$" + "{aws_apigatewayv2_integration.lambda.id}";
+  const search = `  route_key = "$default"\n  target    = "integrations/${lambdaRef}"`;
+  const replacement = `  route_key          = "$default"\n  target             = "integrations/${lambdaRef}"\n  authorization_type = "JWT"\n  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id`;
+  files.set("infra/api-gateway.tf", safeReplace(apigwTf, search, replacement, ctx));
+}

@@ -111,23 +111,45 @@ export class ApiGateway extends Construct {
     }
   }
 
-  /** Attach a Cognito authorizer to the REST API. */
-  addAuthorizer(userPool: cognito.IUserPool): void {
-    if (!this.restApi) return;
+  /** Attach a Cognito authorizer to the REST or HTTP API. */
+  addAuthorizer(
+    userPool: cognito.IUserPool,
+    userPoolClient: cognito.IUserPoolClient,
+  ): void {
+    if (this.restApi) {
+      const authorizer = new apigateway.CognitoUserPoolsAuthorizer(
+        this,
+        "CognitoAuthorizer",
+        { cognitoUserPools: [userPool] },
+      );
 
-    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(
-      this,
-      "CognitoAuthorizer",
-      { cognitoUserPools: [userPool] },
-    );
-
-    this.restApi.methods
-      .filter((m) => m.httpMethod !== "OPTIONS")
-      .forEach((method) => {
-        const cfnMethod = method.node.defaultChild as apigateway.CfnMethod;
-        cfnMethod.authorizationType = "COGNITO_USER_POOLS";
-        cfnMethod.authorizerId = authorizer.authorizerId;
+      this.restApi.methods
+        .filter((m) => m.httpMethod !== "OPTIONS")
+        .forEach((method) => {
+          const cfnMethod = method.node.defaultChild as apigateway.CfnMethod;
+          cfnMethod.authorizationType = "COGNITO_USER_POOLS";
+          cfnMethod.authorizerId = authorizer.authorizerId;
+        });
+    } else if (this.httpApi) {
+      const authorizer = new apigatewayv2.CfnAuthorizer(this, "JwtAuthorizer", {
+        apiId: this.httpApi.apiId,
+        authorizerType: "JWT",
+        name: "CognitoJwtAuthorizer",
+        identitySource: "$request.header.Authorization",
+        jwtConfiguration: {
+          audience: [userPoolClient.userPoolClientId],
+          issuer: \`https://cognito-idp.\${cdk.Aws.REGION}.amazonaws.com/\${userPool.userPoolId}\`,
+        },
       });
+
+      // Apply authorizer to all routes
+      this.httpApi.node.findAll().forEach((child) => {
+        if (child instanceof apigatewayv2.CfnRoute) {
+          child.authorizationType = "JWT";
+          child.authorizerId = authorizer.ref;
+        }
+      });
+    }
   }
 }
 `;

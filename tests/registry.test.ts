@@ -30,10 +30,11 @@ describe("createRegistry", () => {
     expect(registry.has("s3")).toBe(true);
     expect(registry.has("dynamodb")).toBe(true);
     expect(registry.has("sqs")).toBe(true);
+    expect(registry.has("cloudfront")).toBe(true);
   });
 
   it("has correct preset count for M3", () => {
-    // base + 2 languages + 3 agents + 1 IaC + 5 services = 12
-    expect(registry.size).toBe(12);
+    // base + 2 languages + 3 agents + 1 IaC + 6 services = 13
+    expect(registry.size).toBe(13);
   });
 });

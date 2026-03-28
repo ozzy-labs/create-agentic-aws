@@ -31,10 +31,11 @@ describe("createRegistry", () => {
     expect(registry.has("dynamodb")).toBe(true);
     expect(registry.has("sqs")).toBe(true);
     expect(registry.has("cloudfront")).toBe(true);
+    expect(registry.has("cognito")).toBe(true);
   });
 
   it("has correct preset count for M3", () => {
-    // base + 2 languages + 3 agents + 1 IaC + 6 services = 13
-    expect(registry.size).toBe(13);
+    // base + 2 languages + 3 agents + 1 IaC + 7 services = 14
+    expect(registry.size).toBe(14);
   });
 });

@@ -4,8 +4,8 @@ set -euo pipefail
 # Update system packages
 yum update -y
 
-# Install Node.js 22
-curl -fsSL https://rpm.nodesource.com/setup_22.x | bash -
+# Install Node.js 24
+curl -fsSL https://rpm.nodesource.com/setup_24.x | bash -
 yum install -y nodejs
 
 # Install CloudWatch agent

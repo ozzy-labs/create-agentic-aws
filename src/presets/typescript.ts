@@ -21,7 +21,7 @@ export function createTypescriptPreset(): Preset {
         },
         devDependencies: {
           "@biomejs/biome": "^2.0.0",
-          "@types/node": "^22.0.0",
+          "@types/node": "^24.0.0",
           typescript: "^5.8.0",
         },
       },

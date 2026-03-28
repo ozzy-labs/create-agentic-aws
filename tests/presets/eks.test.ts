@@ -40,7 +40,7 @@ describe("eks preset", () => {
   describe("owned files", () => {
     it("includes Dockerfile", () => {
       expect(eks.files["eks/Dockerfile"]).toBeDefined();
-      expect(eks.files["eks/Dockerfile"]).toContain("FROM node:22-slim");
+      expect(eks.files["eks/Dockerfile"]).toContain("FROM node:24-slim");
     });
 
     it("includes app entry with /healthz", () => {

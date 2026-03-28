@@ -55,7 +55,7 @@ const PACKAGE_JSON = `{
     "prepare": "lefthook install"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.0.0",
@@ -70,7 +70,7 @@ const PACKAGE_JSON = `{
 `;
 
 const MISE_TOML = `[tools]
-node = "22"
+node = "24"
 pnpm = "10"
 "pipx:yamllint" = "latest"
 yamlfmt = "latest"

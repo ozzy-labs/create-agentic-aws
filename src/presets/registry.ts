@@ -13,6 +13,7 @@ import { createLambdaPreset } from "./lambda.js";
 import { createPythonPreset } from "./python.js";
 import { createS3Preset } from "./s3.js";
 import { createSqsPreset } from "./sqs.js";
+import { createTerraformPreset } from "./terraform.js";
 import { createTypescriptPreset } from "./typescript.js";
 
 /** Build the preset registry with all available presets. */
@@ -25,6 +26,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createClaudeCodePreset(),
     createCopilotPreset(),
     createCdkPreset(),
+    createTerraformPreset(),
     createLambdaPreset(),
     createApiGatewayPreset(),
     createS3Preset(),

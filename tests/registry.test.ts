@@ -22,6 +22,7 @@ describe("createRegistry", () => {
 
   it("includes iac presets", () => {
     expect(registry.has("cdk")).toBe(true);
+    expect(registry.has("terraform")).toBe(true);
   });
 
   it("includes service presets", () => {
@@ -35,8 +36,8 @@ describe("createRegistry", () => {
     expect(registry.has("cloudwatch")).toBe(true);
   });
 
-  it("has correct preset count for M3", () => {
-    // base + 2 languages + 3 agents + 1 IaC + 8 services = 15
-    expect(registry.size).toBe(15);
+  it("has correct preset count for M4", () => {
+    // base + 2 languages + 3 agents + 2 IaC + 8 services = 16
+    expect(registry.size).toBe(16);
   });
 });

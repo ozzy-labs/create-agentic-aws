@@ -138,6 +138,21 @@ describe("rds preset", () => {
       expect(result.hasFile("infra/lib/constructs/rds.ts")).toBe(true);
       expect(result.hasFile("infra/lib/constructs/vpc.ts")).toBe(true);
     });
+
+    it("defaults to PostgreSQL engine in CDK construct", () => {
+      const result = generate(makeAnswers(), registry);
+      const construct = result.readText("infra/lib/constructs/rds.ts");
+      expect(construct).toContain("DatabaseInstanceEngine.postgres");
+      expect(construct).toContain("PostgresEngineVersion.VER_16_4");
+    });
+
+    it("uses MySQL engine in CDK construct when rdsOptions.engine is mysql", () => {
+      const result = generate(makeAnswers({ rdsOptions: { engine: "mysql" } }), registry);
+      const construct = result.readText("infra/lib/constructs/rds.ts");
+      expect(construct).toContain("DatabaseInstanceEngine.mysql");
+      expect(construct).toContain("MysqlEngineVersion.VER_8_0_40");
+      expect(construct).not.toContain("DatabaseInstanceEngine.postgres");
+    });
   });
 
   // Integration (Terraform)
@@ -155,6 +170,52 @@ describe("rds preset", () => {
       const result = generate(makeAnswers({ iac: "terraform" }), registry);
       const outputs = result.readText("infra/outputs.tf");
       expect(outputs).toContain("rds_instance_endpoint");
+    });
+
+    it("defaults to PostgreSQL engine in Terraform", () => {
+      const result = generate(makeAnswers({ iac: "terraform" }), registry);
+      const tf = result.readText("infra/rds.tf");
+      expect(tf).toContain('engine         = "postgres"');
+      expect(tf).toContain("from_port   = 5432");
+    });
+
+    it("uses MySQL engine in Terraform when rdsOptions.engine is mysql", () => {
+      const result = generate(
+        makeAnswers({ iac: "terraform", rdsOptions: { engine: "mysql" } }),
+        registry,
+      );
+      const tf = result.readText("infra/rds.tf");
+      expect(tf).toContain('engine         = "mysql"');
+      expect(tf).toContain('engine_version = "8.0.40"');
+      expect(tf).toContain("from_port   = 3306");
+      expect(tf).toContain("to_port     = 3306");
+      expect(tf).not.toContain('"postgres"');
+      expect(tf).not.toContain("5432");
+    });
+  });
+
+  // README engine label
+  describe("readme engine label", () => {
+    const allPresets = [
+      createBasePreset(),
+      createTypescriptPreset(),
+      createCdkPreset(),
+      createVpcPreset(),
+      rds,
+    ];
+    const registry = makeRegistry(...allPresets);
+
+    it("defaults to PostgreSQL in README", () => {
+      const result = generate(makeAnswers(), registry);
+      const readme = result.readText("README.md");
+      expect(readme).toContain("PostgreSQL relational database");
+    });
+
+    it("uses MySQL in README when rdsOptions.engine is mysql", () => {
+      const result = generate(makeAnswers({ rdsOptions: { engine: "mysql" } }), registry);
+      const readme = result.readText("README.md");
+      expect(readme).toContain("MySQL relational database");
+      expect(readme).not.toContain("PostgreSQL relational database");
     });
   });
 });

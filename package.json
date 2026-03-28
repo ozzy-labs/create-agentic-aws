@@ -4,7 +4,7 @@
   "description": "CLI tool to generate AI-agent-native AWS projects — supports Amazon Q, Claude Code, Copilot, and more",
   "type": "module",
   "bin": {
-    "create-agentic-aws": "./dist/index.js"
+    "create-agentic-aws": "./dist/index.mjs"
   },
   "files": [
     "dist",
@@ -62,7 +62,7 @@
     "@commitlint/config-conventional": "^20.0.0",
     "@types/node": "^22.0.0",
     "@vitest/coverage-v8": "^4.1.1",
-    "tsdown": "^0.12.0",
+    "tsdown": "^0.21.6",
     "typescript": "^5.8.0",
     "vitest": "^4.1.1"
   }

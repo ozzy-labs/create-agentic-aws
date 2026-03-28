@@ -134,7 +134,6 @@ interface Preset {
   markdown?: Record<string, MarkdownSection[]>;
   ciSteps?: CiContribution;
   setupExtra?: string;
-  conditionalDevDeps?: string[];
 }
 ```
 

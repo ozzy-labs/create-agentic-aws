@@ -204,9 +204,6 @@ export interface Preset {
 
   /** MCP servers to register in agent config files. */
   readonly mcpServers?: Readonly<Record<string, McpServerConfig>>;
-
-  /** devDependencies to add only when this preset is selected. */
-  readonly conditionalDevDeps?: readonly string[];
 }
 
 // ---------------------------------------------------------------------------

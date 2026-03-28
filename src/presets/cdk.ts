@@ -50,6 +50,11 @@ export function createCdkPreset(): Preset {
           },
         },
       },
+      ".vscode/settings.json": {
+        "search.exclude": {
+          "**/infra/cdk.out": true,
+        },
+      },
       ".vscode/extensions.json": {
         recommendations: ["amazonwebservices.aws-toolkit-vscode"],
       },

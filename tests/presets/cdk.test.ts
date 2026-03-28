@@ -87,6 +87,12 @@ describe("cdk preset", () => {
       expect(steps.some((s) => s.name === "Lint (cfn-lint)")).toBe(true);
     });
 
+    it("adds cdk.out to VSCode search exclusions", () => {
+      const settings = cdk.merge[".vscode/settings.json"] as Record<string, unknown>;
+      const searchExclude = settings["search.exclude"] as Record<string, boolean>;
+      expect(searchExclude["**/infra/cdk.out"]).toBe(true);
+    });
+
     it("adds AWS Toolkit to VSCode extensions", () => {
       const ext = cdk.merge[".vscode/extensions.json"] as Record<string, unknown>;
       expect(ext.recommendations).toContain("amazonwebservices.aws-toolkit-vscode");

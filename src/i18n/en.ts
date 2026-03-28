@@ -4,7 +4,10 @@ export const en = {
   outro: "Project created successfully!",
   outroNext: "Next steps:",
   outroNextCd: "  cd {{projectName}}",
-  outroNextSetup: "  bash scripts/setup.sh",
+  outroNextMiseTrust: "  mise trust",
+  outroNextMiseInstall: "  mise install",
+  outroNextPnpmInstall: "  pnpm install",
+  outroNextGitInit: '  git init && git add -A && git commit -m "init"',
 
   // Wizard questions
   projectName: "Project name",

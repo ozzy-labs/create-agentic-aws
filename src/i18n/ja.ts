@@ -6,7 +6,10 @@ export const ja: Record<MessageKey, string> = {
   outro: "プロジェクトを作成しました！",
   outroNext: "次のステップ:",
   outroNextCd: "  cd {{projectName}}",
-  outroNextSetup: "  bash scripts/setup.sh",
+  outroNextMiseTrust: "  mise trust",
+  outroNextMiseInstall: "  mise install",
+  outroNextPnpmInstall: "  pnpm install",
+  outroNextGitInit: '  git init && git add -A && git commit -m "init"',
 
   // Wizard questions
   projectName: "プロジェクト名",

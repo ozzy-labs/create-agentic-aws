@@ -85,7 +85,10 @@ async function main(): Promise<void> {
     p.outro(pc.green(t("outro")));
     p.log.info(t("outroNext"));
     p.log.info(t("outroNextCd", { projectName: relPath }));
-    p.log.info(t("outroNextSetup"));
+    p.log.info(t("outroNextMiseTrust"));
+    p.log.info(t("outroNextMiseInstall"));
+    p.log.info(t("outroNextPnpmInstall"));
+    p.log.info(t("outroNextGitInit"));
   }
 }
 

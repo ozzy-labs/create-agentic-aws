@@ -7,7 +7,7 @@ import * as p from "@clack/prompts";
 import pc from "picocolors";
 
 import { runWizard } from "./cli.js";
-import { generate } from "./generator.js";
+import { generate } from "./generator/index.js";
 import type { Locale } from "./i18n/index.js";
 import { detectLocale, setLocale, t } from "./i18n/index.js";
 import { createRegistry } from "./presets/registry.js";

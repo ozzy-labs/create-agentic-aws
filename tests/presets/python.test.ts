@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { generate } from "../../src/generator.js";
+import { generate } from "../../src/generator/index.js";
 import { createBasePreset } from "../../src/presets/base.js";
 import { createPythonPreset } from "../../src/presets/python.js";
 import type { Preset, PresetName, WizardAnswers } from "../../src/types.js";

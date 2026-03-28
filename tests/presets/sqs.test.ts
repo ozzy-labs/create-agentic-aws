@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { generate } from "../../src/generator.js";
+import { generate } from "../../src/generator/index.js";
 import { createBasePreset } from "../../src/presets/base.js";
 import { createCdkPreset } from "../../src/presets/cdk.js";
 import { createSqsPreset } from "../../src/presets/sqs.js";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolvePresets } from "../src/generator.js";
+import { resolvePresets } from "../src/generator/index.js";
 import { createRegistry } from "../src/presets/registry.js";
 import {
   expectAllJsonValid,

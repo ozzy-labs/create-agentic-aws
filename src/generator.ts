@@ -469,16 +469,29 @@ function applyBedrockKbOpenSearchWiring(answers: WizardAnswers, files: Map<strin
   } else {
     const kbTf = files.get("infra/bedrock-kb.tf");
     if (kbTf) {
-      const arnRef = isServerless
-        ? "aws_opensearchserverless_collection.this.arn"
-        : "aws_opensearch_domain.this.arn";
-      files.set(
-        "infra/bedrock-kb.tf",
-        kbTf.replace(
-          'collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"',
-          `collection_arn    = ${arnRef}`,
-        ),
-      );
+      if (isServerless) {
+        files.set(
+          "infra/bedrock-kb.tf",
+          kbTf.replace(
+            'collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"',
+            "collection_arn    = aws_opensearchserverless_collection.this.arn",
+          ),
+        );
+      } else {
+        files.set(
+          "infra/bedrock-kb.tf",
+          kbTf
+            .replace('type = "OPENSEARCH_SERVERLESS"', 'type = "OPENSEARCH_MANAGED_CLUSTER"')
+            .replace(
+              "opensearch_serverless_configuration",
+              "opensearch_managed_cluster_configuration",
+            )
+            .replace(
+              'collection_arn    = "TODO: Set your OpenSearch Serverless collection ARN"',
+              "domain_arn        = aws_opensearch_domain.this.arn",
+            ),
+        );
+      }
     }
   }
 }

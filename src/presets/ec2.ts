@@ -31,7 +31,8 @@ export class Ec2Instance extends Construct {
       description: "EC2 instance security group",
       allowAllOutbound: true,
     });
-    securityGroup.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(80), "HTTP");
+    // TODO: Add ingress rules for your use case.
+    // Example: securityGroup.addIngressRule(ec2.Peer.ipv4('10.0.0.0/16'), ec2.Port.tcp(80), 'HTTP from VPC');
 
     this.instance = new ec2.Instance(this, "Instance", {
       vpc: props.vpc,
@@ -85,12 +86,13 @@ resource "aws_security_group" "ec2" {
   name_prefix = "\${var.project_name}-ec2-"
   vpc_id      = var.vpc_id
 
-  ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  # TODO: Add ingress rules for your use case.
+  # ingress {
+  #   from_port   = 80
+  #   to_port     = 80
+  #   protocol    = "tcp"
+  #   cidr_blocks = [var.vpc_cidr]
+  # }
 
   egress {
     from_port   = 0

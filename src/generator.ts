@@ -453,18 +453,28 @@ function applyBedrockKbOpenSearchWiring(answers: WizardAnswers, files: Map<strin
         : "opensearchDomain.domain.domainArn";
       const varName = isServerless ? "opensearchCollection" : "opensearchDomain";
       const constructClass = isServerless ? "OpenSearchCollection" : "OpenSearchDomain";
-      files.set(
-        "infra/lib/app-stack.ts",
-        appStack
-          .replace(
-            `    new ${constructClass}(this,`,
-            `    const ${varName} = new ${constructClass}(this,`,
-          )
-          .replace(
-            '{ collectionArn: "TODO: Set your OpenSearch Serverless collection ARN" }',
-            `{ collectionArn: ${arnRef} }`,
-          ),
-      );
+      let patched = appStack
+        .replace(
+          `    new ${constructClass}(this,`,
+          `    const ${varName} = new ${constructClass}(this,`,
+        )
+        .replace(
+          '{ collectionArn: "TODO: Set your OpenSearch Serverless collection ARN" }',
+          `{ collectionArn: ${arnRef} }`,
+        );
+
+      // Move the OpenSearch construct line before BedrockKnowledgeBase so the
+      // variable is declared before it is referenced.
+      const lines = patched.split("\n");
+      const osIdx = lines.findIndex((l) => l.includes(`const ${varName} = new ${constructClass}(`));
+      const kbIdx = lines.findIndex((l) => l.includes("new BedrockKnowledgeBase("));
+      if (osIdx !== -1 && kbIdx !== -1 && osIdx > kbIdx) {
+        const [osLine] = lines.splice(osIdx, 1);
+        lines.splice(kbIdx, 0, osLine);
+        patched = lines.join("\n");
+      }
+
+      files.set("infra/lib/app-stack.ts", patched);
     }
   } else {
     const kbTf = files.get("infra/bedrock-kb.tf");

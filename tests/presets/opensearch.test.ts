@@ -291,7 +291,9 @@ describe("opensearch preset", () => {
         registry,
       );
       const readme = result.readText("README.md");
+      expect(readme).toContain("Amazon OpenSearch Service");
       expect(readme).toContain("Managed search and analytics cluster (VPC)");
+      expect(readme).not.toContain("Amazon OpenSearch Serverless");
     });
   });
 });

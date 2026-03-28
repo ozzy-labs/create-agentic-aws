@@ -67,6 +67,13 @@ describe("bedrock-agents preset", () => {
       expect(construct).toContain("foundationModel");
     });
 
+    it("construct creates Lambda function internally", () => {
+      const construct = cdkContrib?.files["infra/lib/constructs/bedrock-agents.ts"];
+      expect(construct).toContain("new lambda.Function");
+      expect(construct).toContain("ActionGroupFunction");
+      expect(construct).not.toContain("BedrockAgentProps");
+    });
+
     it("construct includes action group configuration", () => {
       const construct = cdkContrib?.files["infra/lib/constructs/bedrock-agents.ts"];
       expect(construct).toContain("actionGroups");
@@ -191,6 +198,12 @@ describe("bedrock-agents preset", () => {
       expect(appStack).toContain("BedrockAccess");
       expect(appStack).toContain("BedrockKnowledgeBase");
       expect(appStack).toContain("BedrockAgent");
+    });
+
+    it("app-stack.ts does not contain undefined!", () => {
+      const result = generate(makeAnswers(), registry);
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).not.toContain("undefined!");
     });
   });
 

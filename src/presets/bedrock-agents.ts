@@ -9,23 +9,39 @@ const BEDROCK_AGENTS_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as bedrock from "aws-cdk-lib/aws-bedrock";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as path from "node:path";
 import type { Construct } from "constructs";
-
-export interface BedrockAgentProps {
-  readonly actionGroupLambda: lambda.IFunction;
-}
 
 export class BedrockAgent extends Construct {
   public readonly agent: bedrock.CfnAgent;
+  public readonly actionGroupLambda: lambda.Function;
 
-  constructor(scope: Construct, id: string, props: BedrockAgentProps) {
+  constructor(scope: Construct, id: string) {
     super(scope, id);
 
-    const role = new iam.Role(this, "Role", {
+    // Action Group Lambda
+    const lambdaRole = new iam.Role(this, "LambdaRole", {
+      assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
+      managedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"),
+      ],
+    });
+
+    this.actionGroupLambda = new lambda.Function(this, "ActionGroupFunction", {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      handler: "action-group.handler",
+      code: lambda.Code.fromAsset(path.join(__dirname, "..", "..", "lambda", "handlers")),
+      role: lambdaRole,
+      memorySize: 256,
+      timeout: cdk.Duration.seconds(30),
+    });
+
+    // Agent IAM role
+    const agentRole = new iam.Role(this, "AgentRole", {
       assumedBy: new iam.ServicePrincipal("bedrock.amazonaws.com"),
     });
 
-    role.addToPolicy(
+    agentRole.addToPolicy(
       new iam.PolicyStatement({
         actions: [
           "bedrock:InvokeModel",
@@ -35,9 +51,10 @@ export class BedrockAgent extends Construct {
       }),
     );
 
+    // Bedrock Agent
     this.agent = new bedrock.CfnAgent(this, "Agent", {
       agentName: cdk.Names.uniqueId(this).slice(0, 32),
-      agentResourceRoleArn: role.roleArn,
+      agentResourceRoleArn: agentRole.roleArn,
       foundationModel: "anthropic.claude-3-5-sonnet-20241022-v2:0",
       instruction: "You are a helpful assistant. Use the available action groups to help users.",
       idleSessionTtlInSeconds: 600,
@@ -45,7 +62,7 @@ export class BedrockAgent extends Construct {
         {
           actionGroupName: "default-action-group",
           actionGroupExecutor: {
-            lambda: props.actionGroupLambda.functionArn,
+            lambda: this.actionGroupLambda.functionArn,
           },
           apiSchema: {
             payload: JSON.stringify({
@@ -69,7 +86,7 @@ export class BedrockAgent extends Construct {
     });
 
     // Grant the agent permission to invoke the Lambda
-    props.actionGroupLambda.addPermission("BedrockAgentInvoke", {
+    this.actionGroupLambda.addPermission("BedrockAgentInvoke", {
       principal: new iam.ServicePrincipal("bedrock.amazonaws.com"),
       sourceArn: this.agent.attrAgentArn,
     });
@@ -236,8 +253,7 @@ export function createBedrockAgentsPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { BedrockAgent } from "./constructs/bedrock-agents";',
-            constructs:
-              '    new BedrockAgent(this, "BedrockAgent", { actionGroupLambda: undefined! });',
+            constructs: '    new BedrockAgent(this, "BedrockAgent");',
           },
         },
       },

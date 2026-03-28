@@ -4,6 +4,8 @@ import { generate, resolvePresets } from "../../src/generator.js";
 import { createBasePreset } from "../../src/presets/base.js";
 import { createCdkPreset } from "../../src/presets/cdk.js";
 import { createLambdaPreset } from "../../src/presets/lambda.js";
+import { createPythonPreset } from "../../src/presets/python.js";
+import { createTerraformPreset } from "../../src/presets/terraform.js";
 import { createTypescriptPreset } from "../../src/presets/typescript.js";
 import type { Preset, PresetName, WizardAnswers } from "../../src/types.js";
 
@@ -168,6 +170,71 @@ describe("lambda preset", () => {
       const result = generate(makeAnswers({ projectName: "test-app" }), registry);
       const pkg = result.readJson<{ name: string }>("infra/package.json");
       expect(pkg.name).toBe("test-app-infra");
+    });
+  });
+
+  // Python Lambda runtime (Terraform + Python, no TypeScript)
+  describe("python lambda runtime", () => {
+    const allPresets = [createBasePreset(), createPythonPreset(), createTerraformPreset(), lambda];
+    const registry = makeRegistry(...allPresets);
+
+    const pythonAnswers = makeAnswers({
+      iac: "terraform",
+      languages: ["python"],
+    });
+
+    it("generates Python handler instead of TypeScript", () => {
+      const result = generate(pythonAnswers, registry);
+      expect(result.hasFile("lambda/handlers/handler.py")).toBe(true);
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(false);
+    });
+
+    it("does not generate TypeScript observability files", () => {
+      const result = generate(pythonAnswers, registry);
+      expect(result.hasFile("lambda/powertools.ts")).toBe(false);
+      expect(result.hasFile("lib/observability/middleware.ts")).toBe(false);
+      expect(result.hasFile("lib/observability/index.ts")).toBe(false);
+    });
+
+    it("Python handler uses Powertools decorators", () => {
+      const result = generate(pythonAnswers, registry);
+      const handler = result.readText("lambda/handlers/handler.py");
+      expect(handler).toContain("@logger.inject_lambda_context");
+      expect(handler).toContain("aws_lambda_powertools");
+    });
+
+    it("updates Terraform lambda.tf to Python runtime", () => {
+      const result = generate(pythonAnswers, registry);
+      const tf = result.readText("infra/lambda.tf");
+      expect(tf).toContain('runtime          = "python3.12"');
+      expect(tf).toContain('handler          = "handler.handler"');
+      expect(tf).not.toContain("nodejs24.x");
+    });
+
+    it("adds aws-lambda-powertools to pyproject.toml", () => {
+      const result = generate(pythonAnswers, registry);
+      const toml = result.readText("pyproject.toml");
+      expect(toml).toContain("aws-lambda-powertools");
+    });
+
+    it("removes Lambda npm deps from package.json", () => {
+      const result = generate(pythonAnswers, registry);
+      const pkg = result.readJson<Record<string, Record<string, unknown>>>("package.json");
+      expect(pkg.dependencies?.["@aws-lambda-powertools/logger"]).toBeUndefined();
+      expect(pkg.dependencies?.["@middy/core"]).toBeUndefined();
+      expect(pkg.devDependencies?.["@types/aws-lambda"]).toBeUndefined();
+    });
+
+    it("does not generate tsconfig.json", () => {
+      const result = generate(pythonAnswers, registry);
+      expect(result.hasFile("tsconfig.json")).toBe(false);
+    });
+
+    it("updates README with Python runtime label", () => {
+      const result = generate(pythonAnswers, registry);
+      const readme = result.readText("README.md");
+      expect(readme).toContain("Python 3.12");
+      expect(readme).not.toContain("Node.js 24");
     });
   });
 

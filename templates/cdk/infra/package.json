@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc -w",
+    "build": "tsc --noEmit",
+    "watch": "tsc --noEmit -w",
     "cdk": "cdk",
     "synth": "cdk synth",
     "deploy": "cdk deploy",

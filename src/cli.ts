@@ -130,6 +130,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
       options: [
         { value: "bedrock", label: t("ai.bedrock") },
         { value: "bedrock-kb", label: t("ai.bedrock-kb") },
+        { value: "bedrock-agents", label: t("ai.bedrock-agents") },
         { value: "opensearch", label: t("ai.opensearch") },
       ],
       required: false,

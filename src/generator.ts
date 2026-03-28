@@ -36,6 +36,7 @@ const PRESET_ORDER: readonly PresetName[] = [
   "ec2",
   "bedrock",
   "bedrock-kb",
+  "bedrock-agents",
   "opensearch",
   "s3",
   "dynamodb",
@@ -93,13 +94,17 @@ export function resolvePresets(
     selected.add("vpc");
   }
 
-  // Resolve transitive dependencies (requires)
+  // Resolve transitive dependencies (requires) — fixed-point
   const resolved = new Set<PresetName>(selected);
-  for (const name of selected) {
+  const queue = [...selected];
+  for (let name = queue.pop(); name !== undefined; name = queue.pop()) {
     const preset = registry.get(name);
     if (preset?.requires) {
       for (const dep of preset.requires) {
-        resolved.add(dep);
+        if (!resolved.has(dep)) {
+          resolved.add(dep);
+          queue.push(dep);
+        }
       }
     }
   }

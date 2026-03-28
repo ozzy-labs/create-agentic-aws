@@ -20,7 +20,7 @@ export type IacPresetName = "cdk" | "terraform";
 
 export type ComputePresetName = "lambda" | "ecs" | "eks" | "ec2";
 
-export type AiPresetName = "bedrock" | "bedrock-kb" | "opensearch";
+export type AiPresetName = "bedrock" | "bedrock-kb" | "bedrock-agents" | "opensearch";
 
 export type DataPresetName = "s3" | "dynamodb" | "aurora" | "rds";
 

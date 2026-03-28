@@ -78,7 +78,11 @@ export function createKinesisPreset(): Preset {
       ...templates,
     },
 
-    merge: {},
+    merge: {
+      "tsconfig.json": {
+        include: ["lib"],
+      },
+    },
 
     iacContributions: {
       cdk: {

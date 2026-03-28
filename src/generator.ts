@@ -143,6 +143,9 @@ export function generate(
   // --- Step 5: Markdown template expansion ---
   expandMarkdownTemplates(presets, files);
 
+  // --- Step 6: Strip merge markers from generated .ts files ---
+  stripMergeMarkers(files);
+
   return new GenerateResult(files);
 }
 
@@ -280,5 +283,20 @@ function expandMarkdownTemplates(presets: readonly Preset[], files: Map<string, 
   for (const [path, sections] of sectionsByPath) {
     const template = files.get(path) ?? "";
     files.set(path, mergeMarkdown(template, sections));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 6: Strip merge markers
+// ---------------------------------------------------------------------------
+
+const MERGE_MARKER_RE = /^[ \t]*\/\/ \[merge: [^\]]+\]\n?/gm;
+
+function stripMergeMarkers(files: Map<string, string>): void {
+  for (const [path, content] of files) {
+    if (path.endsWith(".ts") && MERGE_MARKER_RE.test(content)) {
+      MERGE_MARKER_RE.lastIndex = 0;
+      files.set(path, content.replace(MERGE_MARKER_RE, ""));
+    }
   }
 }

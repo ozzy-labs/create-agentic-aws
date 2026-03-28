@@ -82,6 +82,17 @@ export function expectNoExcessiveBlankLines(result: GenerateResult): void {
   }
 }
 
+/** Assert no .ts files contain leftover merge markers. */
+export function expectNoMergeMarkers(result: GenerateResult): void {
+  for (const [path, content] of result.files) {
+    if (path.endsWith(".ts")) {
+      expect(/\/\/ \[merge: [^\]]+\]/.test(content), `Leftover merge marker in ${path}`).toBe(
+        false,
+      );
+    }
+  }
+}
+
 /** Runtime packages that must NOT be in devDependencies. */
 const RUNTIME_PACKAGES = ["@aws-lambda-powertools/", "@aws-sdk/", "@middy/"];
 

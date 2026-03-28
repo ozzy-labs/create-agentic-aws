@@ -104,7 +104,7 @@ resource "aws_ecs_service" "this" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets          = var.private_subnet_ids
+    subnets          = aws_subnet.private[*].id
     security_groups  = [aws_security_group.ecs.id]
     assign_public_ip = false
   }
@@ -117,7 +117,7 @@ resource "aws_ecs_service" "this" {
 
 resource "aws_security_group" "ecs" {
   name_prefix = "\${var.project_name}-ecs-"
-  vpc_id      = var.vpc_id
+  vpc_id      = aws_vpc.this.id
 
   ingress {
     from_port   = 3000
@@ -158,16 +158,7 @@ resource "aws_cloudwatch_log_group" "ecs" {
 }
 `;
 
-const ECS_TF_VARS = `variable "vpc_id" {
-  description = "VPC ID for ECS service"
-  type        = string
-}
-
-variable "private_subnet_ids" {
-  description = "Private subnet IDs for ECS tasks"
-  type        = list(string)
-}
-`;
+const ECS_TF_VARS = "";
 
 const ECS_TF_OUTPUTS = `output "ecs_cluster_name" {
   description = "ECS cluster name"

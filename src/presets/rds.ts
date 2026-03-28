@@ -70,7 +70,7 @@ const RDS_TF = `resource "aws_db_instance" "this" {
 
 resource "aws_db_subnet_group" "rds" {
   name       = "\${var.project_name}-\${var.environment}-rds-subnet"
-  subnet_ids = var.private_subnet_ids
+  subnet_ids = aws_subnet.private[*].id
 
   tags = {
     Name = "\${var.project_name}-rds-subnet-group"
@@ -79,7 +79,7 @@ resource "aws_db_subnet_group" "rds" {
 
 resource "aws_security_group" "rds" {
   name_prefix = "\${var.project_name}-rds-"
-  vpc_id      = var.vpc_id
+  vpc_id      = aws_vpc.this.id
 
   ingress {
     from_port   = 5432

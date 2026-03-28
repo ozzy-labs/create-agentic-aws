@@ -116,10 +116,12 @@ describe("ecs preset", () => {
       expect(tf).toContain("aws_security_group");
     });
 
-    it("merges vpc-related variables", () => {
-      const vars = tfContrib?.merge?.["infra/variables.tf"] as string;
-      expect(vars).toContain("vpc_id");
-      expect(vars).toContain("private_subnet_ids");
+    it("uses vpc resources directly instead of variables", () => {
+      const tf = tfContrib?.files["infra/ecs.tf"] as string;
+      expect(tf).toContain("aws_vpc.this.id");
+      expect(tf).toContain("aws_subnet.private[*].id");
+      expect(tf).not.toContain("var.vpc_id");
+      expect(tf).not.toContain("var.private_subnet_ids");
     });
 
     it("merges ecs outputs", () => {

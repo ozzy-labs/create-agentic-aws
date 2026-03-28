@@ -58,32 +58,23 @@ output "cloudfront_distribution_id" {
 const CLOUDFRONT_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
-import * as s3 from "aws-cdk-lib/aws-s3";
+import type * as s3 from "aws-cdk-lib/aws-s3";
 import type { Construct } from "constructs";
 
 export interface CloudFrontDistributionProps {
-  /** Optional S3 bucket to use as the origin. Creates a new one if omitted. */
-  readonly originBucket?: s3.IBucket;
+  /** S3 bucket to use as the origin. */
+  readonly originBucket: s3.IBucket;
 }
 
 export class CloudFrontDistribution extends Construct {
   public readonly distribution: cloudfront.Distribution;
 
-  constructor(scope: Construct, id: string, props?: CloudFrontDistributionProps) {
+  constructor(scope: Construct, id: string, props: CloudFrontDistributionProps) {
     super(scope, id);
-
-    const bucket =
-      props?.originBucket ??
-      new s3.Bucket(this, "OriginBucket", {
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        enforceSSL: true,
-        removalPolicy: cdk.RemovalPolicy.RETAIN,
-      });
 
     this.distribution = new cloudfront.Distribution(this, "Distribution", {
       defaultBehavior: {
-        origin: origins.S3BucketOrigin.withOriginAccessControl(bucket),
+        origin: origins.S3BucketOrigin.withOriginAccessControl(props.originBucket),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         cachePolicy: cloudfront.CachePolicy.CACHING_OPTIMIZED,
       },
@@ -108,6 +99,8 @@ export function createCloudFrontPreset(): Preset {
   return {
     name: "cloudfront",
 
+    requires: ["s3"],
+
     files: {},
 
     merge: {},
@@ -120,7 +113,8 @@ export function createCloudFrontPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { CloudFrontDistribution } from "./constructs/cloudfront";',
-            constructs: '    new CloudFrontDistribution(this, "CloudFrontDistribution");',
+            constructs:
+              '    new CloudFrontDistribution(this, "CloudFrontDistribution", {\n      originBucket: s3Bucket.bucket,\n    });',
           },
         },
       },

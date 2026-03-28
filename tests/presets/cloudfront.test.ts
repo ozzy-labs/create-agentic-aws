@@ -4,6 +4,7 @@ import { generate } from "../../src/generator.js";
 import { createBasePreset } from "../../src/presets/base.js";
 import { createCdkPreset } from "../../src/presets/cdk.js";
 import { createCloudFrontPreset } from "../../src/presets/cloudfront.js";
+import { createS3Preset } from "../../src/presets/s3.js";
 import { createTypescriptPreset } from "../../src/presets/typescript.js";
 import type { Preset, PresetName, WizardAnswers } from "../../src/types.js";
 
@@ -65,9 +66,9 @@ describe("cloudfront preset", () => {
       expect(construct).toContain("TLS_V1_2_2021");
     });
 
-    it("construct accepts optional origin bucket", () => {
+    it("construct requires origin bucket", () => {
       const construct = cdkContrib?.files["infra/lib/constructs/cloudfront.ts"];
-      expect(construct).toContain("originBucket?:");
+      expect(construct).toContain("originBucket: s3.IBucket");
     });
 
     it("merges cloudfront instantiation into app-stack.ts", () => {
@@ -83,6 +84,7 @@ describe("cloudfront preset", () => {
       createBasePreset(),
       createTypescriptPreset(),
       createCdkPreset(),
+      createS3Preset(),
       cloudfront,
     ];
     const registry = makeRegistry(...allPresets);

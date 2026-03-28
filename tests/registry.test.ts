@@ -28,10 +28,11 @@ describe("createRegistry", () => {
     expect(registry.has("lambda")).toBe(true);
     expect(registry.has("api-gateway")).toBe(true);
     expect(registry.has("s3")).toBe(true);
+    expect(registry.has("dynamodb")).toBe(true);
   });
 
   it("has correct preset count for M3", () => {
-    // base + 2 languages + 3 agents + 1 IaC + 3 services = 10
-    expect(registry.size).toBe(10);
+    // base + 2 languages + 3 agents + 1 IaC + 4 services = 11
+    expect(registry.size).toBe(11);
   });
 });

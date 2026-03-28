@@ -168,6 +168,7 @@ describe("iac variant tests", () => {
     const result = generateProject({
       iac: "terraform",
       compute: ["lambda"],
+      ai: [],
       data: ["s3", "dynamodb"],
       integration: ["sqs"],
     });

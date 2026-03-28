@@ -14,6 +14,7 @@ export function makeAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswe
     agents: [],
     iac: "cdk",
     compute: [],
+    ai: [],
     data: [],
     integration: [],
     networking: [],

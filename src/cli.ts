@@ -4,6 +4,7 @@ import pc from "picocolors";
 import { t } from "./i18n/index.js";
 import type {
   AgentPresetName,
+  AiPresetName,
   ApiGatewayOptions,
   AuroraCapacity,
   AuroraEngine,
@@ -120,7 +121,16 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     ec2Options = await askEc2Options();
   }
 
-  // 5. Data & Storage + sub-options
+  // 5. AI
+  const ai = guard(
+    await p.multiselect<AiPresetName>({
+      message: t("ai"),
+      options: [{ value: "bedrock", label: t("ai.bedrock") }],
+      required: false,
+    }),
+  );
+
+  // 6. Data & Storage + sub-options
   const data = guard(
     await p.multiselect<DataPresetName>({
       message: t("data"),
@@ -144,7 +154,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     rdsOptions = await askRdsOptions();
   }
 
-  // 6. Application Integration
+  // 7. Application Integration
   const integration = guard(
     await p.multiselect<IntegrationPresetName>({
       message: t("integration"),
@@ -158,7 +168,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     }),
   );
 
-  // 7. Networking & API + sub-options
+  // 8. Networking & API + sub-options
   const networking = guard(
     await p.multiselect<NetworkingPresetName>({
       message: t("networking"),
@@ -176,7 +186,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     apiGatewayOptions = await askApiGatewayOptions();
   }
 
-  // 8. Security & Identity
+  // 9. Security & Identity
   const security = guard(
     await p.multiselect<SecurityPresetName>({
       message: t("security"),
@@ -185,7 +195,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     }),
   );
 
-  // 9. Observability
+  // 10. Observability
   const observability = guard(
     await p.multiselect<ObservabilityPresetName>({
       message: t("observability"),
@@ -197,7 +207,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
   // Auto-resolve VPC if needed
   notifyVpcAutoResolution(compute, data);
 
-  // 10. Languages (auto-resolved ones excluded)
+  // 11. Languages (auto-resolved ones excluded)
   const autoLanguages = resolveAutoLanguages(iac);
   const languages = await askLanguages(autoLanguages);
 
@@ -206,6 +216,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     agents,
     iac,
     compute,
+    ai,
     data,
     integration,
     networking,

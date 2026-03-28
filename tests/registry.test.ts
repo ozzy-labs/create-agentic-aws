@@ -45,9 +45,9 @@ describe("createRegistry", () => {
     expect(registry.has("step-functions")).toBe(true);
   });
 
-  it("has correct preset count for M6", () => {
-    // base + 2 languages + 3 agents + 2 IaC + 16 services + 1 infra = 25
-    expect(registry.size).toBe(25);
+  it("has correct preset count", () => {
+    // base + 2 languages + 3 agents + 2 IaC + 17 services + 1 infra = 26
+    expect(registry.size).toBe(26);
   });
 
   it("passes validation (no circular deps, no missing refs)", () => {

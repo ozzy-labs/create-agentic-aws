@@ -29,6 +29,7 @@ const PRESET_ORDER: readonly PresetName[] = [
   "ecs",
   "eks",
   "ec2",
+  "bedrock",
   "s3",
   "dynamodb",
   "aurora",
@@ -64,6 +65,7 @@ export function resolvePresets(
   for (const name of answers.agents) selected.add(name);
   selected.add(answers.iac);
   for (const name of answers.compute) selected.add(name);
+  for (const name of answers.ai) selected.add(name);
   for (const name of answers.data) selected.add(name);
   for (const name of answers.integration) selected.add(name);
   for (const name of answers.networking) selected.add(name);

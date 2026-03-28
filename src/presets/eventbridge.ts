@@ -82,6 +82,14 @@ export function createEventBridgePreset(): Preset {
           "@aws-sdk/client-eventbridge": "^3.700.0",
         },
       },
+      "renovate.json": {
+        packageRules: [
+          {
+            groupName: "AWS SDK",
+            matchPackagePatterns: ["^@aws-sdk/"],
+          },
+        ],
+      },
     },
 
     iacContributions: {

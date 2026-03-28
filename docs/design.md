@@ -702,18 +702,17 @@ Issue は複数の軸でラベル分類:
 ```text
 pnpm create agentic-aws [my-app]
   │
-  ├─ src/index.ts          # process.argv からプロジェクト名を取得
+  ├─ src/index.ts          # CLI 引数解析（--dry-run, --lang）、ロケール設定
   ├─ src/cli.ts            # @clack/prompts でウィザード実行（10 問 + サブオプション）
-  │                          → { name, agents, iac, compute, data, integration, networking, security, observability, languages }
-  ├─ src/generator.ts      # 1. 依存解決 → プリセットリスト
-  │                          2. templates/ から所有ファイルを収集
-  │                          3. IaC 貢献を収集（選択された IaC に基づく）
-  │                          4. 共有ファイルを deep merge (JSON/YAML/TOML/HCL)
-  │                          5. Markdown テンプレートを展開（セクション注入）
-  │                          6. CI ワークフローをビルド (src/ci.ts)
-  │                          7. setup.sh テンプレートを展開 (src/setup.ts)
-  │                          8. 全ファイルを出力ディレクトリに書き込み
-  └─ 生成後処理（自動セットアップ: pnpm install, git init）
+  │                          → WizardAnswers { projectName, agents, iac, compute, data, ... }
+  ├─ src/generator.ts      # 1. 依存解決 → プリセットリスト（canonical order）
+  │                          2. 所有ファイルを収集（テンプレート + インライン、変数置換）
+  │                          3. IaC 貢献を収集（選択された IaC に基づく CDK/Terraform）
+  │                          4. 共有ファイルを deep merge (JSON/YAML/TOML/HCL/TypeScript)
+  │                          5. MCP サーバーを各エージェント設定に配布
+  │                          6. Markdown テンプレートを展開（セクション注入）
+  ├─ src/utils.ts          # GenerateResult → ディスク書き込み
+  └─ src/tree.ts           # --dry-run 時のファイルツリー表示
 ```
 
 ### 依存パッケージ
@@ -752,7 +751,7 @@ pnpm create agentic-aws [my-app]
   "description": "CLI tool to generate AI-agent-native AWS projects — supports Amazon Q, Claude Code, Copilot, and more",
   "type": "module",
   "bin": {
-    "create-agentic-aws": "./dist/index.js"
+    "create-agentic-aws": "./dist/index.mjs"
   },
   "files": [
     "dist",
@@ -771,19 +770,21 @@ pnpm create agentic-aws [my-app]
 ```text
 create-agentic-aws/
 ├── src/
-│   ├── index.ts              # エントリポイント（CLI 起動）
+│   ├── index.ts              # エントリポイント（CLI 引数解析、ロケール設定）
 │   ├── cli.ts                # ウィザード（@clack/prompts）
 │   ├── generator.ts          # 合成エンジン（解決 → マージ → 出力）
-│   ├── merge.ts              # ファイルタイプ別マージロジック（JSON, YAML, TOML, HCL, Markdown）
-│   ├── ci.ts                 # CI ワークフロービルダー
-│   ├── setup.ts              # setup.sh テンプレート展開
+│   ├── merge.ts              # ファイルタイプ別マージロジック（JSON, YAML, TOML, HCL, TS, Markdown）
+│   ├── tree.ts               # ファイルツリー表示（--dry-run 用）
 │   ├── utils.ts              # ファイル I/O ユーティリティ
 │   ├── types.ts              # 型定義（Preset インターフェース等）
 │   ├── i18n/
 │   │   ├── index.ts
-│   │   ├── en.json
-│   │   └── ja.json
+│   │   ├── en.ts
+│   │   └── ja.ts
 │   └── presets/
+│       ├── registry.ts       # プリセットレジストリ（登録 + バリデーション）
+│       ├── templates.ts      # テンプレートファイル読み込み
+│       ├── shared.ts         # 共有 MCP サーバー定義
 │       ├── base.ts
 │       ├── typescript.ts
 │       ├── python.ts
@@ -808,33 +809,25 @@ create-agentic-aws/
 │       ├── api-gateway.ts
 │       ├── cloudfront.ts
 │       ├── cognito.ts
-│       ├── cloudwatch.ts
-│       └── shared.ts
+│       └── cloudwatch.ts
 ├── templates/                # 所有ファイル（プリセットがそのままコピー）
-│   ├── base/
-│   ├── typescript/
-│   ├── python/
+│   ├── base/                 # ※ IaC のみのプリセット（s3, aurora, rds, sns 等）は
+│   ├── typescript/           #   テンプレートディレクトリを持たず、
+│   ├── python/               #   src/presets/*.ts にインライン定義
 │   ├── amazon-q/
 │   ├── claude-code/
 │   ├── copilot/
 │   ├── cdk/
 │   ├── terraform/
 │   ├── lambda/
-│   ├── ecs/
-│   ├── eks/
-│   ├── ec2/
-│   ├── s3/
 │   ├── dynamodb/
-│   ├── aurora/
-│   ├── rds/
 │   ├── sqs/
-│   ├── sns/
 │   ├── eventbridge/
 │   ├── step-functions/
-│   ├── api-gateway/
-│   ├── cloudfront/
-│   ├── cognito/
-│   └── cloudwatch/
+│   ├── cloudwatch/
+│   ├── ecs/
+│   ├── eks/
+│   └── ec2/
 ├── tests/
 ├── docs/
 ├── scripts/

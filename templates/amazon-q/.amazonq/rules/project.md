@@ -24,3 +24,15 @@ pnpm run build        # Build
 - Indent: 2 spaces
 - Line ending: LF only
 - Run linters before committing
+
+## Commit Convention
+
+Conventional Commits required (enforced by commitlint):
+
+```text
+<type>[optional scope]: <description>
+```
+
+## Branching
+
+GitHub Flow: `main` + feature branches. **squash merge only**.

@@ -9,6 +9,7 @@ import { createCloudWatchPreset } from "./cloudwatch.js";
 import { createCognitoPreset } from "./cognito.js";
 import { createCopilotPreset } from "./copilot.js";
 import { createDynamoDbPreset } from "./dynamodb.js";
+import { createEc2Preset } from "./ec2.js";
 import { createEcsPreset } from "./ecs.js";
 import { createEksPreset } from "./eks.js";
 import { createLambdaPreset } from "./lambda.js";
@@ -41,6 +42,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createVpcPreset(),
     createEcsPreset(),
     createEksPreset(),
+    createEc2Preset(),
     // Service presets will be added in M5-M6
   ];
 

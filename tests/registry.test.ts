@@ -37,10 +37,11 @@ describe("createRegistry", () => {
     expect(registry.has("vpc")).toBe(true);
     expect(registry.has("ecs")).toBe(true);
     expect(registry.has("eks")).toBe(true);
+    expect(registry.has("ec2")).toBe(true);
   });
 
   it("has correct preset count for M5", () => {
-    // base + 2 languages + 3 agents + 2 IaC + 10 services + 1 infra = 19
-    expect(registry.size).toBe(19);
+    // base + 2 languages + 3 agents + 2 IaC + 11 services + 1 infra = 20
+    expect(registry.size).toBe(20);
   });
 });

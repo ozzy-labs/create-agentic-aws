@@ -66,7 +66,7 @@ export function createCloudWatchPreset(): Preset {
 
     merge: {
       "package.json": {
-        devDependencies: {
+        dependencies: {
           "@aws-lambda-powertools/logger": "^2.14.0",
           "@aws-lambda-powertools/metrics": "^2.14.0",
           "@aws-lambda-powertools/tracer": "^2.14.0",

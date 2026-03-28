@@ -68,7 +68,7 @@ export function createEventBridgePreset(): Preset {
 
     merge: {
       "package.json": {
-        devDependencies: {
+        dependencies: {
           "@aws-sdk/client-eventbridge": "^3.700.0",
         },
       },

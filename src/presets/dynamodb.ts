@@ -77,7 +77,7 @@ export function createDynamoDbPreset(): Preset {
 
     merge: {
       "package.json": {
-        devDependencies: {
+        dependencies: {
           "@aws-sdk/client-dynamodb": "^3.700.0",
           "@aws-sdk/lib-dynamodb": "^3.700.0",
         },

@@ -24,7 +24,7 @@ export type AiPresetName = "bedrock" | "bedrock-kb" | "bedrock-agents" | "opense
 
 export type DataPresetName = "s3" | "dynamodb" | "aurora" | "rds";
 
-export type DataPipelinePresetName = "kinesis";
+export type DataPipelinePresetName = "kinesis" | "glue";
 
 export type IntegrationPresetName = "sqs" | "sns" | "eventbridge" | "step-functions";
 

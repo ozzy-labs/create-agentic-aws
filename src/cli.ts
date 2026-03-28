@@ -172,7 +172,10 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
   const dataPipeline = guard(
     await p.multiselect<DataPipelinePresetName>({
       message: t("dataPipeline"),
-      options: [{ value: "kinesis", label: t("dataPipeline.kinesis") }],
+      options: [
+        { value: "kinesis", label: t("dataPipeline.kinesis") },
+        { value: "glue", label: t("dataPipeline.glue") },
+      ],
       required: false,
     }),
   );

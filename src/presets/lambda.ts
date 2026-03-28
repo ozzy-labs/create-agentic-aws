@@ -1,6 +1,66 @@
 import type { Preset } from "../types.js";
 import { readTemplates } from "./templates.js";
 
+const LAMBDA_TF = `data "archive_file" "lambda" {
+  type        = "zip"
+  source_dir  = "\${path.module}/../lambda/handlers"
+  output_path = "\${path.module}/.build/lambda.zip"
+}
+
+resource "aws_lambda_function" "this" {
+  function_name    = "\${var.project_name}-handler"
+  role             = aws_iam_role.lambda.arn
+  handler          = "index.handler"
+  runtime          = "nodejs22.x"
+  memory_size      = 256
+  timeout          = 30
+  filename         = data.archive_file.lambda.output_path
+  source_code_hash = data.archive_file.lambda.output_base64sha256
+
+  environment {
+    variables = {
+      NODE_OPTIONS = "--enable-source-maps"
+    }
+  }
+}
+
+resource "aws_iam_role" "lambda" {
+  name = "\${var.project_name}-lambda-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = { Service = "lambda.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_basic" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+`;
+
+const LAMBDA_TF_VARS = `variable "lambda_memory_size" {
+  description = "Lambda function memory size in MB"
+  type        = number
+  default     = 256
+}
+`;
+
+const LAMBDA_TF_OUTPUTS = `output "lambda_function_name" {
+  description = "Lambda function name"
+  value       = aws_lambda_function.this.function_name
+}
+
+output "lambda_function_arn" {
+  description = "Lambda function ARN"
+  value       = aws_lambda_function.this.arn
+}
+`;
+
 const LAMBDA_CONSTRUCT = `import { Duration } from "aws-cdk-lib";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
@@ -71,6 +131,15 @@ export function createLambdaPreset(): Preset {
               esbuild: "^0.25.0",
             },
           },
+        },
+      },
+      terraform: {
+        files: {
+          "infra/lambda.tf": LAMBDA_TF,
+        },
+        merge: {
+          "infra/variables.tf": LAMBDA_TF_VARS,
+          "infra/outputs.tf": LAMBDA_TF_OUTPUTS,
         },
       },
     },

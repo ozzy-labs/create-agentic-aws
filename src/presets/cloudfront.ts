@@ -1,5 +1,60 @@
 import type { Preset } from "../types.js";
 
+const CLOUDFRONT_TF = `resource "aws_cloudfront_origin_access_control" "this" {
+  name                              = "\${var.project_name}-oac"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "aws_cloudfront_distribution" "this" {
+  enabled             = true
+  default_root_object = "index.html"
+
+  origin {
+    domain_name              = "\${var.project_name}-origin.s3.amazonaws.com"
+    origin_id                = "s3-origin"
+    origin_access_control_id = aws_cloudfront_origin_access_control.this.id
+  }
+
+  default_cache_behavior {
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "s3-origin"
+    viewer_protocol_policy = "redirect-to-https"
+
+    forwarded_values {
+      query_string = false
+      cookies {
+        forward = "none"
+      }
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+    minimum_protocol_version       = "TLSv1.2_2021"
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+}
+`;
+
+const CLOUDFRONT_TF_OUTPUTS = `output "cloudfront_domain_name" {
+  description = "CloudFront distribution domain name"
+  value       = aws_cloudfront_distribution.this.domain_name
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID"
+  value       = aws_cloudfront_distribution.this.id
+}
+`;
+
 const CLOUDFRONT_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
@@ -67,6 +122,14 @@ export function createCloudFrontPreset(): Preset {
             imports: 'import { CloudFrontDistribution } from "./constructs/cloudfront";',
             constructs: '    new CloudFrontDistribution(this, "CloudFrontDistribution");',
           },
+        },
+      },
+      terraform: {
+        files: {
+          "infra/cloudfront.tf": CLOUDFRONT_TF,
+        },
+        merge: {
+          "infra/outputs.tf": CLOUDFRONT_TF_OUTPUTS,
         },
       },
     },

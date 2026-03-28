@@ -1,5 +1,29 @@
 import type { Preset } from "../types.js";
 
+const API_GATEWAY_TF = `resource "aws_apigatewayv2_api" "this" {
+  name          = "\${var.project_name}-api"
+  protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["*"]
+    allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers = ["Content-Type", "Authorization"]
+  }
+}
+
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.this.id
+  name        = "$default"
+  auto_deploy = true
+}
+`;
+
+const API_GATEWAY_TF_OUTPUTS = `output "api_gateway_url" {
+  description = "API Gateway endpoint URL"
+  value       = aws_apigatewayv2_stage.default.invoke_url
+}
+`;
+
 const API_GATEWAY_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
@@ -71,6 +95,14 @@ export function createApiGatewayPreset(): Preset {
             imports: 'import { ApiGateway } from "./constructs/api-gateway";',
             constructs: '    new ApiGateway(this, "ApiGateway", { type: "rest" });',
           },
+        },
+      },
+      terraform: {
+        files: {
+          "infra/api-gateway.tf": API_GATEWAY_TF,
+        },
+        merge: {
+          "infra/outputs.tf": API_GATEWAY_TF_OUTPUTS,
         },
       },
     },

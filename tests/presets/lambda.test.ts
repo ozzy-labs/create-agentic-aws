@@ -88,12 +88,12 @@ describe("lambda preset", () => {
       expect(devDeps["@types/aws-lambda"]).toBeDefined();
     });
 
-    it("adds powertools packages to root devDependencies", () => {
+    it("adds powertools packages to root dependencies", () => {
       const pkg = lambda.merge["package.json"] as Record<string, unknown>;
-      const devDeps = pkg.devDependencies as Record<string, string>;
-      expect(devDeps["@aws-lambda-powertools/logger"]).toBeDefined();
-      expect(devDeps["@aws-lambda-powertools/tracer"]).toBeDefined();
-      expect(devDeps["@aws-lambda-powertools/metrics"]).toBeDefined();
+      const deps = pkg.dependencies as Record<string, string>;
+      expect(deps["@aws-lambda-powertools/logger"]).toBeDefined();
+      expect(deps["@aws-lambda-powertools/tracer"]).toBeDefined();
+      expect(deps["@aws-lambda-powertools/metrics"]).toBeDefined();
     });
   });
 

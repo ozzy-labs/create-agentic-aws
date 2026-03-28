@@ -4,6 +4,7 @@ import {
   expectAllJsonValid,
   expectNoLeftoverPlaceholders,
   expectPresetsIncluded,
+  expectRuntimeDepsCorrect,
   generateProject,
 } from "./helpers.js";
 
@@ -229,6 +230,10 @@ describe("smoke tests", () => {
       expectNoLeftoverPlaceholders(result);
     });
 
+    it("puts runtime packages in dependencies, not devDependencies", () => {
+      expectRuntimeDepsCorrect(result);
+    });
+
     it("generates infra directory structure", () => {
       expect(result.hasFile("infra/bin/app.ts")).toBe(true);
       expect(result.hasFile("infra/lib/app-stack.ts")).toBe(true);
@@ -262,11 +267,14 @@ describe("smoke tests", () => {
       expect(appStack).toContain("CloudWatchDashboard");
     });
 
-    it("merges all service dependencies into package.json", () => {
-      const pkg = result.readJson<{ devDependencies: Record<string, string> }>("package.json");
+    it("puts runtime deps in dependencies and types in devDependencies", () => {
+      const pkg = result.readJson<{
+        dependencies: Record<string, string>;
+        devDependencies: Record<string, string>;
+      }>("package.json");
       expect(pkg.devDependencies["@types/aws-lambda"]).toBeDefined();
-      expect(pkg.devDependencies["@aws-sdk/client-dynamodb"]).toBeDefined();
-      expect(pkg.devDependencies["@aws-lambda-powertools/logger"]).toBeDefined();
+      expect(pkg.dependencies["@aws-sdk/client-dynamodb"]).toBeDefined();
+      expect(pkg.dependencies["@aws-lambda-powertools/logger"]).toBeDefined();
     });
 
     it("README contains all service tech stack entries", () => {

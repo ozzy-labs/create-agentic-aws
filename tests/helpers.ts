@@ -72,3 +72,22 @@ export function expectFilesAbsent(result: GenerateResult, paths: string[]): void
     expect(result.hasFile(path), `Unexpected file ${path}`).toBe(false);
   }
 }
+
+/** Runtime packages that must NOT be in devDependencies. */
+const RUNTIME_PACKAGES = ["@aws-lambda-powertools/", "@aws-sdk/", "@middy/"];
+
+/** Assert runtime packages are in dependencies, not devDependencies. */
+export function expectRuntimeDepsCorrect(result: GenerateResult): void {
+  if (!result.hasFile("package.json")) return;
+  const pkg = result.readJson<{
+    devDependencies?: Record<string, string>;
+  }>("package.json");
+  if (!pkg.devDependencies) return;
+  for (const dep of Object.keys(pkg.devDependencies)) {
+    const isRuntime = RUNTIME_PACKAGES.some((prefix) => dep.startsWith(prefix));
+    expect(
+      isRuntime,
+      `Runtime package "${dep}" should be in dependencies, not devDependencies`,
+    ).toBe(false);
+  }
+}

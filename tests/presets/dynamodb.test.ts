@@ -85,11 +85,11 @@ describe("dynamodb preset", () => {
 
   // Merge contributions
   describe("merge contributions", () => {
-    it("adds AWS SDK DynamoDB to root devDependencies", () => {
+    it("adds AWS SDK DynamoDB to root dependencies", () => {
       const pkg = dynamodb.merge["package.json"] as Record<string, unknown>;
-      const devDeps = pkg.devDependencies as Record<string, string>;
-      expect(devDeps["@aws-sdk/client-dynamodb"]).toBeDefined();
-      expect(devDeps["@aws-sdk/lib-dynamodb"]).toBeDefined();
+      const deps = pkg.dependencies as Record<string, string>;
+      expect(deps["@aws-sdk/client-dynamodb"]).toBeDefined();
+      expect(deps["@aws-sdk/lib-dynamodb"]).toBeDefined();
     });
   });
 
@@ -121,10 +121,10 @@ describe("dynamodb preset", () => {
       expect(appStack).toContain("new DynamoDbTable");
     });
 
-    it("merges AWS SDK into root package.json", () => {
+    it("merges AWS SDK into root package.json dependencies", () => {
       const result = generate(makeAnswers(), registry);
-      const pkg = result.readJson<{ devDependencies: Record<string, string> }>("package.json");
-      expect(pkg.devDependencies["@aws-sdk/client-dynamodb"]).toBeDefined();
+      const pkg = result.readJson<{ dependencies: Record<string, string> }>("package.json");
+      expect(pkg.dependencies["@aws-sdk/client-dynamodb"]).toBeDefined();
     });
   });
 });

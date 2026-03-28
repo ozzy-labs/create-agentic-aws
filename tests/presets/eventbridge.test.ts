@@ -90,10 +90,10 @@ describe("eventbridge preset", () => {
 
   // Merge contributions
   describe("merge contributions", () => {
-    it("adds AWS SDK EventBridge to root devDependencies", () => {
+    it("adds AWS SDK EventBridge to root dependencies", () => {
       const pkg = eb.merge["package.json"] as Record<string, unknown>;
-      const devDeps = pkg.devDependencies as Record<string, string>;
-      expect(devDeps["@aws-sdk/client-eventbridge"]).toBeDefined();
+      const deps = pkg.dependencies as Record<string, string>;
+      expect(deps["@aws-sdk/client-eventbridge"]).toBeDefined();
     });
   });
 

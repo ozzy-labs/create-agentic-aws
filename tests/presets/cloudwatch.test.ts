@@ -76,13 +76,13 @@ describe("cloudwatch preset", () => {
 
   // Merge contributions
   describe("merge contributions", () => {
-    it("adds Powertools and middy to root devDependencies", () => {
+    it("adds Powertools and middy to root dependencies", () => {
       const pkg = cw.merge["package.json"] as Record<string, unknown>;
-      const devDeps = pkg.devDependencies as Record<string, string>;
-      expect(devDeps["@aws-lambda-powertools/logger"]).toBeDefined();
-      expect(devDeps["@aws-lambda-powertools/metrics"]).toBeDefined();
-      expect(devDeps["@aws-lambda-powertools/tracer"]).toBeDefined();
-      expect(devDeps["@middy/core"]).toBeDefined();
+      const deps = pkg.dependencies as Record<string, string>;
+      expect(deps["@aws-lambda-powertools/logger"]).toBeDefined();
+      expect(deps["@aws-lambda-powertools/metrics"]).toBeDefined();
+      expect(deps["@aws-lambda-powertools/tracer"]).toBeDefined();
+      expect(deps["@middy/core"]).toBeDefined();
     });
   });
 

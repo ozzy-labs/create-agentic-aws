@@ -42,11 +42,14 @@ describe("pairwise tests", () => {
       expect(result.hasFile("lib/dynamodb/repository.ts")).toBe(true);
     });
 
-    it("merges dependencies from all three services", () => {
-      const pkg = result.readJson<{ devDependencies: Record<string, string> }>("package.json");
+    it("merges runtime deps to dependencies and types to devDependencies", () => {
+      const pkg = result.readJson<{
+        dependencies: Record<string, string>;
+        devDependencies: Record<string, string>;
+      }>("package.json");
       expect(pkg.devDependencies["@types/aws-lambda"]).toBeDefined();
-      expect(pkg.devDependencies["@aws-sdk/client-dynamodb"]).toBeDefined();
-      expect(pkg.devDependencies["@aws-lambda-powertools/logger"]).toBeDefined();
+      expect(pkg.dependencies["@aws-sdk/client-dynamodb"]).toBeDefined();
+      expect(pkg.dependencies["@aws-lambda-powertools/logger"]).toBeDefined();
     });
 
     it("infra/package.json has esbuild for Lambda bundling", () => {

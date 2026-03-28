@@ -452,4 +452,164 @@ describe("smoke tests", () => {
       expect(result.files.size).toBeGreaterThan(25);
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // M5: Container/Server + RDB patterns
+  // ---------------------------------------------------------------------------
+
+  describe("Pattern 11: Container (CDK)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["ecs"],
+      data: ["aurora"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates ECS, Aurora, VPC, CloudWatch constructs", () => {
+      expect(result.hasFile("infra/lib/constructs/ecs.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/aurora.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/vpc.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/cloudwatch.ts")).toBe(true);
+    });
+
+    it("generates ECS app files", () => {
+      expect(result.hasFile("ecs/Dockerfile")).toBe(true);
+      expect(result.hasFile("ecs/src/index.ts")).toBe(true);
+    });
+
+    it("app-stack.ts contains all service constructs", () => {
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("EcsService");
+      expect(appStack).toContain("AuroraCluster");
+      expect(appStack).toContain("Vpc");
+      expect(appStack).toContain("CloudWatchDashboard");
+    });
+  });
+
+  describe("Pattern 12: Container (Terraform)", () => {
+    const result = generateProject({
+      iac: "terraform",
+      compute: ["ecs"],
+      data: ["aurora"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates all service .tf files", () => {
+      expect(result.hasFile("infra/ecs.tf")).toBe(true);
+      expect(result.hasFile("infra/aurora.tf")).toBe(true);
+      expect(result.hasFile("infra/vpc.tf")).toBe(true);
+      expect(result.hasFile("infra/cloudwatch.tf")).toBe(true);
+    });
+  });
+
+  describe("Pattern 13: Kubernetes (CDK)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["eks"],
+      data: ["rds"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates EKS, RDS, VPC, CloudWatch constructs", () => {
+      expect(result.hasFile("infra/lib/constructs/eks.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/rds.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/vpc.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/cloudwatch.ts")).toBe(true);
+    });
+
+    it("generates EKS app and manifest files", () => {
+      expect(result.hasFile("eks/Dockerfile")).toBe(true);
+      expect(result.hasFile("eks/manifests/deployment.yaml")).toBe(true);
+      expect(result.hasFile("eks/manifests/service.yaml")).toBe(true);
+    });
+  });
+
+  describe("Pattern 14: Kubernetes (Terraform)", () => {
+    const result = generateProject({
+      iac: "terraform",
+      compute: ["eks"],
+      data: ["rds"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("generates all service .tf files", () => {
+      expect(result.hasFile("infra/eks.tf")).toBe(true);
+      expect(result.hasFile("infra/rds.tf")).toBe(true);
+      expect(result.hasFile("infra/vpc.tf")).toBe(true);
+      expect(result.hasFile("infra/cloudwatch.tf")).toBe(true);
+    });
+  });
+
+  describe("Pattern 15: Full (CDK)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["lambda", "ecs"],
+      data: ["s3", "dynamodb"],
+      integration: ["sqs"],
+      networking: ["api-gateway", "cloudfront"],
+      security: ["cognito"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates constructs for all selected services", () => {
+      const constructs = [
+        "lambda",
+        "ecs",
+        "vpc",
+        "s3",
+        "dynamodb",
+        "sqs",
+        "api-gateway",
+        "cloudfront",
+        "cognito",
+        "cloudwatch",
+      ];
+      for (const name of constructs) {
+        expect(
+          result.hasFile(`infra/lib/constructs/${name}.ts`),
+          `Missing construct: ${name}`,
+        ).toBe(true);
+      }
+    });
+
+    it("has very large file count", () => {
+      expect(result.files.size).toBeGreaterThan(40);
+    });
+  });
 });

@@ -35,12 +35,10 @@ describe("step-functions preset", () => {
     expect(sfn.name).toBe("step-functions");
   });
 
-  // Owned files (state machine definition)
+  // Owned files
   describe("owned files", () => {
-    it("includes state machine definition", () => {
-      expect(sfn.files["lib/step-functions/definition.ts"]).toBeDefined();
-      expect(sfn.files["lib/step-functions/definition.ts"]).toContain("WORKFLOW_DEFINITION");
-      expect(sfn.files["lib/step-functions/definition.ts"]).toContain("StartAt");
+    it("has no owned files (workflow defined in CDK construct / TF)", () => {
+      expect(Object.keys(sfn.files)).toHaveLength(0);
     });
   });
 
@@ -104,16 +102,9 @@ describe("step-functions preset", () => {
       sfn,
     );
 
-    it("generates definition and construct files", () => {
+    it("generates construct file", () => {
       const result = generate(makeAnswers(), registry);
-      expect(result.hasFile("lib/step-functions/definition.ts")).toBe(true);
       expect(result.hasFile("infra/lib/constructs/step-functions.ts")).toBe(true);
-    });
-
-    it("substitutes projectName in definition", () => {
-      const result = generate(makeAnswers({ projectName: "test-app" }), registry);
-      const def = result.readText("lib/step-functions/definition.ts");
-      expect(def).toContain("test-app");
     });
   });
 

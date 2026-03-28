@@ -1,5 +1,4 @@
 import type { Preset } from "../types.js";
-import { readTemplates } from "./templates.js";
 
 const STEP_FUNCTIONS_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as logs from "aws-cdk-lib/aws-logs";
@@ -136,20 +135,12 @@ const STEP_FUNCTIONS_TF_OUTPUTS = `output "step_functions_state_machine_arn" {
 `;
 
 export function createStepFunctionsPreset(): Preset {
-  const templates = readTemplates("step-functions");
-
   return {
     name: "step-functions",
 
-    files: {
-      ...templates,
-    },
+    files: {},
 
-    merge: {
-      "tsconfig.json": {
-        include: ["lib"],
-      },
-    },
+    merge: {},
 
     iacContributions: {
       cdk: {

@@ -292,9 +292,8 @@ describe("pairwise tests", () => {
       expect(result.hasFile("infra/lib/constructs/step-functions.ts")).toBe(true);
     });
 
-    it("generates Lambda handler and workflow definition", () => {
+    it("generates Lambda handler", () => {
       expect(result.hasFile("lambda/handlers/index.ts")).toBe(true);
-      expect(result.hasFile("lib/step-functions/definition.ts")).toBe(true);
     });
 
     it("app-stack.ts contains both constructs", () => {

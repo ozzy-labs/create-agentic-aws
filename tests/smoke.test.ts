@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   expectAllJsonValid,
+  expectNoExcessiveBlankLines,
   expectNoLeftoverPlaceholders,
   expectPresetsIncluded,
   expectRuntimeDepsCorrect,
@@ -232,6 +233,10 @@ describe("smoke tests", () => {
 
     it("puts runtime packages in dependencies, not devDependencies", () => {
       expectRuntimeDepsCorrect(result);
+    });
+
+    it("has no excessive blank lines in markdown files", () => {
+      expectNoExcessiveBlankLines(result);
     });
 
     it("generates infra directory structure", () => {

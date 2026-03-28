@@ -139,6 +139,11 @@ export function generate(
     applyLambdaVpcPlacement(answers.iac, files);
   }
 
+  // --- Step 2.6: RDS engine option ---
+  if (answers.rdsOptions?.engine === "mysql") {
+    applyRdsEngineOption(answers.iac, files);
+  }
+
   // --- Step 3: Shared file deep merge ---
   mergeSharedFiles(presets, files, vars);
 
@@ -147,6 +152,17 @@ export function generate(
 
   // --- Step 5: Markdown template expansion ---
   expandMarkdownTemplates(presets, files);
+
+  // --- Step 5.5: RDS engine label in README ---
+  if (answers.rdsOptions?.engine === "mysql") {
+    const readme = files.get("README.md");
+    if (readme) {
+      files.set(
+        "README.md",
+        readme.replace("PostgreSQL relational database", "MySQL relational database"),
+      );
+    }
+  }
 
   // --- Step 6: Strip merge markers from generated .ts files ---
   stripMergeMarkers(files);
@@ -245,6 +261,37 @@ resource "aws_security_group" "lambda" {
 resource "aws_iam_role_policy_attachment" "lambda_basic" {`,
       );
       files.set("infra/lambda.tf", patched + vpcConfig);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 2.6: RDS engine option (PostgreSQL → MySQL)
+// ---------------------------------------------------------------------------
+
+function applyRdsEngineOption(iac: IacPresetName, files: Map<string, string>): void {
+  if (iac === "cdk") {
+    const construct = files.get("infra/lib/constructs/rds.ts");
+    if (construct) {
+      files.set(
+        "infra/lib/constructs/rds.ts",
+        construct.replace(
+          "engine: rds.DatabaseInstanceEngine.postgres({\n        version: rds.PostgresEngineVersion.VER_16_4,\n      })",
+          "engine: rds.DatabaseInstanceEngine.mysql({\n        version: rds.MysqlEngineVersion.VER_8_0_40,\n      })",
+        ),
+      );
+    }
+  } else {
+    const tf = files.get("infra/rds.tf");
+    if (tf) {
+      files.set(
+        "infra/rds.tf",
+        tf
+          .replace('engine         = "postgres"', 'engine         = "mysql"')
+          .replace('engine_version = "16.4"', 'engine_version = "8.0.40"')
+          .replace("from_port   = 5432", "from_port   = 3306")
+          .replace("to_port     = 5432", "to_port     = 3306"),
+      );
     }
   }
 }

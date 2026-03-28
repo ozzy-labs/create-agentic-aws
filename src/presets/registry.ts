@@ -15,6 +15,7 @@ import { createS3Preset } from "./s3.js";
 import { createSqsPreset } from "./sqs.js";
 import { createTerraformPreset } from "./terraform.js";
 import { createTypescriptPreset } from "./typescript.js";
+import { createVpcPreset } from "./vpc.js";
 
 /** Build the preset registry with all available presets. */
 export function createRegistry(): Map<PresetName, Preset> {
@@ -35,7 +36,8 @@ export function createRegistry(): Map<PresetName, Preset> {
     createCloudFrontPreset(),
     createCognitoPreset(),
     createCloudWatchPreset(),
-    // Service presets will be added in M3-M6
+    createVpcPreset(),
+    // Service presets will be added in M5-M6
   ];
 
   return new Map(presets.map((p) => [p.name, p]));

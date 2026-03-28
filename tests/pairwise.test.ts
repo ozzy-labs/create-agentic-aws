@@ -147,4 +147,98 @@ describe("pairwise tests", () => {
       expect(appStack).toContain("CognitoAuth");
     });
   });
+
+  // ---------------------------------------------------------------------------
+  // M5: Container/Server + RDB combinations
+  // ---------------------------------------------------------------------------
+
+  describe("ECS + Aurora + VPC (container + RDB)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["ecs"],
+      data: ["aurora"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates all three construct files", () => {
+      expect(result.hasFile("infra/lib/constructs/ecs.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/aurora.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/vpc.ts")).toBe(true);
+    });
+
+    it("auto-resolves VPC for both ECS and Aurora", () => {
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("EcsService");
+      expect(appStack).toContain("AuroraCluster");
+      expect(appStack).toContain("Vpc");
+    });
+
+    it("generates ECS app files (Dockerfile)", () => {
+      expect(result.hasFile("ecs/Dockerfile")).toBe(true);
+      expect(result.hasFile("ecs/src/index.ts")).toBe(true);
+    });
+  });
+
+  describe("Lambda + ECS (mixed compute)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["lambda", "ecs"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates both compute construct files", () => {
+      expect(result.hasFile("infra/lib/constructs/lambda.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/ecs.ts")).toBe(true);
+    });
+
+    it("auto-resolves VPC for ECS", () => {
+      expect(result.hasFile("infra/lib/constructs/vpc.ts")).toBe(true);
+    });
+
+    it("generates both app directories", () => {
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(true);
+      expect(result.hasFile("ecs/Dockerfile")).toBe(true);
+    });
+
+    it("app-stack.ts contains both compute services", () => {
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("LambdaFunction");
+      expect(appStack).toContain("EcsService");
+    });
+  });
+
+  describe("ECS + Aurora + VPC (Terraform)", () => {
+    const result = generateProject({
+      iac: "terraform",
+      compute: ["ecs"],
+      data: ["aurora"],
+    });
+
+    it("generates all service .tf files", () => {
+      expect(result.hasFile("infra/ecs.tf")).toBe(true);
+      expect(result.hasFile("infra/aurora.tf")).toBe(true);
+      expect(result.hasFile("infra/vpc.tf")).toBe(true);
+    });
+
+    it("merges outputs from all services", () => {
+      const outputs = result.readText("infra/outputs.tf");
+      expect(outputs).toContain("ecs_cluster_name");
+      expect(outputs).toContain("aurora_cluster_endpoint");
+      expect(outputs).toContain("vpc_id");
+    });
+  });
 });

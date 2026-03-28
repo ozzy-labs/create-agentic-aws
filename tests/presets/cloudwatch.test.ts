@@ -4,6 +4,7 @@ import { generate } from "../../src/generator.js";
 import { createBasePreset } from "../../src/presets/base.js";
 import { createCdkPreset } from "../../src/presets/cdk.js";
 import { createCloudWatchPreset } from "../../src/presets/cloudwatch.js";
+import { createLambdaPreset } from "../../src/presets/lambda.js";
 import { createTypescriptPreset } from "../../src/presets/typescript.js";
 import type { Preset, PresetName, WizardAnswers } from "../../src/types.js";
 
@@ -36,11 +37,11 @@ describe("cloudwatch preset", () => {
 
   // Owned files (Powertools integration)
   describe("owned files", () => {
-    it("includes observability index with Logger/Tracer/Metrics", () => {
+    it("includes observability index re-exporting from lambda/powertools", () => {
       expect(cw.files["lib/observability/index.ts"]).toBeDefined();
-      expect(cw.files["lib/observability/index.ts"]).toContain("Logger");
-      expect(cw.files["lib/observability/index.ts"]).toContain("Tracer");
-      expect(cw.files["lib/observability/index.ts"]).toContain("Metrics");
+      expect(cw.files["lib/observability/index.ts"]).toContain("logger");
+      expect(cw.files["lib/observability/index.ts"]).toContain("tracer");
+      expect(cw.files["lib/observability/index.ts"]).toContain("metrics");
     });
 
     it("includes middleware wrapper", () => {
@@ -88,7 +89,13 @@ describe("cloudwatch preset", () => {
 
   // Integration with generator
   describe("integration with generator", () => {
-    const allPresets = [createBasePreset(), createTypescriptPreset(), createCdkPreset(), cw];
+    const allPresets = [
+      createBasePreset(),
+      createTypescriptPreset(),
+      createCdkPreset(),
+      createLambdaPreset(),
+      cw,
+    ];
     const registry = makeRegistry(...allPresets);
 
     it("generates observability files", () => {
@@ -114,10 +121,10 @@ describe("cloudwatch preset", () => {
       expect(appStack).toContain("new CloudWatchDashboard");
     });
 
-    it("substitutes projectName in observability index", () => {
+    it("observability index re-exports from lambda/powertools", () => {
       const result = generate(makeAnswers({ projectName: "test-app" }), registry);
       const index = result.readText("lib/observability/index.ts");
-      expect(index).toContain('serviceName: "test-app"');
+      expect(index).toContain("lambda/powertools");
     });
   });
 });

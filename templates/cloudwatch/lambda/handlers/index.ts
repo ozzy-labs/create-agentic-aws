@@ -1,4 +1,5 @@
 import type { Handler } from "aws-lambda";
+import { withObservability } from "../../lib/observability/middleware";
 import { logger } from "../powertools";
 
 const baseHandler: Handler = async (event) => {
@@ -10,4 +11,4 @@ const baseHandler: Handler = async (event) => {
   };
 };
 
-export { baseHandler as handler };
+export const handler = withObservability(baseHandler);

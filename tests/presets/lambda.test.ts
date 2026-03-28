@@ -38,7 +38,7 @@ describe("lambda preset", () => {
   describe("owned files", () => {
     it("includes lambda handler boilerplate", () => {
       expect(lambda.files["lambda/handlers/index.ts"]).toBeDefined();
-      expect(lambda.files["lambda/handlers/index.ts"]).toContain("export const handler");
+      expect(lambda.files["lambda/handlers/index.ts"]).toContain("baseHandler as handler");
     });
 
     it("includes powertools configuration", () => {

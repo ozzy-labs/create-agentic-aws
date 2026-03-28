@@ -60,6 +60,8 @@ export function createCloudWatchPreset(): Preset {
   return {
     name: "cloudwatch",
 
+    requires: ["lambda"],
+
     files: {
       ...templates,
     },

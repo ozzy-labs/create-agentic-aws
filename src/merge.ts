@@ -115,6 +115,11 @@ export function mergeText(base: string, ...blocks: string[]): string {
 // Markdown merge (template + section injection)
 // ---------------------------------------------------------------------------
 
+/**
+ * Injects content sections into a markdown template under matching headings.
+ * If a heading is not found, the section is appended at the end of the document.
+ * Consecutive blank lines (3+) are normalized to 2.
+ */
 export function mergeMarkdown(template: string, sections: readonly MarkdownSection[]): string {
   if (sections.length === 0) return template;
 
@@ -233,6 +238,12 @@ export function mergeTypeScript(base: string, ...patches: Record<string, string>
 // File path dispatcher
 // ---------------------------------------------------------------------------
 
+/**
+ * Dispatches merge by file extension: JSON/YAML use deep merge with unique union
+ * arrays, TOML uses deep merge, HCL appends blocks, Markdown injects sections
+ * under headings, TypeScript uses `// [merge: key]` markers, and everything else
+ * uses line-dedup text append.
+ */
 export function mergeFile(path: string, base: string, contributions: unknown[]): string {
   if (contributions.length === 0) return base;
 

@@ -123,8 +123,7 @@ export function createCloudWatchPreset(): Preset {
       "README.md": [
         {
           heading: "## Tech Stack",
-          content:
-            "- **Amazon CloudWatch**: Monitoring dashboard\n- **Lambda Powertools**: Structured logging, metrics, tracing",
+          content: "- **Amazon CloudWatch**: Monitoring dashboard",
         },
       ],
     },

@@ -122,6 +122,7 @@ const DEVCONTAINER_JSON = `{
   "name": "{{projectName}}",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
+    "ghcr.io/jdx/devcontainer-features/mise:1": {},
     "ghcr.io/devcontainers/features/node:1": { "version": "22" },
     "ghcr.io/devcontainers-extra/features/pnpm:1": {},
     "ghcr.io/devcontainers/features/aws-cli:1": {},
@@ -130,15 +131,14 @@ const DEVCONTAINER_JSON = `{
   "mounts": [
     "source=\${localEnv:HOME}/.aws,target=/home/vscode/.aws,type=bind,readonly"
   ],
-  "postCreateCommand": "pnpm install",
+  "postCreateCommand": "mise install && pnpm install",
   "customizations": {
     "vscode": {
       "extensions": [
         "EditorConfig.EditorConfig",
         "DavidAnson.vscode-markdownlint",
         "redhat.vscode-yaml",
-        "tamasfe.even-better-toml",
-        "exiasr.hadolint"
+        "tamasfe.even-better-toml"
       ]
     }
   }

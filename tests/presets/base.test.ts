@@ -50,8 +50,6 @@ describe("base preset", () => {
       ".mdformat.toml",
       ".yamllint.yaml",
       ".yamlfmt.yaml",
-      ".hadolint.yaml",
-      ".dockerignore",
       ".mcp.json.example",
       "renovate.json",
       ".github/PULL_REQUEST_TEMPLATE.md",

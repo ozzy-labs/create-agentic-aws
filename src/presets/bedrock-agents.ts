@@ -139,14 +139,33 @@ resource "aws_iam_role_policy" "agent" {
   policy = data.aws_iam_policy_document.agent_policy.json
 }
 
+resource "null_resource" "action_group_build" {
+  triggers = {
+    source_hash = filemd5("lambda/handlers/action-group.ts")
+  }
+
+  provisioner "local-exec" {
+    command = "npx esbuild lambda/handlers/action-group.ts --bundle --platform=node --target=node22 --outfile=lambda/handlers/dist/action-group.mjs --format=esm"
+  }
+}
+
+data "archive_file" "action_group" {
+  type        = "zip"
+  source_file = "lambda/handlers/dist/action-group.mjs"
+  output_path = "lambda/handlers/action-group.zip"
+
+  depends_on = [null_resource.action_group_build]
+}
+
 resource "aws_lambda_function" "action_group" {
-  function_name = "\${var.project_name}-\${var.environment}-action-group"
-  role          = aws_iam_role.action_group_lambda.arn
-  handler       = "action-group.handler"
-  runtime       = "nodejs24.x"
-  filename      = "lambda/handlers/action-group.zip"
-  memory_size   = 256
-  timeout       = 30
+  function_name    = "\${var.project_name}-\${var.environment}-action-group"
+  role             = aws_iam_role.action_group_lambda.arn
+  handler          = "action-group.handler"
+  runtime          = "nodejs24.x"
+  filename         = data.archive_file.action_group.output_path
+  source_code_hash = data.archive_file.action_group.output_base64sha256
+  memory_size      = 256
+  timeout          = 30
 
   environment {
     variables = {

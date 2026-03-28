@@ -1,6 +1,7 @@
 import type { Preset, PresetName } from "../types.js";
 import { createAmazonQPreset } from "./amazon-q.js";
 import { createApiGatewayPreset } from "./api-gateway.js";
+import { createAuroraPreset } from "./aurora.js";
 import { createBasePreset } from "./base.js";
 import { createCdkPreset } from "./cdk.js";
 import { createClaudeCodePreset } from "./claude-code.js";
@@ -43,6 +44,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createEcsPreset(),
     createEksPreset(),
     createEc2Preset(),
+    createAuroraPreset(),
     // Service presets will be added in M5-M6
   ];
 

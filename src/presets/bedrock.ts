@@ -9,7 +9,7 @@ const BEDROCK_TF = `data "aws_iam_policy_document" "bedrock" {
       "bedrock:InvokeModelWithResponseStream",
     ]
     resources = [
-      "arn:aws:bedrock:\${data.aws_region.current.name}::foundation-model/*",
+      "arn:aws:bedrock:\${var.aws_region}::foundation-model/*",
     ]
   }
 }

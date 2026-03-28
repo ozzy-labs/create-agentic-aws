@@ -1,0 +1,87 @@
+import type { Preset } from "../types.js";
+
+const API_GATEWAY_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
+import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
+import type { Construct } from "constructs";
+
+export interface ApiGatewayProps {
+  /** API type: "rest" for REST API, "http" for HTTP API. */
+  readonly type: "rest" | "http";
+}
+
+export class ApiGateway extends Construct {
+  public readonly restApi?: apigateway.RestApi;
+  public readonly httpApi?: apigatewayv2.HttpApi;
+
+  constructor(scope: Construct, id: string, props: ApiGatewayProps) {
+    super(scope, id);
+
+    if (props.type === "rest") {
+      this.restApi = new apigateway.RestApi(this, "RestApi", {
+        restApiName: id,
+        deployOptions: {
+          stageName: "prod",
+          tracingEnabled: true,
+        },
+        defaultCorsPreflightOptions: {
+          allowOrigins: apigateway.Cors.ALL_ORIGINS,
+          allowMethods: apigateway.Cors.ALL_METHODS,
+        },
+      });
+
+      new cdk.CfnOutput(this, "RestApiUrl", {
+        value: this.restApi.url,
+        description: "REST API URL",
+      });
+    } else {
+      this.httpApi = new apigatewayv2.HttpApi(this, "HttpApi", {
+        apiName: id,
+        corsPreflight: {
+          allowOrigins: ["*"],
+          allowMethods: [apigatewayv2.CorsHttpMethod.ANY],
+          allowHeaders: ["Content-Type", "Authorization"],
+        },
+      });
+
+      new cdk.CfnOutput(this, "HttpApiUrl", {
+        value: this.httpApi.apiEndpoint,
+        description: "HTTP API URL",
+      });
+    }
+  }
+}
+`;
+
+export function createApiGatewayPreset(): Preset {
+  return {
+    name: "api-gateway",
+
+    files: {},
+
+    merge: {},
+
+    iacContributions: {
+      cdk: {
+        files: {
+          "infra/lib/constructs/api-gateway.ts": API_GATEWAY_CONSTRUCT,
+        },
+        merge: {
+          "infra/lib/app-stack.ts": {
+            imports: 'import { ApiGateway } from "./constructs/api-gateway";',
+            constructs: '    new ApiGateway(this, "ApiGateway", { type: "rest" });',
+          },
+        },
+      },
+    },
+
+    markdown: {
+      "README.md": [
+        {
+          heading: "## Tech Stack",
+          content: "- **Amazon API Gateway**: REST / HTTP API",
+        },
+      ],
+    },
+  };
+}

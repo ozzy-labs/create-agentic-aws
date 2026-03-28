@@ -1,5 +1,6 @@
 import type { Preset, PresetName } from "../types.js";
 import { createAmazonQPreset } from "./amazon-q.js";
+import { createApiGatewayPreset } from "./api-gateway.js";
 import { createBasePreset } from "./base.js";
 import { createCdkPreset } from "./cdk.js";
 import { createClaudeCodePreset } from "./claude-code.js";
@@ -19,6 +20,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createCopilotPreset(),
     createCdkPreset(),
     createLambdaPreset(),
+    createApiGatewayPreset(),
     // Service presets will be added in M3-M6
   ];
 

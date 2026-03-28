@@ -53,6 +53,22 @@ export function createCdkPreset(): Preset {
           },
         },
       },
+      "renovate.json": {
+        packageRules: [
+          {
+            groupName: "AWS CDK",
+            matchPackagePatterns: ["^aws-cdk", "^constructs$", "^cdk-nag$"],
+          },
+          {
+            groupName: "AWS SDK",
+            matchPackagePatterns: ["^@aws-sdk/"],
+          },
+          {
+            groupName: "AWS Lambda Powertools",
+            matchPackagePatterns: ["^@aws-lambda-powertools/"],
+          },
+        ],
+      },
       ".vscode/settings.json": {
         "search.exclude": {
           "**/infra/cdk.out": true,

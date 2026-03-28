@@ -13,6 +13,7 @@ import { createDynamoDbPreset } from "./dynamodb.js";
 import { createEc2Preset } from "./ec2.js";
 import { createEcsPreset } from "./ecs.js";
 import { createEksPreset } from "./eks.js";
+import { createEventBridgePreset } from "./eventbridge.js";
 import { createLambdaPreset } from "./lambda.js";
 import { createPythonPreset } from "./python.js";
 import { createRdsPreset } from "./rds.js";
@@ -49,6 +50,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createAuroraPreset(),
     createRdsPreset(),
     createSnsPreset(),
+    createEventBridgePreset(),
     // Service presets will be added in M6
   ];
 

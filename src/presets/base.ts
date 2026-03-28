@@ -62,6 +62,9 @@ const PACKAGE_JSON = `{
     "@commitlint/config-conventional": "^20.0.0",
     "lefthook": "^2.1.0",
     "markdownlint-cli2": "^0.21.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["lefthook"]
   }
 }
 `;

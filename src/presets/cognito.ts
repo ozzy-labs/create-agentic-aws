@@ -98,6 +98,8 @@ export function createCognitoPreset(): Preset {
   return {
     name: "cognito",
 
+    requires: ["api-gateway"],
+
     files: {},
 
     merge: {},
@@ -110,7 +112,8 @@ export function createCognitoPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { CognitoAuth } from "./constructs/cognito";',
-            constructs: '    new CognitoAuth(this, "CognitoAuth");',
+            constructs:
+              '    const cognitoAuth = new CognitoAuth(this, "CognitoAuth");\n    apiGateway.addAuthorizer(cognitoAuth.userPool);',
           },
         },
       },

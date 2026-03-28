@@ -27,11 +27,15 @@ const API_GATEWAY_TF_OUTPUTS = `output "api_gateway_url" {
 const API_GATEWAY_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
+import type * as cognito from "aws-cdk-lib/aws-cognito";
+import type * as lambda from "aws-cdk-lib/aws-lambda";
 import type { Construct } from "constructs";
 
 export interface ApiGatewayProps {
   /** API type: "rest" for REST API, "http" for HTTP API. */
   readonly type: "rest" | "http";
+  /** Lambda function to integrate as the default backend. */
+  readonly handler: lambda.IFunction;
 }
 
 export class ApiGateway extends Construct {
@@ -54,6 +58,11 @@ export class ApiGateway extends Construct {
         },
       });
 
+      this.restApi.root.addProxy({
+        defaultIntegration: new apigateway.LambdaIntegration(props.handler),
+        anyMethod: true,
+      });
+
       new cdk.CfnOutput(this, "RestApiUrl", {
         value: this.restApi.url,
         description: "REST API URL",
@@ -74,12 +83,33 @@ export class ApiGateway extends Construct {
       });
     }
   }
+
+  /** Attach a Cognito authorizer to the REST API. */
+  addAuthorizer(userPool: cognito.IUserPool): void {
+    if (!this.restApi) return;
+
+    const authorizer = new apigateway.CognitoUserPoolsAuthorizer(
+      this,
+      "CognitoAuthorizer",
+      { cognitoUserPools: [userPool] },
+    );
+
+    this.restApi.methods
+      .filter((m) => m.httpMethod !== "OPTIONS")
+      .forEach((method) => {
+        const cfnMethod = method.node.defaultChild as apigateway.CfnMethod;
+        cfnMethod.authorizationType = "COGNITO_USER_POOLS";
+        cfnMethod.authorizerId = authorizer.authorizerId;
+      });
+  }
 }
 `;
 
 export function createApiGatewayPreset(): Preset {
   return {
     name: "api-gateway",
+
+    requires: ["lambda"],
 
     files: {},
 
@@ -93,7 +123,8 @@ export function createApiGatewayPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { ApiGateway } from "./constructs/api-gateway";',
-            constructs: '    new ApiGateway(this, "ApiGateway", { type: "rest" });',
+            constructs:
+              '    const apiGateway = new ApiGateway(this, "ApiGateway", {\n      type: "rest",\n      handler: lambdaFunction.handler,\n    });',
           },
         },
       },

@@ -201,6 +201,15 @@ export function createEcsPreset(): Preset {
       ".vscode/extensions.json": {
         recommendations: ["exiasr.hadolint"],
       },
+      "lefthook.yaml": {
+        "pre-push": {
+          commands: {
+            "typecheck-ecs": {
+              run: "cd ecs && npx tsc --noEmit",
+            },
+          },
+        },
+      },
     },
 
     iacContributions: {

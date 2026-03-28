@@ -174,6 +174,15 @@ export function createEksPreset(): Preset {
       ".vscode/extensions.json": {
         recommendations: ["exiasr.hadolint"],
       },
+      "lefthook.yaml": {
+        "pre-push": {
+          commands: {
+            "typecheck-eks": {
+              run: "cd eks && npx tsc --noEmit",
+            },
+          },
+        },
+      },
     },
 
     iacContributions: {

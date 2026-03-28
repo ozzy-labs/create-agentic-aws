@@ -16,6 +16,7 @@ export function makeAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswe
     compute: [],
     ai: [],
     data: [],
+    dataPipeline: [],
     integration: [],
     networking: [],
     security: [],

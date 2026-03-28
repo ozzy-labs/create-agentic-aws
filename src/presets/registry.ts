@@ -17,6 +17,7 @@ import { createEc2Preset } from "./ec2.js";
 import { createEcsPreset } from "./ecs.js";
 import { createEksPreset } from "./eks.js";
 import { createEventBridgePreset } from "./eventbridge.js";
+import { createKinesisPreset } from "./kinesis.js";
 import { createLambdaPreset } from "./lambda.js";
 import { createOpenSearchPreset } from "./opensearch.js";
 import { createPythonPreset } from "./python.js";
@@ -58,6 +59,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createOpenSearchPreset(),
     createAuroraPreset(),
     createRdsPreset(),
+    createKinesisPreset(),
     createSnsPreset(),
     createEventBridgePreset(),
     createStepFunctionsPreset(),

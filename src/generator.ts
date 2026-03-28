@@ -42,6 +42,7 @@ const PRESET_ORDER: readonly PresetName[] = [
   "dynamodb",
   "aurora",
   "rds",
+  "kinesis",
   "sqs",
   "sns",
   "eventbridge",
@@ -75,6 +76,7 @@ export function resolvePresets(
   for (const name of answers.compute) selected.add(name);
   for (const name of answers.ai) selected.add(name);
   for (const name of answers.data) selected.add(name);
+  for (const name of answers.dataPipeline ?? []) selected.add(name);
   for (const name of answers.integration) selected.add(name);
   for (const name of answers.networking) selected.add(name);
   for (const name of answers.security) selected.add(name);

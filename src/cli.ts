@@ -10,6 +10,7 @@ import type {
   AuroraEngine,
   AuroraOptions,
   ComputePresetName,
+  DataPipelinePresetName,
   DataPresetName,
   Ec2Options,
   EcsLaunchType,
@@ -167,7 +168,16 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     rdsOptions = await askRdsOptions();
   }
 
-  // 7. Application Integration
+  // 7. Data Pipeline & Analytics
+  const dataPipeline = guard(
+    await p.multiselect<DataPipelinePresetName>({
+      message: t("dataPipeline"),
+      options: [{ value: "kinesis", label: t("dataPipeline.kinesis") }],
+      required: false,
+    }),
+  );
+
+  // 8. Application Integration
   const integration = guard(
     await p.multiselect<IntegrationPresetName>({
       message: t("integration"),
@@ -231,6 +241,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     compute,
     ai,
     data,
+    dataPipeline,
     integration,
     networking,
     security,

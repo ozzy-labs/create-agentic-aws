@@ -22,6 +22,8 @@ export const en = {
 
   data: "Data & Storage",
   dataHint: "Select all that apply",
+  dataPipeline: "Data Pipeline & Analytics",
+  dataPipelineHint: "Select all that apply",
   integration: "Application Integration",
   integrationHint: "Select all that apply",
   networking: "Networking & API",
@@ -59,6 +61,9 @@ export const en = {
   "data.dynamodb": "DynamoDB",
   "data.aurora": "Aurora",
   "data.rds": "RDS",
+
+  // Wizard choices — Data Pipeline
+  "dataPipeline.kinesis": "Kinesis Data Streams",
 
   // Wizard choices — Integration
   "integration.sqs": "SQS",

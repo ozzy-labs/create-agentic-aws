@@ -78,6 +78,8 @@ resource "aws_ecs_task_definition" "this" {
     name      = "app"
     image     = "node:22-slim"
     essential = true
+    readonlyRootFilesystem = true
+    user                   = "1000:1000"
     portMappings = [{
       containerPort = 3000
       protocol      = "tcp"

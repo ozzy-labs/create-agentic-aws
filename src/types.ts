@@ -20,6 +20,8 @@ export type IacPresetName = "cdk" | "terraform";
 
 export type ComputePresetName = "lambda" | "ecs" | "eks" | "ec2";
 
+export type AiPresetName = "bedrock";
+
 export type DataPresetName = "s3" | "dynamodb" | "aurora" | "rds";
 
 export type IntegrationPresetName = "sqs" | "sns" | "eventbridge" | "step-functions";
@@ -39,6 +41,7 @@ export type PresetName =
   | AgentPresetName
   | IacPresetName
   | ComputePresetName
+  | AiPresetName
   | DataPresetName
   | IntegrationPresetName
   | NetworkingPresetName
@@ -105,6 +108,7 @@ export interface WizardAnswers {
   readonly agents: readonly AgentPresetName[];
   readonly iac: IacPresetName;
   readonly compute: readonly ComputePresetName[];
+  readonly ai: readonly AiPresetName[];
   readonly data: readonly DataPresetName[];
   readonly integration: readonly IntegrationPresetName[];
   readonly networking: readonly NetworkingPresetName[];

@@ -219,6 +219,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["lambda"],
+      ai: [],
       data: ["s3", "dynamodb"],
       networking: ["api-gateway"],
       observability: ["cloudwatch"],
@@ -301,6 +302,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["lambda"],
+      ai: [],
       data: ["s3", "dynamodb"],
       integration: ["sqs"],
       networking: ["api-gateway", "cloudfront"],
@@ -381,6 +383,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "terraform",
       compute: ["lambda"],
+      ai: [],
       data: ["s3", "dynamodb"],
       networking: ["api-gateway"],
       observability: ["cloudwatch"],
@@ -435,6 +438,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "terraform",
       compute: ["lambda"],
+      ai: [],
       data: ["s3", "dynamodb"],
       integration: ["sqs"],
       networking: ["api-gateway", "cloudfront"],
@@ -479,6 +483,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["ecs"],
+      ai: [],
       data: ["aurora"],
       observability: ["cloudwatch"],
     });
@@ -521,6 +526,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "terraform",
       compute: ["ecs"],
+      ai: [],
       data: ["aurora"],
       observability: ["cloudwatch"],
     });
@@ -545,6 +551,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["eks"],
+      ai: [],
       data: ["rds"],
       observability: ["cloudwatch"],
     });
@@ -580,6 +587,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "terraform",
       compute: ["eks"],
+      ai: [],
       data: ["rds"],
       observability: ["cloudwatch"],
     });
@@ -600,6 +608,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["lambda", "ecs"],
+      ai: [],
       data: ["s3", "dynamodb"],
       integration: ["sqs"],
       networking: ["api-gateway", "cloudfront"],
@@ -649,6 +658,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["lambda", "ecs"],
+      ai: [],
       data: ["s3", "dynamodb"],
       integration: ["sqs", "sns", "eventbridge", "step-functions"],
       networking: ["api-gateway", "cloudfront"],
@@ -706,6 +716,7 @@ describe("smoke tests", () => {
     const result = generateProject({
       iac: "terraform",
       compute: ["lambda", "ecs"],
+      ai: [],
       data: ["s3", "dynamodb"],
       integration: ["sqs", "sns", "eventbridge", "step-functions"],
       networking: ["api-gateway", "cloudfront"],

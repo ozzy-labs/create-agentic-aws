@@ -15,6 +15,7 @@ function makeAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswers {
     agents: [],
     iac: "cdk",
     compute: ["ecs"],
+    ai: [],
     data: [],
     integration: [],
     networking: [],

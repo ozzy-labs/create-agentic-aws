@@ -17,6 +17,9 @@ export const en = {
   iac: "Infrastructure as Code",
   compute: "Compute",
   computeHint: "Select all that apply",
+  ai: "AI",
+  aiHint: "Select all that apply",
+
   data: "Data & Storage",
   dataHint: "Select all that apply",
   integration: "Application Integration",
@@ -44,6 +47,9 @@ export const en = {
   "compute.ecs": "ECS",
   "compute.eks": "EKS",
   "compute.ec2": "EC2",
+
+  // Wizard choices — AI
+  "ai.bedrock": "Bedrock",
 
   // Wizard choices — Data
   "data.s3": "S3",

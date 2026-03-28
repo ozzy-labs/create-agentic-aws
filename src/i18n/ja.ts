@@ -19,6 +19,9 @@ export const ja: Record<MessageKey, string> = {
   iac: "Infrastructure as Code",
   compute: "コンピュート",
   computeHint: "複数選択可",
+  ai: "AI",
+  aiHint: "複数選択可",
+
   data: "データ & ストレージ",
   dataHint: "複数選択可",
   integration: "アプリケーション統合",
@@ -46,6 +49,9 @@ export const ja: Record<MessageKey, string> = {
   "compute.ecs": "ECS",
   "compute.eks": "EKS",
   "compute.ec2": "EC2",
+
+  // Wizard choices — AI
+  "ai.bedrock": "Bedrock",
 
   // Wizard choices — Data
   "data.s3": "S3",

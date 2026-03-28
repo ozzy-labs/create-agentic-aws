@@ -3,6 +3,7 @@ import { createAmazonQPreset } from "./amazon-q.js";
 import { createApiGatewayPreset } from "./api-gateway.js";
 import { createAuroraPreset } from "./aurora.js";
 import { createBasePreset } from "./base.js";
+import { createBedrockPreset } from "./bedrock.js";
 import { createCdkPreset } from "./cdk.js";
 import { createClaudeCodePreset } from "./claude-code.js";
 import { createCloudFrontPreset } from "./cloudfront.js";
@@ -48,6 +49,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createEcsPreset(),
     createEksPreset(),
     createEc2Preset(),
+    createBedrockPreset(),
     createAuroraPreset(),
     createRdsPreset(),
     createSnsPreset(),

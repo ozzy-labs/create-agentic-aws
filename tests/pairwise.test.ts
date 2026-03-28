@@ -11,6 +11,7 @@ describe("pairwise tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["lambda"],
+      ai: [],
       data: ["dynamodb"],
       networking: ["api-gateway"],
     });
@@ -64,6 +65,7 @@ describe("pairwise tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["lambda"],
+      ai: [],
       integration: ["sqs"],
     });
 
@@ -159,6 +161,7 @@ describe("pairwise tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["ecs"],
+      ai: [],
       data: ["aurora"],
     });
 
@@ -193,6 +196,7 @@ describe("pairwise tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["lambda", "ecs"],
+      ai: [],
     });
 
     it("generates valid JSON files", () => {
@@ -228,6 +232,7 @@ describe("pairwise tests", () => {
     const result = generateProject({
       iac: "terraform",
       compute: ["ecs"],
+      ai: [],
       data: ["aurora"],
     });
 
@@ -280,6 +285,7 @@ describe("pairwise tests", () => {
     const result = generateProject({
       iac: "cdk",
       compute: ["lambda"],
+      ai: [],
       integration: ["step-functions"],
     });
 

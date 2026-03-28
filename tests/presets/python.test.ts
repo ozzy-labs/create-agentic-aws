@@ -11,6 +11,7 @@ function makeAnswers(overrides: Partial<WizardAnswers> = {}): WizardAnswers {
     agents: [],
     iac: "terraform",
     compute: [],
+    ai: [],
     data: [],
     integration: [],
     networking: [],

@@ -98,6 +98,13 @@ export function createTerraformPreset(): Preset {
             "- **Terraform**: Infrastructure as Code\n- **tflint**: Terraform linting (AWS plugin)",
         },
       ],
+      "docs/cd-setup.md": [
+        {
+          heading: "# CD Setup Guide",
+          content:
+            "## Terraform\n\n```bash\ncd infra\nterraform init\nterraform plan\nterraform apply\n```",
+        },
+      ],
     },
   };
 }

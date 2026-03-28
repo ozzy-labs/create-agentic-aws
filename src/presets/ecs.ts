@@ -190,7 +190,18 @@ export function createEcsPreset(): Preset {
       ...templates,
     },
 
-    merge: {},
+    merge: {
+      ".devcontainer/devcontainer.json": {
+        customizations: {
+          vscode: {
+            extensions: ["exiasr.hadolint"],
+          },
+        },
+      },
+      ".vscode/extensions.json": {
+        recommendations: ["exiasr.hadolint"],
+      },
+    },
 
     iacContributions: {
       cdk: {

@@ -89,6 +89,12 @@ export function createCdkPreset(): Preset {
             "- **AWS CDK**: Infrastructure as Code (TypeScript)\n- **cdk-nag**: Security and best-practice checks\n- **cfn-lint**: CloudFormation linting",
         },
       ],
+      "docs/cd-setup.md": [
+        {
+          heading: "# CD Setup Guide",
+          content: "## AWS CDK\n\n```bash\nnpx cdk deploy --profile <profile>\n```",
+        },
+      ],
     },
   };
 }

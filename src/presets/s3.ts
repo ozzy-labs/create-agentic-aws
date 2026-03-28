@@ -83,7 +83,7 @@ export function createS3Preset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { S3Bucket } from "./constructs/s3";',
-            constructs: '    new S3Bucket(this, "S3Bucket");',
+            constructs: '    const s3Bucket = new S3Bucket(this, "S3Bucket");',
           },
         },
       },

@@ -31,3 +31,26 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      - name: Verify generated projects
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npx tsx scripts/generate-test-projects.ts
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            let errors = 0;
+            function walk(dir) {
+              for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+                const full = path.join(dir, entry.name);
+                if (entry.isDirectory()) { walk(full); continue; }
+                if (entry.name.endsWith('.json') || entry.name.endsWith('.jsonc')) {
+                  try { JSON.parse(fs.readFileSync(full, 'utf-8')); }
+                  catch (e) { console.error('Invalid JSON:', full, e.message); errors++; }
+                }
+              }
+            }
+            walk('tmp');
+            if (errors) { console.error(errors + ' invalid JSON file(s)'); process.exit(1); }
+            console.log('All generated JSON files are valid');
+          "

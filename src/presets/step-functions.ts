@@ -145,7 +145,11 @@ export function createStepFunctionsPreset(): Preset {
       ...templates,
     },
 
-    merge: {},
+    merge: {
+      "tsconfig.json": {
+        include: ["lib"],
+      },
+    },
 
     iacContributions: {
       cdk: {

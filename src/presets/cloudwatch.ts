@@ -65,6 +65,9 @@ export function createCloudWatchPreset(): Preset {
     },
 
     merge: {
+      "tsconfig.json": {
+        include: ["lib"],
+      },
       "package.json": {
         dependencies: {
           "@aws-lambda-powertools/logger": "^2.14.0",

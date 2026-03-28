@@ -106,6 +106,9 @@ export function createLambdaPreset(): Preset {
     },
 
     merge: {
+      "tsconfig.json": {
+        include: ["lambda"],
+      },
       "package.json": {
         dependencies: {
           "@aws-lambda-powertools/logger": "^2.14.0",

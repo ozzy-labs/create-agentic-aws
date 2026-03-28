@@ -79,6 +79,9 @@ export function createSqsPreset(): Preset {
     },
 
     merge: {
+      "tsconfig.json": {
+        include: ["lib"],
+      },
       "package.json": {
         devDependencies: {
           "@types/aws-lambda": "^8.10.0",

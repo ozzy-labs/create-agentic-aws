@@ -76,6 +76,9 @@ export function createDynamoDbPreset(): Preset {
     },
 
     merge: {
+      "tsconfig.json": {
+        include: ["lib"],
+      },
       "package.json": {
         dependencies: {
           "@aws-sdk/client-dynamodb": "^3.700.0",

@@ -20,7 +20,7 @@ export function createTypescriptPreset(): Preset {
           "lint:fix": "biome check --write .",
         },
         devDependencies: {
-          "@biomejs/biome": "^2.0.0",
+          "@biomejs/biome": "^2.4.0",
           "@types/node": "^24.0.0",
           typescript: "^5.8.0",
         },

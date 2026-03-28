@@ -31,7 +31,7 @@ export class Ec2Instance extends Construct {
       description: "EC2 instance security group",
       allowAllOutbound: true,
     });
-    // TODO: Add ingress rules for your use case.
+    // NEXT: Add ingress rules for your use case.
     // Example: securityGroup.addIngressRule(ec2.Peer.ipv4('10.0.0.0/16'), ec2.Port.tcp(80), 'HTTP from VPC');
 
     this.instance = new ec2.Instance(this, "Instance", {
@@ -86,7 +86,7 @@ resource "aws_security_group" "ec2" {
   name_prefix = "\${var.project_name}-ec2-"
   vpc_id      = aws_vpc.this.id
 
-  # TODO: Add ingress rules for your use case.
+  # NEXT: Add ingress rules for your use case.
   # ingress {
   #   from_port   = 80
   #   to_port     = 80
@@ -149,6 +149,7 @@ export function createEc2Preset(): Preset {
 
   return {
     name: "ec2",
+    requires: ["vpc"],
 
     files: {
       ...templates,

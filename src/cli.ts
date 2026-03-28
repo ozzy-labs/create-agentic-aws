@@ -414,7 +414,14 @@ async function askApiGatewayOptions(): Promise<ApiGatewayOptions> {
 // Auto-resolution
 // ---------------------------------------------------------------------------
 
-const VPC_TRIGGERS: ReadonlySet<string> = new Set(["ecs", "eks", "ec2", "aurora", "rds"]);
+const VPC_TRIGGERS: ReadonlySet<string> = new Set([
+  "ecs",
+  "eks",
+  "ec2",
+  "aurora",
+  "rds",
+  "redshift",
+]);
 
 export function notifyVpcAutoResolution(
   compute: readonly ComputePresetName[],

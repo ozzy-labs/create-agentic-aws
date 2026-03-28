@@ -10,6 +10,10 @@ export function requireFile(files: Map<string, string>, path: string, context: s
   return content;
 }
 
+/**
+ * Replace the **first** occurrence of `search` in `content`.
+ * Throws if the pattern is not found (no-op replacement is treated as an error).
+ */
 export function safeReplace(
   content: string,
   search: string | RegExp,
@@ -22,6 +26,22 @@ export function safeReplace(
     throw new Error(`[${context}] Replacement pattern not found: "${pattern.slice(0, 80)}"`);
   }
   return result;
+}
+
+/**
+ * Replace **all** occurrences of `search` in `content`.
+ * Throws if the pattern is not found at all.
+ */
+export function safeReplaceAll(
+  content: string,
+  search: string,
+  replacement: string,
+  context: string,
+): string {
+  if (!content.includes(search)) {
+    throw new Error(`[${context}] Replacement pattern not found: "${search.slice(0, 80)}"`);
+  }
+  return content.replaceAll(search, replacement);
 }
 
 export function defaultEmptyContent(path: string): string {

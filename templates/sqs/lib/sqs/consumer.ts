@@ -13,7 +13,7 @@ async function processRecord(record: SQSRecord): Promise<void> {
  * SQS batch consumer handler.
  * Processes each record individually and reports partial failures.
  *
- * TODO: If using CloudWatch preset, wrap this handler with
+ * NEXT: If using CloudWatch preset, wrap this handler with
  * `withObservability` from `lib/observability/middleware` for
  * structured logging, metrics, and X-Ray tracing.
  */

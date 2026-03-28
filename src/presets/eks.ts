@@ -158,6 +158,7 @@ export function createEksPreset(): Preset {
 
   return {
     name: "eks",
+    requires: ["vpc"],
 
     files: {
       ...templates,

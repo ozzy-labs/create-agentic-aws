@@ -5,6 +5,7 @@ import { createBasePreset } from "./base.js";
 import { createCdkPreset } from "./cdk.js";
 import { createClaudeCodePreset } from "./claude-code.js";
 import { createCloudFrontPreset } from "./cloudfront.js";
+import { createCloudWatchPreset } from "./cloudwatch.js";
 import { createCognitoPreset } from "./cognito.js";
 import { createCopilotPreset } from "./copilot.js";
 import { createDynamoDbPreset } from "./dynamodb.js";
@@ -31,6 +32,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createSqsPreset(),
     createCloudFrontPreset(),
     createCognitoPreset(),
+    createCloudWatchPreset(),
     // Service presets will be added in M3-M6
   ];
 

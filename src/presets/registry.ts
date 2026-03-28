@@ -17,6 +17,7 @@ import { createEc2Preset } from "./ec2.js";
 import { createEcsPreset } from "./ecs.js";
 import { createEksPreset } from "./eks.js";
 import { createEventBridgePreset } from "./eventbridge.js";
+import { createGluePreset } from "./glue.js";
 import { createKinesisPreset } from "./kinesis.js";
 import { createLambdaPreset } from "./lambda.js";
 import { createOpenSearchPreset } from "./opensearch.js";
@@ -60,6 +61,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createAuroraPreset(),
     createRdsPreset(),
     createKinesisPreset(),
+    createGluePreset(),
     createSnsPreset(),
     createEventBridgePreset(),
     createStepFunctionsPreset(),

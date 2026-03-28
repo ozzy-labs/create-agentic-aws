@@ -43,6 +43,7 @@ const PRESET_ORDER: readonly PresetName[] = [
   "aurora",
   "rds",
   "kinesis",
+  "glue",
   "sqs",
   "sns",
   "eventbridge",

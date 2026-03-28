@@ -64,6 +64,7 @@ export const en = {
 
   // Wizard choices — Data Pipeline
   "dataPipeline.kinesis": "Kinesis Data Streams",
+  "dataPipeline.glue": "Glue",
 
   // Wizard choices — Integration
   "integration.sqs": "SQS",

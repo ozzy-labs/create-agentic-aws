@@ -503,6 +503,11 @@ describe("smoke tests", () => {
       expect(result.hasFile("ecs/src/index.ts")).toBe(true);
     });
 
+    it("does not generate Lambda files (CloudWatch does not force Lambda)", () => {
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(false);
+      expect(result.hasFile("infra/lib/constructs/lambda.ts")).toBe(false);
+    });
+
     it("app-stack.ts contains all service constructs", () => {
       const appStack = result.readText("infra/lib/app-stack.ts");
       expect(appStack).toContain("EcsService");
@@ -563,6 +568,11 @@ describe("smoke tests", () => {
       expect(result.hasFile("eks/Dockerfile")).toBe(true);
       expect(result.hasFile("eks/manifests/deployment.yaml")).toBe(true);
       expect(result.hasFile("eks/manifests/service.yaml")).toBe(true);
+    });
+
+    it("does not generate Lambda files (CloudWatch does not force Lambda)", () => {
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(false);
+      expect(result.hasFile("infra/lib/constructs/lambda.ts")).toBe(false);
     });
   });
 

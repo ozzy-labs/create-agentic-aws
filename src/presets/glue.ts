@@ -9,6 +9,7 @@ const GLUE_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as glue from "aws-cdk-lib/aws-glue";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import type { Construct } from "constructs";
 
 export class GlueEtl extends Construct {
@@ -41,6 +42,13 @@ export class GlueEtl extends Construct {
       managedPolicies: [
         iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSGlueServiceRole"),
       ],
+    });
+
+    // Upload Glue job scripts to S3
+    new s3deploy.BucketDeployment(this, "DeployScripts", {
+      sources: [s3deploy.Source.asset("glue/jobs")],
+      destinationBucket: this.scriptBucket,
+      destinationKeyPrefix: "jobs",
     });
 
     this.scriptBucket.grantRead(role);
@@ -112,6 +120,13 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "glue_scripts" {
       sse_algorithm = "AES256"
     }
   }
+}
+
+resource "aws_s3_object" "etl_job_script" {
+  bucket = aws_s3_bucket.glue_scripts.id
+  key    = "jobs/etl_job.py"
+  source = "glue/jobs/etl_job.py"
+  etag   = filemd5("glue/jobs/etl_job.py")
 }
 
 data "aws_iam_policy_document" "glue_trust" {

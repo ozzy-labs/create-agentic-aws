@@ -9,6 +9,7 @@ import { createDynamoDbPreset } from "./dynamodb.js";
 import { createLambdaPreset } from "./lambda.js";
 import { createPythonPreset } from "./python.js";
 import { createS3Preset } from "./s3.js";
+import { createSqsPreset } from "./sqs.js";
 import { createTypescriptPreset } from "./typescript.js";
 
 /** Build the preset registry with all available presets. */
@@ -25,6 +26,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createApiGatewayPreset(),
     createS3Preset(),
     createDynamoDbPreset(),
+    createSqsPreset(),
     // Service presets will be added in M3-M6
   ];
 

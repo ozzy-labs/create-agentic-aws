@@ -20,6 +20,13 @@ export class RedshiftServerless extends Construct {
   constructor(scope: Construct, id: string, props: RedshiftServerlessProps) {
     super(scope, id);
 
+    const sg = new ec2.SecurityGroup(this, "SecurityGroup", {
+      vpc: props.vpc,
+      description: "Security group for Redshift Serverless workgroup",
+      allowAllOutbound: true,
+    });
+    sg.addIngressRule(ec2.Peer.ipv4(props.vpc.vpcCidrBlock), ec2.Port.tcp(5439), "Redshift access");
+
     this.namespace = new redshiftserverless.CfnNamespace(this, "Namespace", {
       namespaceName: cdk.Names.uniqueId(this).toLowerCase().slice(0, 28) + "-ns",
       adminUsername: "admin",
@@ -32,7 +39,7 @@ export class RedshiftServerless extends Construct {
       namespaceName: this.namespace.namespaceName,
       baseCapacity: 32,
       subnetIds: props.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_ISOLATED }).subnetIds,
-      securityGroupIds: [],
+      securityGroupIds: [sg.securityGroupId],
       publiclyAccessible: false,
     });
 

@@ -55,5 +55,58 @@ export function createRegistry(): Map<PresetName, Preset> {
     createStepFunctionsPreset(),
   ];
 
-  return new Map(presets.map((p) => [p.name, p]));
+  const registry = new Map<PresetName, Preset>(presets.map((p) => [p.name, p]));
+  validateRegistry(registry);
+  return registry;
+}
+
+// ---------------------------------------------------------------------------
+// Registry validation
+// ---------------------------------------------------------------------------
+
+/**
+ * Validate the preset registry for:
+ * - References to non-existent presets in `requires`
+ * - Circular dependencies in `requires`
+ */
+export function validateRegistry(registry: ReadonlyMap<PresetName, Preset>): void {
+  // Check for references to non-existent presets
+  for (const [name, preset] of registry) {
+    if (!preset.requires) continue;
+    for (const dep of preset.requires) {
+      if (!registry.has(dep)) {
+        throw new Error(`Preset "${name}" requires "${dep}" which does not exist in the registry`);
+      }
+    }
+  }
+
+  // Check for circular dependencies using DFS
+  const visited = new Set<PresetName>();
+  const inStack = new Set<PresetName>();
+
+  function dfs(name: PresetName, path: PresetName[]): void {
+    if (inStack.has(name)) {
+      const cycle = [...path.slice(path.indexOf(name)), name];
+      throw new Error(`Circular dependency detected: ${cycle.join(" → ")}`);
+    }
+    if (visited.has(name)) return;
+
+    inStack.add(name);
+    path.push(name);
+
+    const preset = registry.get(name);
+    if (preset?.requires) {
+      for (const dep of preset.requires) {
+        dfs(dep, path);
+      }
+    }
+
+    path.pop();
+    inStack.delete(name);
+    visited.add(name);
+  }
+
+  for (const name of registry.keys()) {
+    dfs(name, []);
+  }
 }

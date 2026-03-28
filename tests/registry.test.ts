@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-
-import { createRegistry } from "../src/presets/registry.js";
+import { createRegistry, validateRegistry } from "../src/presets/registry.js";
+import type { Preset, PresetName } from "../src/types.js";
 
 describe("createRegistry", () => {
   const registry = createRegistry();
@@ -48,5 +48,90 @@ describe("createRegistry", () => {
   it("has correct preset count for M6", () => {
     // base + 2 languages + 3 agents + 2 IaC + 16 services + 1 infra = 25
     expect(registry.size).toBe(25);
+  });
+
+  it("passes validation (no circular deps, no missing refs)", () => {
+    expect(() => validateRegistry(registry)).not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// validateRegistry
+// ---------------------------------------------------------------------------
+
+function makePreset(name: PresetName, requires?: PresetName[]): Preset {
+  return { name, files: {}, merge: {}, requires };
+}
+
+describe("validateRegistry", () => {
+  it("accepts a valid registry with no requires", () => {
+    const reg = new Map<PresetName, Preset>([
+      ["base", makePreset("base")],
+      ["cdk", makePreset("cdk")],
+    ]);
+    expect(() => validateRegistry(reg)).not.toThrow();
+  });
+
+  it("accepts a valid registry with linear requires", () => {
+    const reg = new Map<PresetName, Preset>([
+      ["base", makePreset("base")],
+      ["cdk", makePreset("cdk", ["typescript"])],
+      ["typescript", makePreset("typescript")],
+    ]);
+    expect(() => validateRegistry(reg)).not.toThrow();
+  });
+
+  it("throws for reference to non-existent preset", () => {
+    const reg = new Map<PresetName, Preset>([
+      ["base", makePreset("base")],
+      ["cdk", makePreset("cdk", ["typescript" as PresetName])],
+    ]);
+    expect(() => validateRegistry(reg)).toThrow(
+      'Preset "cdk" requires "typescript" which does not exist',
+    );
+  });
+
+  it("throws for direct circular dependency (A → B → A)", () => {
+    const reg = new Map<PresetName, Preset>([
+      ["base", makePreset("base")],
+      ["lambda", makePreset("lambda", ["s3"])],
+      ["s3", makePreset("s3", ["lambda"])],
+    ]);
+    expect(() => validateRegistry(reg)).toThrow("Circular dependency detected");
+  });
+
+  it("throws for self-referencing dependency", () => {
+    const reg = new Map<PresetName, Preset>([
+      ["base", makePreset("base")],
+      ["lambda", makePreset("lambda", ["lambda"])],
+    ]);
+    expect(() => validateRegistry(reg)).toThrow("Circular dependency detected");
+  });
+
+  it("throws for transitive circular dependency (A → B → C → A)", () => {
+    const reg = new Map<PresetName, Preset>([
+      ["base", makePreset("base")],
+      ["lambda", makePreset("lambda", ["sqs"])],
+      ["sqs", makePreset("sqs", ["s3"])],
+      ["s3", makePreset("s3", ["lambda"])],
+    ]);
+    expect(() => validateRegistry(reg)).toThrow("Circular dependency detected");
+  });
+
+  it("includes cycle path in error message", () => {
+    const reg = new Map<PresetName, Preset>([
+      ["base", makePreset("base")],
+      ["lambda", makePreset("lambda", ["sqs"])],
+      ["sqs", makePreset("sqs", ["lambda"])],
+    ]);
+    try {
+      validateRegistry(reg);
+      expect.unreachable("Should have thrown");
+    } catch (e) {
+      const msg = (e as Error).message;
+      expect(msg).toContain("lambda");
+      expect(msg).toContain("sqs");
+      expect(msg).toContain("→");
+    }
   });
 });

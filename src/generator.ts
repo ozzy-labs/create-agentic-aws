@@ -1,4 +1,5 @@
 import { mergeFile, mergeMarkdown } from "./merge.js";
+import { readTemplates } from "./presets/templates.js";
 import type {
   IacPresetName,
   MarkdownSection,
@@ -144,8 +145,19 @@ export function generate(
     applyRdsEngineOption(answers.iac, files);
   }
 
+  // --- Step 2.7: Lambda Python runtime ---
+  const presetNames = new Set(presets.map((p) => p.name));
+  if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {
+    applyLambdaPythonRuntime(files, vars);
+  }
+
   // --- Step 3: Shared file deep merge ---
   mergeSharedFiles(presets, files, vars);
+
+  // --- Step 3.5: Lambda Python dependency swap ---
+  if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {
+    applyLambdaPythonDeps(files);
+  }
 
   // --- Step 4: MCP server distribution ---
   distributeMcpServers(presets, answers, files);
@@ -160,6 +172,22 @@ export function generate(
       files.set(
         "README.md",
         readme.replace("PostgreSQL relational database", "MySQL relational database"),
+      );
+    }
+  }
+
+  // --- Step 5.6: Lambda Python label in README ---
+  if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {
+    const readme = files.get("README.md");
+    if (readme) {
+      files.set(
+        "README.md",
+        readme
+          .replace("Serverless compute (Node.js 24)", "Serverless compute (Python 3.12)")
+          .replace(
+            "Structured logging, metrics, tracing",
+            "Structured logging, metrics, tracing (Python)",
+          ),
       );
     }
   }
@@ -293,6 +321,92 @@ function applyRdsEngineOption(iac: IacPresetName, files: Map<string, string>): v
           .replace("to_port     = 5432", "to_port     = 3306"),
       );
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 2.7: Lambda Python runtime (TypeScript → Python)
+// ---------------------------------------------------------------------------
+
+const LAMBDA_PYTHON_TF_RUNTIME = `  handler          = "handler.handler"
+  runtime          = "python3.12"`;
+
+const LAMBDA_PYTHON_TF_ENV = `  environment {
+    variables = {
+      POWERTOOLS_SERVICE_NAME = var.project_name
+    }
+  }`;
+
+function applyLambdaPythonRuntime(files: Map<string, string>, vars: Record<string, string>): void {
+  // Replace TypeScript handler files with Python handler
+  files.delete("lambda/handlers/index.ts");
+  files.delete("lambda/powertools.ts");
+  files.delete("lib/observability/middleware.ts");
+  files.delete("lib/observability/index.ts");
+
+  const pythonTemplates = readTemplates("lambda-python");
+  for (const [path, content] of Object.entries(pythonTemplates)) {
+    files.set(path, substituteVars(content, vars));
+  }
+
+  // Update Terraform lambda.tf: swap runtime and handler
+  const tf = files.get("infra/lambda.tf");
+  if (tf) {
+    files.set(
+      "infra/lambda.tf",
+      tf
+        .replace(
+          '  handler          = "index.handler"\n  runtime          = "nodejs24.x"',
+          LAMBDA_PYTHON_TF_RUNTIME,
+        )
+        .replace(
+          `  environment {\n    variables = {\n      NODE_OPTIONS = "--enable-source-maps"\n    }\n  }`,
+          LAMBDA_PYTHON_TF_ENV,
+        ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 3.5: Lambda Python dependency swap
+// ---------------------------------------------------------------------------
+
+/** npm Lambda Powertools packages to remove from package.json for Python projects. */
+const LAMBDA_NPM_DEPS = [
+  "@aws-lambda-powertools/logger",
+  "@aws-lambda-powertools/metrics",
+  "@aws-lambda-powertools/tracer",
+  "@middy/core",
+];
+const LAMBDA_NPM_DEV_DEPS = ["@types/aws-lambda"];
+
+function applyLambdaPythonDeps(files: Map<string, string>): void {
+  // Remove npm Lambda deps from package.json
+  const pkgRaw = files.get("package.json");
+  if (pkgRaw) {
+    const pkg = JSON.parse(pkgRaw) as Record<string, Record<string, unknown>>;
+    if (pkg.dependencies) {
+      for (const dep of LAMBDA_NPM_DEPS) delete pkg.dependencies[dep];
+    }
+    if (pkg.devDependencies) {
+      for (const dep of LAMBDA_NPM_DEV_DEPS) delete pkg.devDependencies[dep];
+    }
+    files.set("package.json", `${JSON.stringify(pkg, null, 2)}\n`);
+  }
+
+  // Remove Lambda includes from tsconfig.json if present
+  files.delete("tsconfig.json");
+
+  // Add aws-lambda-powertools to pyproject.toml
+  const toml = files.get("pyproject.toml");
+  if (toml) {
+    files.set(
+      "pyproject.toml",
+      toml.replace(
+        'requires-python = ">=3.12"',
+        'requires-python = ">=3.12"\ndependencies = ["aws-lambda-powertools>=3"]',
+      ),
+    );
   }
 }
 

@@ -766,7 +766,9 @@ function distributeMcpServers(
   if (Object.keys(allServers).length === 0) return;
 
   // Distribute to each selected agent's config
+  // (skip claude-code — .mcp.json is user-specific; .mcp.json.example is generated below)
   for (const agent of answers.agents) {
+    if (agent === "claude-code") continue;
     const configPath = AGENT_MCP_PATHS[agent];
     if (!configPath) continue;
 

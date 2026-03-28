@@ -77,14 +77,22 @@ describe("claude-code preset", () => {
       expect(result.hasFile(".claude/settings.json")).toBe(true);
     });
 
-    it("distributes MCP servers to .mcp.json", () => {
+    it("generates .mcp.json.example instead of .mcp.json", () => {
       const registry = makeRegistry(createBasePreset(), cdkStub, cc);
       const result = generate(makeAnswers(), registry);
-      expect(result.hasFile(".mcp.json")).toBe(true);
-      const config = result.readJson<{ mcpServers: Record<string, unknown> }>(".mcp.json");
+      expect(result.hasFile(".mcp.json")).toBe(false);
+      expect(result.hasFile(".mcp.json.example")).toBe(true);
+      const config = result.readJson<{ mcpServers: Record<string, unknown> }>(".mcp.json.example");
       expect(config.mcpServers.context7).toBeDefined();
       expect(config.mcpServers.fetch).toBeDefined();
       expect(config.mcpServers["aws-documentation"]).toBeDefined();
+    });
+
+    it("adds .mcp.json to .gitignore", () => {
+      const registry = makeRegistry(createBasePreset(), cdkStub, cc);
+      const result = generate(makeAnswers(), registry);
+      const gitignore = result.readText(".gitignore");
+      expect(gitignore).toContain(".mcp.json");
     });
   });
 });

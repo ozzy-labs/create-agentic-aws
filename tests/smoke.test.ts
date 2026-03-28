@@ -8,9 +8,7 @@ import {
 } from "./helpers.js";
 
 // ---------------------------------------------------------------------------
-// Smoke test patterns for M2 scope
-// Base + Agent + Language combinations
-// (IaC service presets will be added in M3+)
+// Smoke test patterns (M2 + M3)
 // ---------------------------------------------------------------------------
 
 describe("smoke tests", () => {
@@ -207,6 +205,153 @@ describe("smoke tests", () => {
       expect(readme).toContain("AWS CLI");
       expect(readme).toContain("TypeScript");
       expect(readme).toContain("Python");
+    });
+  });
+
+  // ---------------------------------------------------------------------------
+  // M3: Serverless × CDK patterns
+  // ---------------------------------------------------------------------------
+
+  describe("Pattern 7: Serverless API (CDK)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["lambda"],
+      data: ["s3", "dynamodb"],
+      networking: ["api-gateway"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates infra directory structure", () => {
+      expect(result.hasFile("infra/bin/app.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/app-stack.ts")).toBe(true);
+      expect(result.hasFile("infra/cdk.json")).toBe(true);
+      expect(result.hasFile("infra/package.json")).toBe(true);
+    });
+
+    it("generates all service construct files", () => {
+      expect(result.hasFile("infra/lib/constructs/lambda.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/api-gateway.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/s3.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/dynamodb.ts")).toBe(true);
+      expect(result.hasFile("infra/lib/constructs/cloudwatch.ts")).toBe(true);
+    });
+
+    it("generates application boilerplate files", () => {
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(true);
+      expect(result.hasFile("lambda/powertools.ts")).toBe(true);
+      expect(result.hasFile("lib/dynamodb/client.ts")).toBe(true);
+      expect(result.hasFile("lib/dynamodb/repository.ts")).toBe(true);
+      expect(result.hasFile("lib/observability/index.ts")).toBe(true);
+      expect(result.hasFile("lib/observability/middleware.ts")).toBe(true);
+    });
+
+    it("app-stack.ts contains all service construct imports", () => {
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("LambdaFunction");
+      expect(appStack).toContain("ApiGateway");
+      expect(appStack).toContain("S3Bucket");
+      expect(appStack).toContain("DynamoDbTable");
+      expect(appStack).toContain("CloudWatchDashboard");
+    });
+
+    it("merges all service dependencies into package.json", () => {
+      const pkg = result.readJson<{ devDependencies: Record<string, string> }>("package.json");
+      expect(pkg.devDependencies["@types/aws-lambda"]).toBeDefined();
+      expect(pkg.devDependencies["@aws-sdk/client-dynamodb"]).toBeDefined();
+      expect(pkg.devDependencies["@aws-lambda-powertools/logger"]).toBeDefined();
+    });
+
+    it("README contains all service tech stack entries", () => {
+      const readme = result.readText("README.md");
+      expect(readme).toContain("AWS Lambda");
+      expect(readme).toContain("API Gateway");
+      expect(readme).toContain("S3");
+      expect(readme).toContain("DynamoDB");
+      expect(readme).toContain("CloudWatch");
+    });
+  });
+
+  describe("Pattern 8: Serverless Full (CDK)", () => {
+    const result = generateProject({
+      iac: "cdk",
+      compute: ["lambda"],
+      data: ["s3", "dynamodb"],
+      integration: ["sqs"],
+      networking: ["api-gateway", "cloudfront"],
+      security: ["cognito"],
+      observability: ["cloudwatch"],
+    });
+
+    it("generates valid JSON files", () => {
+      expectAllJsonValid(result);
+    });
+
+    it("has no leftover placeholders", () => {
+      expectNoLeftoverPlaceholders(result);
+    });
+
+    it("generates all 8 service construct files", () => {
+      const constructs = [
+        "lambda",
+        "api-gateway",
+        "s3",
+        "dynamodb",
+        "sqs",
+        "cloudfront",
+        "cognito",
+        "cloudwatch",
+      ];
+      for (const name of constructs) {
+        expect(
+          result.hasFile(`infra/lib/constructs/${name}.ts`),
+          `Missing construct: ${name}`,
+        ).toBe(true);
+      }
+    });
+
+    it("generates all application boilerplate", () => {
+      expect(result.hasFile("lambda/handlers/index.ts")).toBe(true);
+      expect(result.hasFile("lib/dynamodb/client.ts")).toBe(true);
+      expect(result.hasFile("lib/dynamodb/repository.ts")).toBe(true);
+      expect(result.hasFile("lib/sqs/consumer.ts")).toBe(true);
+      expect(result.hasFile("lib/observability/index.ts")).toBe(true);
+    });
+
+    it("app-stack.ts contains all 8 service constructs", () => {
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("LambdaFunction");
+      expect(appStack).toContain("ApiGateway");
+      expect(appStack).toContain("S3Bucket");
+      expect(appStack).toContain("DynamoDbTable");
+      expect(appStack).toContain("SqsQueue");
+      expect(appStack).toContain("CloudFrontDistribution");
+      expect(appStack).toContain("CognitoAuth");
+      expect(appStack).toContain("CloudWatchDashboard");
+    });
+
+    it("has large file count from all presets", () => {
+      // CDK infra + 8 services + app boilerplate + shared files
+      expect(result.files.size).toBeGreaterThan(30);
+    });
+
+    it("README contains all service entries", () => {
+      const readme = result.readText("README.md");
+      expect(readme).toContain("Lambda");
+      expect(readme).toContain("API Gateway");
+      expect(readme).toContain("S3");
+      expect(readme).toContain("DynamoDB");
+      expect(readme).toContain("SQS");
+      expect(readme).toContain("CloudFront");
+      expect(readme).toContain("Cognito");
+      expect(readme).toContain("CloudWatch");
     });
   });
 });

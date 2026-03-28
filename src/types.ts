@@ -20,7 +20,7 @@ export type IacPresetName = "cdk" | "terraform";
 
 export type ComputePresetName = "lambda" | "ecs" | "eks" | "ec2";
 
-export type AiPresetName = "bedrock";
+export type AiPresetName = "bedrock" | "opensearch";
 
 export type DataPresetName = "s3" | "dynamodb" | "aurora" | "rds";
 
@@ -95,6 +95,12 @@ export interface RdsOptions {
   readonly engine: RdsEngine;
 }
 
+export type OpenSearchMode = "serverless" | "managed-cluster";
+
+export interface OpenSearchOptions {
+  readonly mode: OpenSearchMode;
+}
+
 export interface ApiGatewayOptions {
   readonly type: ApiGatewayType;
 }
@@ -123,6 +129,7 @@ export interface WizardAnswers {
   readonly lambdaOptions?: LambdaOptions;
   readonly auroraOptions?: AuroraOptions;
   readonly rdsOptions?: RdsOptions;
+  readonly openSearchOptions?: OpenSearchOptions;
   readonly apiGatewayOptions?: ApiGatewayOptions;
 }
 

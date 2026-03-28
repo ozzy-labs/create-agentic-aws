@@ -23,6 +23,8 @@ import type {
   LoadBalancerType,
   NetworkingPresetName,
   ObservabilityPresetName,
+  OpenSearchMode,
+  OpenSearchOptions,
   RdsEngine,
   RdsOptions,
   SecurityPresetName,
@@ -121,14 +123,23 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     ec2Options = await askEc2Options();
   }
 
-  // 5. AI
+  // 5. AI + sub-options
   const ai = guard(
     await p.multiselect<AiPresetName>({
       message: t("ai"),
-      options: [{ value: "bedrock", label: t("ai.bedrock") }],
+      options: [
+        { value: "bedrock", label: t("ai.bedrock") },
+        { value: "opensearch", label: t("ai.opensearch") },
+      ],
       required: false,
     }),
   );
+
+  let openSearchOptions: OpenSearchOptions | undefined;
+
+  if (ai.includes("opensearch")) {
+    openSearchOptions = await askOpenSearchOptions();
+  }
 
   // 6. Data & Storage + sub-options
   const data = guard(
@@ -205,7 +216,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
   );
 
   // Auto-resolve VPC if needed
-  notifyVpcAutoResolution(compute, data);
+  notifyVpcAutoResolution(compute, data, openSearchOptions);
 
   // 11. Languages (auto-resolved ones excluded)
   const autoLanguages = resolveAutoLanguages(iac);
@@ -229,6 +240,7 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
     ec2Options,
     auroraOptions,
     rdsOptions,
+    openSearchOptions,
     apiGatewayOptions,
   };
 }
@@ -333,6 +345,19 @@ async function askRdsOptions(): Promise<RdsOptions> {
   return { engine };
 }
 
+async function askOpenSearchOptions(): Promise<OpenSearchOptions> {
+  const mode = guard(
+    await p.select<OpenSearchMode>({
+      message: t("opensearch.mode"),
+      options: [
+        { value: "serverless", label: t("opensearch.mode.serverless") },
+        { value: "managed-cluster", label: t("opensearch.mode.managed-cluster") },
+      ],
+    }),
+  );
+  return { mode };
+}
+
 async function askApiGatewayOptions(): Promise<ApiGatewayOptions> {
   const type = guard(
     await p.select<"rest" | "http">({
@@ -355,10 +380,13 @@ const VPC_TRIGGERS: ReadonlySet<string> = new Set(["ecs", "eks", "ec2", "aurora"
 export function notifyVpcAutoResolution(
   compute: readonly ComputePresetName[],
   data: readonly DataPresetName[],
+  openSearchOptions?: OpenSearchOptions,
 ): void {
   const trigger = [...compute, ...data].find((s) => VPC_TRIGGERS.has(s));
   if (trigger) {
     p.log.info(pc.dim(t("autoResolvedVpc", { service: trigger.toUpperCase() })));
+  } else if (openSearchOptions?.mode === "managed-cluster") {
+    p.log.info(pc.dim(t("autoResolvedVpc", { service: "OPENSEARCH" })));
   }
 }
 

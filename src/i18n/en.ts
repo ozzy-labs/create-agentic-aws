@@ -50,6 +50,7 @@ export const en = {
 
   // Wizard choices — AI
   "ai.bedrock": "Bedrock",
+  "ai.opensearch": "OpenSearch",
 
   // Wizard choices — Data
   "data.s3": "S3",
@@ -116,6 +117,11 @@ export const en = {
   "rds.engine": "RDS engine",
   "rds.engine.mysql": "MySQL",
   "rds.engine.postgresql": "PostgreSQL",
+
+  // Sub-options — OpenSearch
+  "opensearch.mode": "OpenSearch mode",
+  "opensearch.mode.serverless": "Serverless",
+  "opensearch.mode.managed-cluster": "Managed Cluster",
 
   // Sub-options — API Gateway
   "apiGateway.type": "API Gateway type",

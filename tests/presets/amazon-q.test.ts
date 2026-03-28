@@ -39,6 +39,14 @@ describe("amazon-q preset", () => {
     expect(aq.files[".amazonq/rules/project.md"]).toContain("Project Rules");
   });
 
+  it("project rules include commit convention and branching", () => {
+    const rules = aq.files[".amazonq/rules/project.md"];
+    expect(rules).toContain("Commit Convention");
+    expect(rules).toContain("Conventional Commits");
+    expect(rules).toContain("Branching");
+    expect(rules).toContain("squash merge only");
+  });
+
   it("registers shared MCP servers", () => {
     expect(aq.mcpServers?.context7).toBeDefined();
     expect(aq.mcpServers?.fetch).toBeDefined();

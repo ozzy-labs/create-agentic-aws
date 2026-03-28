@@ -82,6 +82,11 @@ export function createKinesisPreset(): Preset {
       "tsconfig.json": {
         include: ["lib"],
       },
+      "package.json": {
+        devDependencies: {
+          "@types/aws-lambda": "^8.10.0",
+        },
+      },
     },
 
     iacContributions: {

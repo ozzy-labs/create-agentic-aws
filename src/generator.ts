@@ -13,6 +13,7 @@ import { GenerateResult } from "./types.js";
 // Canonical preset application order
 // ---------------------------------------------------------------------------
 
+// Ensures deterministic preset composition — later presets can rely on earlier ones' files.
 const PRESET_ORDER: readonly PresetName[] = [
   "base",
   "typescript",

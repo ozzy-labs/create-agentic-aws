@@ -42,7 +42,7 @@ export function mergeJson(base: string, ...patches: Record<string, unknown>[]): 
 
 export function mergeYaml(base: string, ...patches: Record<string, unknown>[]): string {
   if (patches.length === 0) return base;
-  const baseObj = parseYaml(base) as Record<string, unknown>;
+  const baseObj = (parseYaml(base) as Record<string, unknown>) ?? {};
   const merged = deepMergeUnion(baseObj, ...patches) as Record<string, unknown>;
   return stringifyYaml(merged, { lineWidth: 0 });
 }
@@ -55,7 +55,7 @@ const deepMergeDefault = deepmergeCustom({});
 
 export function mergeToml(base: string, ...patches: Record<string, unknown>[]): string {
   if (patches.length === 0) return base;
-  const baseObj = parseToml(base) as Record<string, unknown>;
+  const baseObj = (base.trim() ? parseToml(base) : {}) as Record<string, unknown>;
   const merged = deepMergeDefault(baseObj, ...patches) as Record<string, unknown>;
   return stringifyToml(merged);
 }

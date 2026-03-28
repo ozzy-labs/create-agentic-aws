@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { resolveAutoLanguages } from "../src/cli.js";
+import { notifyVpcAutoResolution, resolveAutoLanguages } from "../src/cli.js";
 
 // Mock @clack/prompts to prevent actual terminal interaction
 vi.mock("@clack/prompts", () => ({
@@ -43,6 +43,24 @@ describe("resolveAutoLanguages", () => {
   it("returns empty set for Terraform", () => {
     const result = resolveAutoLanguages("terraform");
     expect(result.size).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// notifyVpcAutoResolution
+// ---------------------------------------------------------------------------
+
+describe("notifyVpcAutoResolution", () => {
+  it("does not throw for empty selections", () => {
+    expect(() => notifyVpcAutoResolution([], [])).not.toThrow();
+  });
+
+  it("does not throw when VPC trigger is present", () => {
+    expect(() => notifyVpcAutoResolution(["ecs"], [])).not.toThrow();
+  });
+
+  it("detects VPC trigger from data presets", () => {
+    expect(() => notifyVpcAutoResolution([], ["aurora"])).not.toThrow();
   });
 });
 

@@ -134,6 +134,11 @@ export function generate(
   // --- Step 2: IaC contributions ---
   collectIacContributions(presets, answers.iac, files, vars);
 
+  // --- Step 2.5: Lambda VPC placement ---
+  if (answers.lambdaOptions?.vpcPlacement) {
+    applyLambdaVpcPlacement(answers.iac, files);
+  }
+
   // --- Step 3: Shared file deep merge ---
   mergeSharedFiles(presets, files, vars);
 
@@ -185,6 +190,62 @@ function collectIacContributions(
   for (const [path, patches] of iacMergeContributions) {
     const base = files.get(path) ?? defaultEmptyContent(path);
     files.set(path, mergeFile(path, base, patches));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 2.5: Lambda VPC placement
+// ---------------------------------------------------------------------------
+
+function applyLambdaVpcPlacement(iac: IacPresetName, files: Map<string, string>): void {
+  if (iac === "cdk") {
+    const appStack = files.get("infra/lib/app-stack.ts");
+    if (appStack) {
+      files.set(
+        "infra/lib/app-stack.ts",
+        appStack.replace(
+          'new LambdaFunction(this, "LambdaFunction")',
+          'new LambdaFunction(this, "LambdaFunction", { vpc: vpc.vpc })',
+        ),
+      );
+    }
+  } else {
+    const lambdaTf = files.get("infra/lambda.tf");
+    if (lambdaTf) {
+      const vpcConfig = `
+resource "aws_security_group" "lambda" {
+  name_prefix = "\${var.project_name}-lambda-"
+  vpc_id      = aws_vpc.this.id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+`;
+      // Insert vpc_config block and VPC execution role policy
+      let patched = lambdaTf.replace(
+        "  environment {",
+        `  vpc_config {
+    subnet_ids         = aws_subnet.private[*].id
+    security_group_ids = [aws_security_group.lambda.id]
+  }
+
+  environment {`,
+      );
+      patched = patched.replace(
+        'resource "aws_iam_role_policy_attachment" "lambda_basic" {',
+        `resource "aws_iam_role_policy_attachment" "lambda_vpc" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_basic" {`,
+      );
+      files.set("infra/lambda.tf", patched + vpcConfig);
+    }
   }
 }
 

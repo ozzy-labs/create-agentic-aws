@@ -1,6 +1,43 @@
 import type { Preset } from "../types.js";
 import { readTemplates } from "./templates.js";
 
+const DYNAMODB_TF = `resource "aws_dynamodb_table" "this" {
+  name         = "\${var.project_name}-\${var.environment}-table"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "pk"
+  range_key    = "sk"
+
+  attribute {
+    name = "pk"
+    type = "S"
+  }
+
+  attribute {
+    name = "sk"
+    type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+
+  server_side_encryption {
+    enabled = true
+  }
+}
+`;
+
+const DYNAMODB_TF_OUTPUTS = `output "dynamodb_table_name" {
+  description = "DynamoDB table name"
+  value       = aws_dynamodb_table.this.name
+}
+
+output "dynamodb_table_arn" {
+  description = "DynamoDB table ARN"
+  value       = aws_dynamodb_table.this.arn
+}
+`;
+
 const DYNAMODB_TABLE_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import type { Construct } from "constructs";
@@ -57,6 +94,14 @@ export function createDynamoDbPreset(): Preset {
             imports: 'import { DynamoDbTable } from "./constructs/dynamodb";',
             constructs: '    new DynamoDbTable(this, "DynamoDbTable");',
           },
+        },
+      },
+      terraform: {
+        files: {
+          "infra/dynamodb.tf": DYNAMODB_TF,
+        },
+        merge: {
+          "infra/outputs.tf": DYNAMODB_TF_OUTPUTS,
         },
       },
     },

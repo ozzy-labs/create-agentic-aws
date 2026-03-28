@@ -1,5 +1,52 @@
 import type { Preset } from "../types.js";
 
+const COGNITO_TF = `resource "aws_cognito_user_pool" "this" {
+  name = "\${var.project_name}-\${var.environment}-user-pool"
+
+  auto_verified_attributes = ["email"]
+  username_attributes      = ["email"]
+
+  password_policy {
+    minimum_length    = 8
+    require_lowercase = true
+    require_uppercase = true
+    require_numbers   = true
+    require_symbols   = true
+  }
+
+  account_recovery_setting {
+    recovery_mechanism {
+      name     = "verified_email"
+      priority = 1
+    }
+  }
+}
+
+resource "aws_cognito_user_pool_client" "this" {
+  name         = "\${var.project_name}-app-client"
+  user_pool_id = aws_cognito_user_pool.this.id
+
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_USER_SRP_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+  ]
+
+  prevent_user_existence_errors = "ENABLED"
+}
+`;
+
+const COGNITO_TF_OUTPUTS = `output "cognito_user_pool_id" {
+  description = "Cognito User Pool ID"
+  value       = aws_cognito_user_pool.this.id
+}
+
+output "cognito_user_pool_client_id" {
+  description = "Cognito User Pool Client ID"
+  value       = aws_cognito_user_pool_client.this.id
+}
+`;
+
 const COGNITO_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import type { Construct } from "constructs";
@@ -65,6 +112,14 @@ export function createCognitoPreset(): Preset {
             imports: 'import { CognitoAuth } from "./constructs/cognito";',
             constructs: '    new CognitoAuth(this, "CognitoAuth");',
           },
+        },
+      },
+      terraform: {
+        files: {
+          "infra/cognito.tf": COGNITO_TF,
+        },
+        merge: {
+          "infra/outputs.tf": COGNITO_TF_OUTPUTS,
         },
       },
     },

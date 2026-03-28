@@ -1,6 +1,32 @@
 import type { Preset } from "../types.js";
 import { readTemplates } from "./templates.js";
 
+const CLOUDWATCH_TF = `resource "aws_cloudwatch_dashboard" "this" {
+  dashboard_name = "\${var.project_name}-\${var.environment}-dashboard"
+
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type   = "text"
+        x      = 0
+        y      = 0
+        width  = 24
+        height = 1
+        properties = {
+          markdown = "# \${var.project_name} Dashboard"
+        }
+      }
+    ]
+  })
+}
+`;
+
+const CLOUDWATCH_TF_OUTPUTS = `output "cloudwatch_dashboard_name" {
+  description = "CloudWatch dashboard name"
+  value       = aws_cloudwatch_dashboard.this.dashboard_name
+}
+`;
+
 const CLOUDWATCH_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch";
 import type { Construct } from "constructs";
@@ -59,6 +85,14 @@ export function createCloudWatchPreset(): Preset {
             imports: 'import { CloudWatchDashboard } from "./constructs/cloudwatch";',
             constructs: '    new CloudWatchDashboard(this, "CloudWatchDashboard");',
           },
+        },
+      },
+      terraform: {
+        files: {
+          "infra/cloudwatch.tf": CLOUDWATCH_TF,
+        },
+        merge: {
+          "infra/outputs.tf": CLOUDWATCH_TF_OUTPUTS,
         },
       },
     },

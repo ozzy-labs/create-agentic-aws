@@ -41,10 +41,11 @@ describe("createRegistry", () => {
     expect(registry.has("aurora")).toBe(true);
     expect(registry.has("rds")).toBe(true);
     expect(registry.has("sns")).toBe(true);
+    expect(registry.has("eventbridge")).toBe(true);
   });
 
   it("has correct preset count for M6", () => {
-    // base + 2 languages + 3 agents + 2 IaC + 14 services + 1 infra = 23
-    expect(registry.size).toBe(23);
+    // base + 2 languages + 3 agents + 2 IaC + 15 services + 1 infra = 24
+    expect(registry.size).toBe(24);
   });
 });

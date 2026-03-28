@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
+import * as p from "@clack/prompts";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { notifyVpcAutoResolution, resolveAutoLanguages } from "../src/cli.js";
 
@@ -51,40 +52,55 @@ describe("resolveAutoLanguages", () => {
 // ---------------------------------------------------------------------------
 
 describe("notifyVpcAutoResolution", () => {
-  it("does not throw for empty selections", () => {
-    expect(() => notifyVpcAutoResolution([], [])).not.toThrow();
+  const logInfo = vi.mocked(p.log.info);
+
+  beforeEach(() => {
+    logInfo.mockClear();
   });
 
-  it("does not throw when VPC trigger is present in compute", () => {
-    expect(() => notifyVpcAutoResolution(["ecs"], [])).not.toThrow();
+  it("does not notify for empty selections", () => {
+    notifyVpcAutoResolution([], []);
+    expect(logInfo).not.toHaveBeenCalled();
   });
 
-  it("detects VPC trigger from data presets", () => {
-    expect(() => notifyVpcAutoResolution([], ["aurora"])).not.toThrow();
+  it("notifies when VPC trigger is present in compute (ecs)", () => {
+    notifyVpcAutoResolution(["ecs"], []);
+    expect(logInfo).toHaveBeenCalledOnce();
   });
 
-  it("does not trigger for non-VPC services (lambda only)", () => {
-    expect(() => notifyVpcAutoResolution(["lambda"], [])).not.toThrow();
+  it("notifies when VPC trigger is present in data (aurora)", () => {
+    notifyVpcAutoResolution([], ["aurora"]);
+    expect(logInfo).toHaveBeenCalledOnce();
   });
 
-  it("does not trigger for non-VPC data services (s3, dynamodb)", () => {
-    expect(() => notifyVpcAutoResolution([], ["s3", "dynamodb"])).not.toThrow();
+  it("does not notify for non-VPC compute services (lambda only)", () => {
+    notifyVpcAutoResolution(["lambda"], []);
+    expect(logInfo).not.toHaveBeenCalled();
   });
 
-  it("triggers for eks in compute", () => {
-    expect(() => notifyVpcAutoResolution(["eks"], [])).not.toThrow();
+  it("does not notify for non-VPC data services (s3, dynamodb)", () => {
+    notifyVpcAutoResolution([], ["s3", "dynamodb"]);
+    expect(logInfo).not.toHaveBeenCalled();
   });
 
-  it("triggers for ec2 in compute", () => {
-    expect(() => notifyVpcAutoResolution(["ec2"], [])).not.toThrow();
+  it("notifies for eks in compute", () => {
+    notifyVpcAutoResolution(["eks"], []);
+    expect(logInfo).toHaveBeenCalledOnce();
   });
 
-  it("triggers for rds in data", () => {
-    expect(() => notifyVpcAutoResolution([], ["rds"])).not.toThrow();
+  it("notifies for ec2 in compute", () => {
+    notifyVpcAutoResolution(["ec2"], []);
+    expect(logInfo).toHaveBeenCalledOnce();
   });
 
-  it("handles mixed compute and data with VPC triggers", () => {
-    expect(() => notifyVpcAutoResolution(["ecs", "lambda"], ["aurora", "s3"])).not.toThrow();
+  it("notifies for rds in data", () => {
+    notifyVpcAutoResolution([], ["rds"]);
+    expect(logInfo).toHaveBeenCalledOnce();
+  });
+
+  it("notifies only once for mixed compute and data with VPC triggers", () => {
+    notifyVpcAutoResolution(["ecs", "lambda"], ["aurora", "s3"]);
+    expect(logInfo).toHaveBeenCalledOnce();
   });
 });
 

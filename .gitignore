@@ -2,6 +2,9 @@
 .claude/settings.local.json
 .claude/plans/
 
+# Local testing
+tmp/
+
 # Logs
 logs
 *.log

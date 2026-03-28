@@ -15,6 +15,7 @@ import { createEcsPreset } from "./ecs.js";
 import { createEksPreset } from "./eks.js";
 import { createLambdaPreset } from "./lambda.js";
 import { createPythonPreset } from "./python.js";
+import { createRdsPreset } from "./rds.js";
 import { createS3Preset } from "./s3.js";
 import { createSqsPreset } from "./sqs.js";
 import { createTerraformPreset } from "./terraform.js";
@@ -45,7 +46,8 @@ export function createRegistry(): Map<PresetName, Preset> {
     createEksPreset(),
     createEc2Preset(),
     createAuroraPreset(),
-    // Service presets will be added in M5-M6
+    createRdsPreset(),
+    // Service presets will be added in M6
   ];
 
   return new Map(presets.map((p) => [p.name, p]));

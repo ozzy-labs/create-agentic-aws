@@ -74,6 +74,11 @@ const VPC_TRIGGERS: ReadonlySet<PresetName> = new Set([
 // Preset resolution
 // ---------------------------------------------------------------------------
 
+/**
+ * Resolves the full set of presets from wizard answers, including auto-resolved
+ * dependencies (VPC, languages) and transitive requires. Returns presets sorted
+ * by canonical {@link PRESET_ORDER} for deterministic composition.
+ */
 export function resolvePresets(
   answers: WizardAnswers,
   registry: ReadonlyMap<PresetName, Preset>,
@@ -150,6 +155,14 @@ function defaultEmptyContent(path: string): string {
 // Generator pipeline
 // ---------------------------------------------------------------------------
 
+/**
+ * Main generation pipeline. Composes selected presets into a complete project:
+ *
+ * 1. **Resolve** — select presets, auto-resolve dependencies, sort by canonical order
+ * 2. **Compose** — collect owned files + IaC contributions (CDK/Terraform)
+ * 3. **Transform** — apply service-specific mutations (VPC placement, engine swap, etc.)
+ * 4. **Finalize** — deep-merge shared files, distribute MCP servers, expand markdown, strip markers
+ */
 export function generate(
   answers: WizardAnswers,
   registry: ReadonlyMap<PresetName, Preset>,

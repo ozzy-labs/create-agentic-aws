@@ -52,6 +52,7 @@ export const ja: Record<MessageKey, string> = {
 
   // Wizard choices — AI
   "ai.bedrock": "Bedrock",
+  "ai.opensearch": "OpenSearch",
 
   // Wizard choices — Data
   "data.s3": "S3",
@@ -118,6 +119,11 @@ export const ja: Record<MessageKey, string> = {
   "rds.engine": "RDS エンジン",
   "rds.engine.mysql": "MySQL",
   "rds.engine.postgresql": "PostgreSQL",
+
+  // Sub-options — OpenSearch
+  "opensearch.mode": "OpenSearch モード",
+  "opensearch.mode.serverless": "Serverless",
+  "opensearch.mode.managed-cluster": "Managed Cluster",
 
   // Sub-options — API Gateway
   "apiGateway.type": "API Gateway タイプ",

@@ -1,4 +1,9 @@
 import { mergeFile, mergeMarkdown } from "./merge.js";
+import {
+  OPENSEARCH_MANAGED_CONSTRUCT,
+  OPENSEARCH_MANAGED_TF,
+  OPENSEARCH_MANAGED_TF_OUTPUTS,
+} from "./presets/opensearch.js";
 import { readTemplates } from "./presets/templates.js";
 import type {
   IacPresetName,
@@ -30,6 +35,7 @@ const PRESET_ORDER: readonly PresetName[] = [
   "eks",
   "ec2",
   "bedrock",
+  "opensearch",
   "s3",
   "dynamodb",
   "aurora",
@@ -80,6 +86,9 @@ export function resolvePresets(
     }
   }
   if (answers.lambdaOptions?.vpcPlacement) {
+    selected.add("vpc");
+  }
+  if (answers.openSearchOptions?.mode === "managed-cluster") {
     selected.add("vpc");
   }
 
@@ -147,7 +156,12 @@ export function generate(
     applyRdsEngineOption(answers.iac, files);
   }
 
-  // --- Step 2.7: Lambda Python runtime ---
+  // --- Step 2.7: OpenSearch managed-cluster mode ---
+  if (answers.openSearchOptions?.mode === "managed-cluster") {
+    applyOpenSearchManagedMode(answers.iac, files);
+  }
+
+  // --- Step 2.8: Lambda Python runtime ---
   const presetNames = new Set(presets.map((p) => p.name));
   if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {
     applyLambdaPythonRuntime(files, vars);
@@ -190,6 +204,20 @@ export function generate(
             "Structured logging, metrics, tracing",
             "Structured logging, metrics, tracing (Python)",
           ),
+      );
+    }
+  }
+
+  // --- Step 5.7: OpenSearch managed-cluster label in README ---
+  if (answers.openSearchOptions?.mode === "managed-cluster") {
+    const readme = files.get("README.md");
+    if (readme) {
+      files.set(
+        "README.md",
+        readme.replace(
+          "Serverless search and analytics collection",
+          "Managed search and analytics cluster (VPC)",
+        ),
       );
     }
   }
@@ -327,7 +355,45 @@ function applyRdsEngineOption(iac: IacPresetName, files: Map<string, string>): v
 }
 
 // ---------------------------------------------------------------------------
-// Step 2.7: Lambda Python runtime (TypeScript → Python)
+// Step 2.7: OpenSearch managed-cluster mode (Serverless → Managed Cluster)
+// ---------------------------------------------------------------------------
+
+function applyOpenSearchManagedMode(iac: IacPresetName, files: Map<string, string>): void {
+  if (iac === "cdk") {
+    files.set("infra/lib/constructs/opensearch.ts", OPENSEARCH_MANAGED_CONSTRUCT);
+    const appStack = files.get("infra/lib/app-stack.ts");
+    if (appStack) {
+      files.set(
+        "infra/lib/app-stack.ts",
+        appStack
+          .replace(
+            'import { OpenSearchCollection } from "./constructs/opensearch";',
+            'import { OpenSearchDomain } from "./constructs/opensearch";',
+          )
+          .replace(
+            '    new OpenSearchCollection(this, "OpenSearchCollection");',
+            '    new OpenSearchDomain(this, "OpenSearchDomain", { vpc: vpc.vpc });',
+          ),
+      );
+    }
+  } else {
+    files.set("infra/opensearch.tf", OPENSEARCH_MANAGED_TF);
+    // Replace serverless outputs with managed outputs
+    const outputs = files.get("infra/outputs.tf");
+    if (outputs) {
+      files.set(
+        "infra/outputs.tf",
+        outputs.replace(
+          /output "opensearch_collection_endpoint"[\s\S]*?}\n\noutput "opensearch_collection_arn"[\s\S]*?}\n/,
+          OPENSEARCH_MANAGED_TF_OUTPUTS,
+        ),
+      );
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 2.8: Lambda Python runtime (TypeScript → Python)
 // ---------------------------------------------------------------------------
 
 const LAMBDA_PYTHON_TF_RUNTIME = `  handler          = "handler.handler"

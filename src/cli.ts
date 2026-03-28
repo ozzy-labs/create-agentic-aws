@@ -54,6 +54,7 @@ export async function runWizard(): Promise<WizardAnswers> {
       placeholder: t("projectNamePlaceholder"),
       validate(value) {
         if (!value.trim()) return "Required";
+        if (value.length > 100) return "Must be 100 characters or fewer";
         if (!/^[a-z0-9][a-z0-9._-]*$/.test(value)) {
           return "Must start with lowercase letter/number, then lowercase letters, numbers, dots, hyphens, or underscores";
         }
@@ -191,6 +192,9 @@ export async function runWizard(): Promise<WizardAnswers> {
       required: false,
     }),
   );
+
+  // Auto-resolve VPC if needed
+  notifyVpcAutoResolution(compute, data);
 
   // 10. Languages (auto-resolved ones excluded)
   const autoLanguages = resolveAutoLanguages(iac);
@@ -333,6 +337,18 @@ async function askApiGatewayOptions(): Promise<ApiGatewayOptions> {
 // ---------------------------------------------------------------------------
 // Auto-resolution
 // ---------------------------------------------------------------------------
+
+const VPC_TRIGGERS: ReadonlySet<string> = new Set(["ecs", "eks", "ec2", "aurora", "rds"]);
+
+export function notifyVpcAutoResolution(
+  compute: readonly ComputePresetName[],
+  data: readonly DataPresetName[],
+): void {
+  const trigger = [...compute, ...data].find((s) => VPC_TRIGGERS.has(s));
+  if (trigger) {
+    p.log.info(pc.dim(t("autoResolvedVpc", { service: trigger.toUpperCase() })));
+  }
+}
 
 export function resolveAutoLanguages(iac: IacPresetName): Set<LanguagePresetName> {
   const auto = new Set<LanguagePresetName>();

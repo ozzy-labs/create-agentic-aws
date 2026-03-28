@@ -103,9 +103,10 @@ describe("edge cases", () => {
   });
 
   describe("single agent selection", () => {
-    it("claude-code only: generates .mcp.json but not other agent configs", () => {
+    it("claude-code only: generates .mcp.json.example but not .mcp.json or other agent configs", () => {
       const result = generateProject({ agents: ["claude-code"] });
-      expect(result.hasFile(".mcp.json")).toBe(true);
+      expect(result.hasFile(".mcp.json")).toBe(false);
+      expect(result.hasFile(".mcp.json.example")).toBe(true);
       expect(result.hasFile(".amazonq/mcp.json")).toBe(false);
       expect(result.hasFile(".github/copilot-mcp.json")).toBe(false);
     });

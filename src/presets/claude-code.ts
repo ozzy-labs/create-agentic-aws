@@ -13,7 +13,7 @@ export function createClaudeCodePreset(): Preset {
     },
 
     merge: {
-      ".gitignore": ".claude/settings.local.json\n",
+      ".gitignore": ".claude/settings.local.json\n.mcp.json\n",
       ".devcontainer/devcontainer.json": {
         // biome-ignore lint/suspicious/noTemplateCurlyInString: devcontainer mount syntax
         mounts: ["source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,readonly"],

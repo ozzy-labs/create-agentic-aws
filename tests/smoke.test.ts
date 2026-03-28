@@ -71,13 +71,16 @@ describe("smoke tests", () => {
 
     it("distributes MCP servers to all agent configs", () => {
       expect(result.hasFile(".amazonq/mcp.json")).toBe(true);
-      expect(result.hasFile(".mcp.json")).toBe(true);
+      expect(result.hasFile(".mcp.json")).toBe(false);
+      expect(result.hasFile(".mcp.json.example")).toBe(true);
       expect(result.hasFile(".github/copilot-mcp.json")).toBe(true);
 
-      const claudeMcp = result.readJson<{ mcpServers: Record<string, unknown> }>(".mcp.json");
-      expect(claudeMcp.mcpServers.context7).toBeDefined();
-      expect(claudeMcp.mcpServers.fetch).toBeDefined();
-      expect(claudeMcp.mcpServers["aws-documentation"]).toBeDefined();
+      const mcpExample = result.readJson<{ mcpServers: Record<string, unknown> }>(
+        ".mcp.json.example",
+      );
+      expect(mcpExample.mcpServers.context7).toBeDefined();
+      expect(mcpExample.mcpServers.fetch).toBeDefined();
+      expect(mcpExample.mcpServers["aws-documentation"]).toBeDefined();
     });
   });
 
@@ -192,7 +195,11 @@ describe("smoke tests", () => {
     });
 
     it("all agent configs receive all MCP servers", () => {
-      for (const configPath of [".mcp.json", ".amazonq/mcp.json", ".github/copilot-mcp.json"]) {
+      for (const configPath of [
+        ".mcp.json.example",
+        ".amazonq/mcp.json",
+        ".github/copilot-mcp.json",
+      ]) {
         const config = result.readJson<{ mcpServers: Record<string, unknown> }>(configPath);
         expect(config.mcpServers.context7, `Missing context7 in ${configPath}`).toBeDefined();
         expect(config.mcpServers.fetch, `Missing fetch in ${configPath}`).toBeDefined();

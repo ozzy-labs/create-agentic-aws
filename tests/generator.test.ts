@@ -298,7 +298,8 @@ describe("generate — MCP servers", () => {
       makePreset("claude-code"),
     );
     const result = generate(makeAnswers({ agents: ["claude-code"] }), registry);
-    const config = result.readJson<{ mcpServers: Record<string, unknown> }>(".mcp.json");
+    expect(result.hasFile(".mcp.json")).toBe(false);
+    const config = result.readJson<{ mcpServers: Record<string, unknown> }>(".mcp.json.example");
     expect(config.mcpServers["aws-iac"]).toBeDefined();
   });
 
@@ -325,7 +326,8 @@ describe("generate — MCP servers", () => {
       makePreset("copilot"),
     );
     const result = generate(makeAnswers({ agents: ["claude-code", "copilot"] }), registry);
-    expect(result.hasFile(".mcp.json")).toBe(true);
+    expect(result.hasFile(".mcp.json")).toBe(false);
+    expect(result.hasFile(".mcp.json.example")).toBe(true);
     expect(result.hasFile(".github/copilot-mcp.json")).toBe(true);
   });
 });

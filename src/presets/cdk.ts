@@ -74,16 +74,6 @@ export function createCdkPreset(): Preset {
           "**/infra/cdk.out": true,
         },
       },
-      ".vscode/extensions.json": {
-        recommendations: ["amazonwebservices.aws-toolkit-vscode"],
-      },
-      ".devcontainer/devcontainer.json": {
-        customizations: {
-          vscode: {
-            extensions: ["amazonwebservices.aws-toolkit-vscode"],
-          },
-        },
-      },
     },
 
     ciSteps: {

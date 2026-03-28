@@ -92,16 +92,9 @@ describe("cdk preset", () => {
       expect(searchExclude["**/infra/cdk.out"]).toBe(true);
     });
 
-    it("adds AWS Toolkit to VSCode extensions", () => {
-      const ext = cdk.merge[".vscode/extensions.json"] as Record<string, unknown>;
-      expect(ext.recommendations).toContain("amazonwebservices.aws-toolkit-vscode");
-    });
-
-    it("adds AWS Toolkit to devcontainer", () => {
-      const dc = cdk.merge[".devcontainer/devcontainer.json"] as Record<string, unknown>;
-      const customizations = dc.customizations as Record<string, unknown>;
-      const vscode = customizations.vscode as Record<string, unknown>;
-      expect(vscode.extensions).toContain("amazonwebservices.aws-toolkit-vscode");
+    it("does not duplicate AWS Toolkit (provided by base)", () => {
+      expect(cdk.merge[".vscode/extensions.json"]).toBeUndefined();
+      expect(cdk.merge[".devcontainer/devcontainer.json"]).toBeUndefined();
     });
   });
 

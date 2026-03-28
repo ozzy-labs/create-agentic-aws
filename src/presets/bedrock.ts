@@ -75,6 +75,14 @@ export function createBedrockPreset(): Preset {
           "@aws-sdk/client-bedrock-runtime": "^3.700.0",
         },
       },
+      "renovate.json": {
+        packageRules: [
+          {
+            groupName: "AWS SDK",
+            matchPackagePatterns: ["^@aws-sdk/"],
+          },
+        ],
+      },
     },
 
     iacContributions: {

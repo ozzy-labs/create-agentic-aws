@@ -94,6 +94,14 @@ export function createDynamoDbPreset(): Preset {
           "@aws-sdk/lib-dynamodb": "^3.700.0",
         },
       },
+      "renovate.json": {
+        packageRules: [
+          {
+            groupName: "AWS SDK",
+            matchPackagePatterns: ["^@aws-sdk/"],
+          },
+        ],
+      },
     },
 
     iacContributions: {

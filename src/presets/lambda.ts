@@ -120,6 +120,14 @@ export function createLambdaPreset(): Preset {
           "@types/aws-lambda": "^8.10.0",
         },
       },
+      "renovate.json": {
+        packageRules: [
+          {
+            groupName: "AWS Lambda Powertools",
+            matchPackagePatterns: ["^@aws-lambda-powertools/"],
+          },
+        ],
+      },
     },
 
     iacContributions: {

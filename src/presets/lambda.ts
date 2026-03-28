@@ -129,7 +129,7 @@ export function createLambdaPreset(): Preset {
         merge: {
           "infra/lib/app-stack.ts": {
             imports: 'import { LambdaFunction } from "./constructs/lambda";',
-            constructs: '    new LambdaFunction(this, "LambdaFunction");',
+            constructs: '    const lambdaFunction = new LambdaFunction(this, "LambdaFunction");',
           },
           "infra/package.json": {
             devDependencies: {

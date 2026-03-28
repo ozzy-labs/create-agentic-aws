@@ -4,6 +4,7 @@ import { createApiGatewayPreset } from "./api-gateway.js";
 import { createAuroraPreset } from "./aurora.js";
 import { createBasePreset } from "./base.js";
 import { createBedrockPreset } from "./bedrock.js";
+import { createBedrockKbPreset } from "./bedrock-kb.js";
 import { createCdkPreset } from "./cdk.js";
 import { createClaudeCodePreset } from "./claude-code.js";
 import { createCloudFrontPreset } from "./cloudfront.js";
@@ -51,6 +52,7 @@ export function createRegistry(): Map<PresetName, Preset> {
     createEksPreset(),
     createEc2Preset(),
     createBedrockPreset(),
+    createBedrockKbPreset(),
     createOpenSearchPreset(),
     createAuroraPreset(),
     createRdsPreset(),

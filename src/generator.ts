@@ -35,6 +35,7 @@ const PRESET_ORDER: readonly PresetName[] = [
   "eks",
   "ec2",
   "bedrock",
+  "bedrock-kb",
   "opensearch",
   "s3",
   "dynamodb",

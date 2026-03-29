@@ -343,6 +343,81 @@ const projects: TestProject[] = [
       languages: ["typescript", "python"],
     },
   },
+
+  // ── 20. Serverless API parity — CDK HTTP ──────────────────────────
+  {
+    name: "21-serverless-api-http-cdk",
+    description:
+      "Lambda + DynamoDB + API Gateway (HTTP) + Cognito + CloudWatch (CDK) — parity with 05",
+    overrides: {
+      projectName: "serverless-api-http-cdk",
+      agents: ["claude-code"],
+      compute: ["lambda"],
+      lambdaOptions: { vpcPlacement: false },
+      data: ["dynamodb"],
+      networking: ["api-gateway"],
+      apiGatewayOptions: { type: "http" },
+      security: ["cognito"],
+      observability: ["cloudwatch"],
+    },
+  },
+
+  // ── 21. Container + RDB parity — CDK RDS MySQL ────────────────────
+  {
+    name: "22-container-rdb-parity-cdk",
+    description: "ECS Fargate + RDS MySQL + CloudWatch (CDK) — parity with 07",
+    overrides: {
+      projectName: "container-rdb-parity-cdk",
+      compute: ["ecs"],
+      ecsOptions: { launchType: "fargate", loadBalancer: "alb" },
+      data: ["rds"],
+      rdsOptions: { engine: "mysql" },
+      observability: ["cloudwatch"],
+    },
+  },
+
+  // ── 22. EKS Fargate (Terraform) ───────────────────────────────────
+  {
+    name: "23-eks-fargate-terraform",
+    description: "EKS Fargate + Aurora Serverless v2 PostgreSQL (Terraform) — EKS Fargate coverage",
+    overrides: {
+      projectName: "eks-fargate-terraform",
+      iac: "terraform",
+      compute: ["eks"],
+      eksOptions: { mode: "fargate", loadBalancer: "alb" },
+      data: ["aurora"],
+      auroraOptions: { capacity: "serverless-v2", engine: "postgresql" },
+      observability: ["cloudwatch"],
+    },
+  },
+
+  // ── 23. Lambda Python-only + Copilot (Terraform) ──────────────────
+  {
+    name: "24-lambda-python-copilot",
+    description: "Lambda (Python only) + S3 + Copilot agent (Terraform)",
+    overrides: {
+      projectName: "lambda-python-copilot",
+      iac: "terraform",
+      agents: ["copilot"],
+      compute: ["lambda"],
+      lambdaOptions: { vpcPlacement: false },
+      data: ["s3"],
+      observability: ["cloudwatch"],
+      languages: ["python"],
+    },
+  },
+
+  // ── 24. ECS NLB (CDK) ─────────────────────────────────────────────
+  {
+    name: "25-ecs-nlb-cdk",
+    description: "ECS Fargate + NLB + VPC + CloudWatch (CDK) — NLB coverage",
+    overrides: {
+      projectName: "ecs-nlb-cdk",
+      compute: ["ecs"],
+      ecsOptions: { launchType: "fargate", loadBalancer: "nlb" },
+      observability: ["cloudwatch"],
+    },
+  },
 ];
 
 // ---------------------------------------------------------------------------

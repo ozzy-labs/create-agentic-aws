@@ -331,6 +331,10 @@ export function createOpenSearchPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon OpenSearch Serverless**: Serverless search and analytics collection",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **OpenSearch**: Design index mappings for your data",
+        },
       ],
     },
   };

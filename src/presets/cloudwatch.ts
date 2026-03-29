@@ -90,6 +90,10 @@ export function createCloudWatchPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon CloudWatch**: Monitoring dashboard",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **CloudWatch**: Configure SNS subscription for alarm notifications",
+        },
       ],
     },
   };

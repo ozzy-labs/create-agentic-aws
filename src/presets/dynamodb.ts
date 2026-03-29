@@ -139,6 +139,10 @@ export function createDynamoDbPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon DynamoDB**: NoSQL database (on-demand)",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **DynamoDB**: Review partition key design for your access patterns",
+        },
       ],
     },
   };

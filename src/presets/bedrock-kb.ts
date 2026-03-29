@@ -256,6 +256,10 @@ export function createBedrockKbPreset(): Preset {
           content:
             "- **Bedrock Knowledge Bases**: RAG (Retrieval-Augmented Generation) with S3 data source",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **Bedrock KB**: Upload documents to the S3 data source bucket",
+        },
       ],
     },
   };

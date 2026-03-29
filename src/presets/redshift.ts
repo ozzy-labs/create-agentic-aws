@@ -259,6 +259,10 @@ export function createRedshiftPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon Redshift**: Serverless data warehouse (namespace + workgroup)",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **Redshift**: Adjust workgroup `baseCapacity` for your workload",
+        },
       ],
     },
   };

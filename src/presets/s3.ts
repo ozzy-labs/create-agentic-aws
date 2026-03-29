@@ -108,6 +108,10 @@ export function createS3Preset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon S3**: Object storage",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **S3**: Configure bucket policy and lifecycle rules",
+        },
       ],
     },
   };

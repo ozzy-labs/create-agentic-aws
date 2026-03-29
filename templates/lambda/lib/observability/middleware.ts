@@ -3,7 +3,7 @@ import { logMetrics } from "@aws-lambda-powertools/metrics/middleware";
 import { captureLambdaHandler } from "@aws-lambda-powertools/tracer/middleware";
 import middy from "@middy/core";
 import type { Handler } from "aws-lambda";
-import { logger, metrics, tracer } from "./index";
+import { logger, metrics, tracer } from "./index.js";
 
 /**
  * Wraps a Lambda handler with Powertools middleware for

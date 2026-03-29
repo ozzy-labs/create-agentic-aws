@@ -179,6 +179,36 @@ export function applyBedrockKbOpenSearchWiring(
     }
 
     files.set("infra/lib/app-stack.ts", patched);
+
+    // Patch bedrock-kb.ts storageConfiguration for managed-cluster mode
+    if (!isServerless) {
+      const kbConstruct = requireFile(files, "infra/lib/constructs/bedrock-kb.ts", ctx);
+      let kbPatched = safeReplace(
+        kbConstruct,
+        '        type: "OPENSEARCH_SERVERLESS",',
+        '        type: "OPENSEARCH_MANAGED_CLUSTER",',
+        ctx,
+      );
+      kbPatched = safeReplace(
+        kbPatched,
+        "        opensearchServerlessConfiguration: {",
+        "        opensearchManagedClusterConfiguration: {",
+        ctx,
+      );
+      kbPatched = safeReplace(
+        kbPatched,
+        "          collectionArn: props.collectionArn,",
+        "          domainArn: props.collectionArn,",
+        ctx,
+      );
+      kbPatched = safeReplace(
+        kbPatched,
+        "    // Knowledge base with OpenSearch Serverless vector store",
+        "    // Knowledge base with OpenSearch Managed Cluster vector store",
+        ctx,
+      );
+      files.set("infra/lib/constructs/bedrock-kb.ts", kbPatched);
+    }
   } else {
     const kbTf = requireFile(files, "infra/bedrock-kb.tf", ctx);
     if (isServerless) {

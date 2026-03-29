@@ -246,5 +246,39 @@ describe("transforms", () => {
       const appStack = result.readText("infra/lib/app-stack.ts");
       expect(appStack).toContain('type: "rest"');
     });
+
+    it("CDK: OpenSearch managed-cluster patches bedrock-kb storageConfiguration", () => {
+      const result = generateProject({
+        ai: ["bedrock", "bedrock-kb", "opensearch"],
+        openSearchOptions: { mode: "managed-cluster" },
+      });
+      const kbConstruct = result.readText("infra/lib/constructs/bedrock-kb.ts");
+      expect(kbConstruct).toContain("OPENSEARCH_MANAGED_CLUSTER");
+      expect(kbConstruct).toContain("opensearchManagedClusterConfiguration");
+      expect(kbConstruct).toContain("domainArn:");
+      expect(kbConstruct).not.toContain("OPENSEARCH_SERVERLESS");
+      expect(kbConstruct).not.toContain("opensearchServerlessConfiguration");
+    });
+
+    it("TF: OpenSearch managed-cluster patches bedrock-kb storage type", () => {
+      const result = generateProject({
+        iac: "terraform",
+        ai: ["bedrock", "bedrock-kb", "opensearch"],
+        openSearchOptions: { mode: "managed-cluster" },
+      });
+      const kbTf = result.readText("infra/bedrock-kb.tf");
+      expect(kbTf).toContain("OPENSEARCH_MANAGED_CLUSTER");
+      expect(kbTf).toContain("opensearch_managed_cluster_configuration");
+      expect(kbTf).not.toContain("OPENSEARCH_SERVERLESS");
+    });
+
+    it("CDK: OpenSearch serverless keeps bedrock-kb as OPENSEARCH_SERVERLESS", () => {
+      const result = generateProject({
+        ai: ["bedrock", "bedrock-kb", "opensearch"],
+      });
+      const kbConstruct = result.readText("infra/lib/constructs/bedrock-kb.ts");
+      expect(kbConstruct).toContain("OPENSEARCH_SERVERLESS");
+      expect(kbConstruct).toContain("opensearchServerlessConfiguration");
+    });
   });
 });

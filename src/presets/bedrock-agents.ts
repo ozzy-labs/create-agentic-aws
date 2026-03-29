@@ -275,7 +275,7 @@ export function createBedrockAgentsPreset(): Preset {
   return {
     name: "bedrock-agents",
 
-    requires: ["bedrock-kb", "typescript"],
+    requires: ["bedrock-kb", "typescript", "lambda"],
 
     files: {
       ...templates,

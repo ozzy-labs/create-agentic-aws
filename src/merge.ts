@@ -167,9 +167,19 @@ function injectMarkdownSection(template: string, section: MarkdownSection): stri
     }
   }
 
-  // Insert content before the next section (with blank line), deduplicating lines
-  const existingLines = new Set(lines.slice(headingIndex + 1, insertIndex).map((l) => l.trim()));
-  const contentLines = section.content.split("\n").filter((l) => !existingLines.has(l.trim()));
+  // Insert content before the next section (with blank line), deduplicating lines.
+  // For markdown list items like "- **Amazon SNS**: ...", deduplicate by bold prefix
+  // so that different descriptions of the same service are not duplicated.
+  const existingTrimmed = lines.slice(headingIndex + 1, insertIndex).map((l) => l.trim());
+  const existingLines = new Set(existingTrimmed);
+  const existingPrefixes = new Set(
+    existingTrimmed.map(extractBoldPrefix).filter((p): p is string => p !== undefined),
+  );
+  const contentLines = section.content.split("\n").filter((l) => {
+    if (existingLines.has(l.trim())) return false;
+    const prefix = extractBoldPrefix(l.trim());
+    return prefix === undefined || !existingPrefixes.has(prefix);
+  });
   if (contentLines.length === 0) return template;
   const injection = ["", ...contentLines];
 
@@ -181,6 +191,12 @@ function injectMarkdownSection(template: string, section: MarkdownSection): stri
   lines.splice(insertIndex, 0, ...injection, "");
 
   return lines.join("\n");
+}
+
+/** Extract bold prefix from markdown list items, e.g. "- **Amazon SNS**" from "- **Amazon SNS**: Pub/sub" */
+function extractBoldPrefix(line: string): string | undefined {
+  const m = /^- \*\*[^*]+\*\*/.exec(line);
+  return m ? m[0] : undefined;
 }
 
 function getHeadingLevel(line: string): number {

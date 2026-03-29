@@ -180,6 +180,32 @@ describe("mergeMarkdown", () => {
     expect(mergeMarkdown(template, [])).toBe(template);
   });
 
+  it("deduplicates by bold prefix when same service has different descriptions", () => {
+    const template =
+      "# Title\n\n## Tech Stack\n\n- **Amazon SNS**: Pub/sub messaging\n\n## License\n\nMIT\n";
+    const result = mergeMarkdown(template, [
+      { heading: "## Tech Stack", content: "- **Amazon SNS**: Alarm notifications" },
+    ]);
+    // The duplicate SNS line should be dropped (same bold prefix)
+    expect(result.match(/Amazon SNS/g)?.length).toBe(1);
+    // The original line should remain
+    expect(result).toContain("- **Amazon SNS**: Pub/sub messaging");
+    expect(result).not.toContain("Alarm notifications");
+  });
+
+  it("allows different bold prefixes in the same section", () => {
+    const template = "## Tech Stack\n\n- **Lambda**: Functions\n\n## License\n";
+    const result = mergeMarkdown(template, [
+      {
+        heading: "## Tech Stack",
+        content: "- **CloudWatch**: Monitoring\n- **Amazon SNS**: Alarm notifications",
+      },
+    ]);
+    expect(result).toContain("- **Lambda**: Functions");
+    expect(result).toContain("- **CloudWatch**: Monitoring");
+    expect(result).toContain("- **Amazon SNS**: Alarm notifications");
+  });
+
   it("respects heading levels (does not cross same-level boundary)", () => {
     const template = "## A\n\nA content.\n\n## B\n\nB content.\n";
     const result = mergeMarkdown(template, [{ heading: "## A", content: "Injected into A." }]);

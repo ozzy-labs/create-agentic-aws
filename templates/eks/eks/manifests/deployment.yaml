@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: {{projectName}}-eks:latest
+          image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/{{projectName}}-eks:latest
           ports:
             - containerPort: 3000
           livenessProbe:

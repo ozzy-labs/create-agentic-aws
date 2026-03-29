@@ -262,7 +262,13 @@ export function createBedrockAgentsPreset(): Preset {
       ...templates,
     },
 
-    merge: {},
+    merge: {
+      "package.json": {
+        devDependencies: {
+          "@types/aws-lambda": "^8.10.0",
+        },
+      },
+    },
 
     iacContributions: {
       cdk: {

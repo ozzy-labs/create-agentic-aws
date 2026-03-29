@@ -13,7 +13,7 @@ from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 
 # Initialize Glue context
-args = getResolvedOptions(sys.argv, ["JOB_NAME", "DATABASE_NAME"])
+args = getResolvedOptions(sys.argv, ["JOB_NAME", "DATABASE_NAME", "OUTPUT_BUCKET"])
 sc = SparkContext()
 glue_context = GlueContext(sc)
 spark = glue_context.spark_session
@@ -42,7 +42,7 @@ mapped_frame = ApplyMapping.apply(
 glue_context.write_dynamic_frame.from_options(
     frame=mapped_frame,
     connection_type="s3",
-    connection_options={"path": "s3://{{projectName}}-glue-output/output/"},
+    connection_options={"path": f"s3://{args['OUTPUT_BUCKET']}/output/"},
     format="parquet",
     transformation_ctx="sink",
 )

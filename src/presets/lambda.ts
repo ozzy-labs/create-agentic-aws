@@ -166,6 +166,11 @@ export function createLambdaPreset(): Preset {
         merge: {
           "infra/variables.tf": LAMBDA_TF_VARS,
           "infra/outputs.tf": LAMBDA_TF_OUTPUTS,
+          "package.json": {
+            devDependencies: {
+              esbuild: "^0.25.0",
+            },
+          },
         },
       },
     },

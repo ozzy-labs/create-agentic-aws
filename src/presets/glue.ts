@@ -70,6 +70,7 @@ export class GlueEtl extends Construct {
         "--enable-metrics": "true",
         "--enable-continuous-cloudwatch-log": "true",
         "--DATABASE_NAME": this.database.ref,
+        "--OUTPUT_BUCKET": this.scriptBucket.bucketName,
       },
     });
 
@@ -173,6 +174,7 @@ resource "aws_glue_job" "etl" {
     "--enable-metrics"                        = "true"
     "--enable-continuous-cloudwatch-log"       = "true"
     "--DATABASE_NAME"                         = aws_glue_catalog_database.this.name
+    "--OUTPUT_BUCKET"                         = aws_s3_bucket.glue_scripts.id
   }
 }
 `;

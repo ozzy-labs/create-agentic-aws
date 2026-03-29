@@ -14,24 +14,26 @@ bash scripts/setup.sh
 
 ## Wizard
 
-The interactive wizard asks 10 questions in an agent-first flow:
+The interactive wizard asks 12 questions in an agent-first flow:
 
 1. **Project name**
 2. **AI Agent tools** — Amazon Q / Claude Code / GitHub Copilot (multi-select)
 3. **Infrastructure as Code** — CDK / Terraform
 4. **Compute** — Lambda / ECS / EKS / EC2 (multi-select)
-5. **Data & Storage** — S3 / DynamoDB / Aurora / RDS (multi-select)
-6. **Application Integration** — SQS / SNS / EventBridge / Step Functions (multi-select)
-7. **Networking & API** — API Gateway / CloudFront (multi-select)
-8. **Security & Identity** — Cognito (multi-select)
-9. **Observability** — CloudWatch (multi-select)
-10. **Language toolchains** — TypeScript / Python (excluding auto-resolved)
+5. **AI** — Bedrock / Bedrock Knowledge Bases / Bedrock Agents / OpenSearch (multi-select)
+6. **Data & Storage** — S3 / DynamoDB / Aurora / RDS (multi-select)
+7. **Data Pipeline & Analytics** — Kinesis / Glue / Redshift (multi-select)
+8. **Application Integration** — SQS / SNS / EventBridge / Step Functions (multi-select)
+9. **Networking & API** — API Gateway / CloudFront (multi-select)
+10. **Security & Identity** — Cognito (multi-select)
+11. **Observability** — CloudWatch (multi-select)
+12. **Language toolchains** — TypeScript / Python (excluding auto-resolved)
 
 Sub-options (ECS launch type, Aurora engine, API Gateway type, etc.) are shown after parent selection.
 
 ## Presets
 
-Composable presets across 10 layers. Each provides owned files + IaC contributions + merge contributions to shared files.
+Composable presets across 13 layers. Each provides owned files + IaC contributions + merge contributions to shared files.
 
 | Layer | Presets |
 |-------|--------|

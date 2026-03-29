@@ -14,24 +14,26 @@ bash scripts/setup.sh
 
 ## ウィザード
 
-対話式ウィザードが 10 の質問をエージェントファーストの順序で行います:
+対話式ウィザードが 12 の質問をエージェントファーストの順序で行います:
 
 1. **プロジェクト名**
 2. **AI エージェントツール** — Amazon Q / Claude Code / GitHub Copilot（複数選択）
 3. **Infrastructure as Code** — CDK / Terraform
 4. **コンピュート** — Lambda / ECS / EKS / EC2（複数選択）
-5. **データ & ストレージ** — S3 / DynamoDB / Aurora / RDS（複数選択）
-6. **アプリケーション統合** — SQS / SNS / EventBridge / Step Functions（複数選択）
-7. **ネットワーク & API** — API Gateway / CloudFront（複数選択）
-8. **セキュリティ & アイデンティティ** — Cognito（複数選択）
-9. **オブザーバビリティ** — CloudWatch（複数選択）
-10. **言語ツールチェーン** — TypeScript / Python（自動解決済みを除外）
+5. **AI** — Bedrock / Bedrock Knowledge Bases / Bedrock Agents / OpenSearch（複数選択）
+6. **データ & ストレージ** — S3 / DynamoDB / Aurora / RDS（複数選択）
+7. **データパイプライン & 分析** — Kinesis / Glue / Redshift（複数選択）
+8. **アプリケーション統合** — SQS / SNS / EventBridge / Step Functions（複数選択）
+9. **ネットワーク & API** — API Gateway / CloudFront（複数選択）
+10. **セキュリティ & アイデンティティ** — Cognito（複数選択）
+11. **オブザーバビリティ** — CloudWatch（複数選択）
+12. **言語ツールチェーン** — TypeScript / Python（自動解決済みを除外）
 
 サブオプション（ECS 起動タイプ、Aurora エンジン、API Gateway タイプなど）は親の選択後に表示されます。
 
 ## プリセット
 
-10 レイヤーにまたがるコンポーザブルプリセット。各プリセットは所有ファイル + IaC 貢献 + 共有ファイルへのマージ貢献を提供します。
+13 レイヤーにまたがるコンポーザブルプリセット。各プリセットは所有ファイル + IaC 貢献 + 共有ファイルへのマージ貢献を提供します。
 
 | レイヤー | プリセット |
 |---------|----------|

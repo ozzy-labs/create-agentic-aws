@@ -6,7 +6,7 @@
 
 ## 技術スタック
 
-- **ランタイム**: Node.js 24 (ESM)
+- **ランタイム**: Node.js 22+ (ESM)
 - **パッケージマネージャー**: pnpm 10
 - **バージョン管理**: mise (`.mise.toml`)
 - **ビルド**: tsdown (Rolldown ベース)

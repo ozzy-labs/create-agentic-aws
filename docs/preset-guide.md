@@ -132,7 +132,7 @@ import { createElastiCachePreset } from "./elasticache.js";
 createElastiCachePreset(),
 ```
 
-Add it to `PRESET_ORDER` in `src/generator.ts` at the appropriate position.
+Add it to `PRESET_ORDER` in `src/generator/resolve.ts` at the appropriate position.
 
 ### 5. Add CLI wizard options
 
@@ -206,7 +206,7 @@ The registry validates on startup that:
 
 ## Canonical Order
 
-Presets are applied in the order defined in `PRESET_ORDER` (generator.ts):
+Presets are applied in the order defined in `PRESET_ORDER` (src/generator/resolve.ts):
 
 ```text
 base → languages → agents → iac → compute → vpc → data →

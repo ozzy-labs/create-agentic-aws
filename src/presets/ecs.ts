@@ -273,6 +273,11 @@ export function createEcsPreset(): Preset {
     },
 
     merge: {
+      ".mise.toml": {
+        tools: {
+          hadolint: "0",
+        },
+      },
       ".devcontainer/devcontainer.json": {
         customizations: {
           vscode: {

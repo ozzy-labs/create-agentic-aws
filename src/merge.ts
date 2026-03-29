@@ -35,7 +35,9 @@ export function mergeJson(base: string, ...patches: Record<string, unknown>[]): 
   try {
     baseObj = JSON.parse(base) as Record<string, unknown>;
   } catch (err) {
-    throw new Error(`mergeJson: failed to parse base JSON: ${(err as Error).message}`);
+    throw new Error(
+      `mergeJson: failed to parse base JSON: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
   const merged = deepMergeUnion(baseObj, ...patches) as Record<string, unknown>;
   return `${JSON.stringify(merged, null, 2)}\n`;
@@ -49,9 +51,15 @@ export function mergeYaml(base: string, ...patches: Record<string, unknown>[]): 
   if (patches.length === 0) return base;
   let baseObj: Record<string, unknown>;
   try {
-    baseObj = (parseYaml(base) as Record<string, unknown>) ?? {};
+    const parsed = parseYaml(base);
+    baseObj =
+      parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : {};
   } catch (err) {
-    throw new Error(`mergeYaml: failed to parse base YAML: ${(err as Error).message}`);
+    throw new Error(
+      `mergeYaml: failed to parse base YAML: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
   const merged = deepMergeUnion(baseObj, ...patches) as Record<string, unknown>;
   return stringifyYaml(merged, { lineWidth: 0 });
@@ -67,10 +75,13 @@ export function mergeToml(base: string, ...patches: Record<string, unknown>[]): 
   try {
     baseObj = (base.trim() ? parseToml(base) : {}) as Record<string, unknown>;
   } catch (err) {
-    throw new Error(`mergeToml: failed to parse base TOML: ${(err as Error).message}`);
+    throw new Error(
+      `mergeToml: failed to parse base TOML: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
   const merged = deepMergeUnion(baseObj, ...patches) as Record<string, unknown>;
-  return stringifyToml(merged);
+  const result = stringifyToml(merged);
+  return result.endsWith("\n") ? result : `${result}\n`;
 }
 
 // ---------------------------------------------------------------------------

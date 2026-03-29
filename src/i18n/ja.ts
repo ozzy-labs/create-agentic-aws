@@ -10,32 +10,27 @@ export const ja: Record<MessageKey, string> = {
   outroNextMiseInstall: "  mise install",
   outroNextPnpmInstall: "  pnpm install",
   outroNextGitInit: '  git init && git add -A && git commit -m "init"',
+  directoryExists: "ディレクトリ {{path}} は既に存在します。上書きしますか？",
+  cancelled: "操作がキャンセルされました。",
 
   // Wizard questions
   projectName: "プロジェクト名",
   projectNamePlaceholder: "my-aws-project",
+  validationRequired: "必須項目です",
+  validationMaxLength: "100 文字以内で入力してください",
+  validationProjectNameFormat:
+    "小文字英数字で始まり、小文字英数字・ドット・ハイフン・アンダースコアのみ使用可能です",
   agents: "AI エージェントツール",
-  agentsHint: "複数選択可",
   iac: "Infrastructure as Code",
   compute: "コンピュート",
-  computeHint: "複数選択可",
   ai: "AI",
-  aiHint: "複数選択可",
-
   data: "データ & ストレージ",
-  dataHint: "複数選択可",
   dataPipeline: "データパイプライン & 分析",
-  dataPipelineHint: "複数選択可",
   integration: "アプリケーション統合",
-  integrationHint: "複数選択可",
   networking: "ネットワーク & API",
-  networkingHint: "複数選択可",
   security: "セキュリティ & アイデンティティ",
-  securityHint: "複数選択可",
   observability: "オブザーバビリティ",
-  observabilityHint: "複数選択可",
   languages: "言語ツールチェーン",
-  languagesHint: "追加の言語を選択",
 
   // Wizard choices — Agents
   "agent.amazon-q": "Amazon Q Developer",
@@ -148,7 +143,4 @@ export const ja: Record<MessageKey, string> = {
   autoResolvedVpc: "VPC を自動追加しました（{{service}} が必要とするため）",
   autoResolvedTypescript: "TypeScript を自動追加しました（CDK が必要とするため）",
   skippedLanguages: "言語選択をスキップしました（全て解決済み）",
-
-  // Errors
-  cancelled: "操作がキャンセルされました。",
 };

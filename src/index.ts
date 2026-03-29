@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { basename, dirname, resolve } from "node:path";
 import { parseArgs as nodeParseArgs } from "node:util";
 
@@ -104,6 +104,18 @@ async function main(): Promise<void> {
   } else {
     // Write files
     const outputDir = resolve(args.parentDir, answers.projectName);
+
+    if (existsSync(outputDir)) {
+      const overwrite = await p.confirm({
+        message: t("directoryExists", { path: outputDir }),
+        initialValue: false,
+      });
+      if (p.isCancel(overwrite) || !overwrite) {
+        p.cancel(t("cancelled"));
+        process.exit(0);
+      }
+    }
+
     writeFiles(result, outputDir);
 
     const relPath =
@@ -122,6 +134,10 @@ async function main(): Promise<void> {
 }
 
 main().catch((err: unknown) => {
-  console.error(err);
+  const message = err instanceof Error ? err.message : String(err);
+  console.error(`\nError: ${message}`);
+  if (err instanceof Error && err.stack && process.env.DEBUG) {
+    console.error(err.stack);
+  }
   process.exit(1);
 });

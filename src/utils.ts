@@ -9,7 +9,12 @@ import type { GenerateResult } from "./types.js";
 export function writeFiles(result: GenerateResult, outputDir: string): void {
   for (const [filePath, content] of result.files) {
     const fullPath = join(outputDir, filePath);
-    mkdirSync(dirname(fullPath), { recursive: true });
-    writeFileSync(fullPath, content, "utf-8");
+    try {
+      mkdirSync(dirname(fullPath), { recursive: true });
+      writeFileSync(fullPath, content, "utf-8");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      throw new Error(`Failed to write "${fullPath}": ${message}`);
+    }
   }
 }

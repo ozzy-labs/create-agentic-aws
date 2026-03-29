@@ -15,7 +15,9 @@ function findPackageRoot(): string {
     }
     dir = dirname(dir);
   }
-  throw new Error("Could not find package root (no package.json found)");
+  throw new Error(
+    `Could not find package root (no package.json found). Started from: ${dirname(fileURLToPath(import.meta.url))}`,
+  );
 }
 
 const TEMPLATES_ROOT = resolve(findPackageRoot(), "templates");

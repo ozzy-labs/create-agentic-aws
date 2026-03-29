@@ -19,7 +19,7 @@
     "lint:all": "pnpm run lint && pnpm run typecheck && pnpm run lint:md && pnpm run lint:yaml && pnpm run lint:shell && pnpm run lint:toml && pnpm run lint:secrets",
     "lint:md": "markdownlint-cli2 '**/*.md' '#**/node_modules' '#**/templates'",
     "lint:yaml": "yamllint -c .yamllint.yaml .",
-    "lint:shell": "if [ -d scripts ]; then shellcheck scripts/*.sh && shfmt -d scripts/; else echo 'No shell scripts yet'; fi",
+    "lint:shell": "if ls scripts/*.sh 1>/dev/null 2>&1; then shellcheck scripts/*.sh && shfmt -d scripts/; else echo 'No shell scripts found'; fi",
     "lint:toml": "taplo format --check ./*.toml",
     "lint:secrets": "gitleaks detect --no-banner",
     "typecheck": "tsc --noEmit",

@@ -131,6 +131,8 @@ This document maps wizard selections to the AWS resources that will be created.
 
 #### Aurora Options
 
+Engine (PostgreSQL / MySQL), Capacity (Serverless v2 / Provisioned)
+
 ### RDS
 
 | CDK | Terraform |
@@ -140,6 +142,8 @@ This document maps wizard selections to the AWS resources that will be created.
 | — | `aws_security_group` |
 
 #### RDS Engine
+
+Engine (PostgreSQL / MySQL)
 
 ## Data Pipeline & Analytics
 

@@ -12,6 +12,8 @@ import { substituteVars } from "./helpers.js";
 import { resolvePresets } from "./resolve.js";
 import {
   applyApiGatewayRestType,
+  applyAuroraCapacityOption,
+  applyAuroraEngineOption,
   applyBedrockAgentKbWiring,
   applyBedrockKbOpenSearchWiring,
   applyCloudWatchWidgets,
@@ -69,6 +71,12 @@ export function generate(
   }
   if (answers.rdsOptions?.engine === "mysql") {
     applyRdsEngineOption(answers.iac, files);
+  }
+  if (answers.auroraOptions?.engine === "mysql") {
+    applyAuroraEngineOption(answers.iac, files);
+  }
+  if (answers.auroraOptions?.capacity === "provisioned") {
+    applyAuroraCapacityOption(answers.iac, files);
   }
   if (answers.openSearchOptions?.mode === "managed-cluster") {
     applyOpenSearchManagedMode(answers.iac, files);

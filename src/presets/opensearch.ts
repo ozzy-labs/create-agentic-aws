@@ -5,6 +5,7 @@ import type { Preset } from "../types.js";
 // ---------------------------------------------------------------------------
 
 const OPENSEARCH_SERVERLESS_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as opensearchserverless from "aws-cdk-lib/aws-opensearchserverless";
 import type { Construct } from "constructs";
 
@@ -14,17 +15,19 @@ export class OpenSearchCollection extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
+    const collectionName = cdk.Names.uniqueId(this).toLowerCase().slice(0, 28);
+
     const encryptionPolicy = new opensearchserverless.CfnSecurityPolicy(
       this,
       "EncryptionPolicy",
       {
-        name: cdk.Names.uniqueId(this).toLowerCase().slice(0, 28) + "-enc",
+        name: collectionName + "-enc",
         type: "encryption",
         policy: JSON.stringify({
           Rules: [
             {
               ResourceType: "collection",
-              Resource: [\`collection/\${cdk.Names.uniqueId(this).toLowerCase().slice(0, 28)}\`],
+              Resource: [\`collection/\${collectionName}\`],
             },
           ],
           AWSOwnedKey: true,
@@ -36,14 +39,14 @@ export class OpenSearchCollection extends Construct {
       this,
       "NetworkPolicy",
       {
-        name: cdk.Names.uniqueId(this).toLowerCase().slice(0, 28) + "-net",
+        name: collectionName + "-net",
         type: "network",
         policy: JSON.stringify([
           {
             Rules: [
               {
                 ResourceType: "collection",
-                Resource: [\`collection/\${cdk.Names.uniqueId(this).toLowerCase().slice(0, 28)}\`],
+                Resource: [\`collection/\${collectionName}\`],
               },
             ],
             AllowFromPublic: false,
@@ -52,13 +55,53 @@ export class OpenSearchCollection extends Construct {
       },
     );
 
+    const callerArn = new iam.ArnPrincipal(cdk.Aws.ACCOUNT_ID);
+    const accessPolicy = new opensearchserverless.CfnAccessPolicy(
+      this,
+      "AccessPolicy",
+      {
+        name: collectionName + "-data",
+        type: "data",
+        policy: JSON.stringify([
+          {
+            Rules: [
+              {
+                ResourceType: "collection",
+                Resource: [\`collection/\${collectionName}\`],
+                Permission: [
+                  "aoss:CreateCollectionItems",
+                  "aoss:UpdateCollectionItems",
+                  "aoss:DescribeCollectionItems",
+                  "aoss:DeleteCollectionItems",
+                ],
+              },
+              {
+                ResourceType: "index",
+                Resource: [\`index/\${collectionName}/*\`],
+                Permission: [
+                  "aoss:CreateIndex",
+                  "aoss:UpdateIndex",
+                  "aoss:DescribeIndex",
+                  "aoss:DeleteIndex",
+                  "aoss:ReadDocument",
+                  "aoss:WriteDocument",
+                ],
+              },
+            ],
+            Principal: [\`arn:aws:iam::\${cdk.Aws.ACCOUNT_ID}:root\`],
+          },
+        ]),
+      },
+    );
+
     this.collection = new opensearchserverless.CfnCollection(this, "Collection", {
-      name: cdk.Names.uniqueId(this).toLowerCase().slice(0, 28),
+      name: collectionName,
       type: "SEARCH",
     });
 
     this.collection.addDependency(encryptionPolicy);
     this.collection.addDependency(networkPolicy);
+    this.collection.addDependency(accessPolicy);
 
     new cdk.CfnOutput(this, "CollectionEndpoint", {
       value: this.collection.attrCollectionEndpoint,

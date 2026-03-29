@@ -62,6 +62,14 @@ describe("opensearch preset", () => {
       expect(construct).toContain('"network"');
     });
 
+    it("construct creates a data access policy", () => {
+      const construct = cdkContrib?.files["infra/lib/constructs/opensearch.ts"];
+      expect(construct).toContain("CfnAccessPolicy");
+      expect(construct).toContain('"data"');
+      expect(construct).toContain("aoss:CreateCollectionItems");
+      expect(construct).toContain("aoss:ReadDocument");
+    });
+
     it("construct creates a collection", () => {
       const construct = cdkContrib?.files["infra/lib/constructs/opensearch.ts"];
       expect(construct).toContain("CfnCollection");

@@ -15,6 +15,7 @@ import {
   applyCloudWatchWidgets,
   applyCognitoApiGatewayAuth,
   applyDynamoDbLambdaIntegration,
+  applyEcsDynamoDbAccess,
   applyEventBridgeLambdaWiring,
   applyKinesisLambdaWiring,
   applyLambdaPythonDeps,
@@ -97,6 +98,9 @@ export function generate(
   }
   if (presetNames.has("cloudwatch")) {
     applyCloudWatchWidgets(presetNames, answers.iac, files, vars);
+  }
+  if (presetNames.has("ecs") && presetNames.has("dynamodb")) {
+    applyEcsDynamoDbAccess(answers.iac, files);
   }
   ensureTsconfigBase(presets, files);
 

@@ -346,6 +346,10 @@ export function createEcsPreset(): Preset {
             "- **Amazon ECS**: Container orchestration (Fargate)\n- **Docker**: Container runtime",
         },
         {
+          heading: "## Project Structure",
+          content: "- **`ecs/`** — Container application (Dockerfile, source code)",
+        },
+        {
           heading: "## Setup Checklist",
           content:
             "- [ ] **ECS**: Run `pnpm install` before Docker build (lock file required)\n- [ ] **ECS (prod)**: Set `desiredCount` >= 2 and configure Auto Scaling",

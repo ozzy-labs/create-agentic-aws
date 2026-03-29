@@ -142,6 +142,10 @@ export function createDynamoDbPreset(): Preset {
           content: "- **Amazon DynamoDB**: NoSQL database (on-demand)",
         },
         {
+          heading: "## Project Structure",
+          content: "- **`lib/`** — Shared library code",
+        },
+        {
           heading: "## Setup Checklist",
           content: "- [ ] **DynamoDB**: Review partition key design for your access patterns",
         },

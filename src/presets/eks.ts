@@ -236,6 +236,10 @@ export function createEksPreset(): Preset {
           content: "- **Amazon EKS**: Kubernetes orchestration\n- **Docker**: Container runtime",
         },
         {
+          heading: "## Project Structure",
+          content: "- **`eks/`** — Container application and Kubernetes manifests",
+        },
+        {
           heading: "## Setup Checklist",
           content:
             "- [ ] **EKS**: Update ECR image URI in `eks/manifests/deployment.yaml`\n- [ ] **EKS**: Run `pnpm install` before Docker build (lock file required)",

@@ -37,6 +37,11 @@ export function createBasePreset(): Preset {
           heading: "## Tech Stack",
           content: "- **AWS CLI**: Included via mise",
         },
+        {
+          heading: "## Project Structure",
+          content:
+            "- **`scripts/`** — Setup and configuration scripts\n- **`docs/`** — Documentation",
+        },
       ],
     },
   };

@@ -15,6 +15,8 @@ pnpm run prepare
 - **Package Manager**: pnpm
 - **Version Manager**: mise
 
+## Project Structure
+
 ## Development
 
 ## Scripts

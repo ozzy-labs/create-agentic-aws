@@ -986,10 +986,29 @@ export function applyEcsLoadBalancerOption(
   } else {
     const ecsTf = requireFile(files, "infra/ecs.tf", ctx);
     if (loadBalancer === "nlb") {
-      const patched = safeReplace(
+      let patched = safeReplace(
         ecsTf,
         'load_balancer_type = "application"',
         'load_balancer_type = "network"',
+        ctx,
+      );
+      // NLB requires TCP protocol (not HTTP)
+      patched = safeReplace(
+        patched,
+        '  protocol    = "HTTP"\n  vpc_id',
+        '  protocol    = "TCP"\n  vpc_id',
+        ctx,
+      );
+      patched = safeReplace(
+        patched,
+        '  health_check {\n    path                = "/health"\n    healthy_threshold   = 2\n    unhealthy_threshold = 3\n    interval            = 30\n  }',
+        '  health_check {\n    protocol            = "TCP"\n    healthy_threshold   = 2\n    unhealthy_threshold = 3\n    interval            = 30\n  }',
+        ctx,
+      );
+      patched = safeReplace(
+        patched,
+        '  protocol          = "HTTP"',
+        '  protocol          = "TCP"',
         ctx,
       );
       files.set("infra/ecs.tf", patched);

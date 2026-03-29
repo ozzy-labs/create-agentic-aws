@@ -26,19 +26,7 @@ resource "aws_sns_topic" "alarms" {
   name = "\${var.project_name}-\${var.environment}-alarms"
 }
 
-# TODO: Add per-service alarms (Lambda errors, ECS health, RDS connections, etc.)
-# Example:
-# resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
-#   alarm_name          = "\${var.project_name}-lambda-errors"
-#   comparison_operator = "GreaterThanThreshold"
-#   evaluation_periods  = 1
-#   metric_name         = "Errors"
-#   namespace           = "AWS/Lambda"
-#   period              = 300
-#   statistic           = "Sum"
-#   threshold           = 0
-#   alarm_actions       = [aws_sns_topic.alarms.arn]
-# }
+# NEXT: Add per-service alarms and wire them to aws_sns_topic.alarms.
 `;
 
 const CLOUDWATCH_TF_OUTPUTS = `output "cloudwatch_dashboard_name" {
@@ -85,11 +73,7 @@ export class CloudWatchDashboard extends Construct {
     this.dashboard.addWidgets(...widgets);
   }
 
-  // TODO: Add per-service alarms (Lambda errors, ECS health, RDS connections, etc.)
-  // Example:
-  // import * as cw_actions from "aws-cdk-lib/aws-cloudwatch-actions";
-  // const alarm = new cloudwatch.Alarm(this, "LambdaErrors", { ... });
-  // alarm.addAlarmAction(new cw_actions.SnsAction(this.alarmTopic));
+  // NEXT: Add per-service alarms and wire them to alarmTopic via SnsAction.
 }
 `;
 

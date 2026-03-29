@@ -9,7 +9,8 @@ const BEDROCK_TF = `data "aws_iam_policy_document" "bedrock" {
       "bedrock:InvokeModelWithResponseStream",
     ]
     resources = [
-      "arn:aws:bedrock:\${var.aws_region}::foundation-model/*",
+      "arn:aws:bedrock:\${var.aws_region}::foundation-model/anthropic.claude-*",
+      "arn:aws:bedrock:\${var.aws_region}::foundation-model/amazon.titan-*",
     ]
   }
 }
@@ -43,7 +44,10 @@ export class BedrockAccess extends Construct {
             "bedrock:InvokeModel",
             "bedrock:InvokeModelWithResponseStream",
           ],
-          resources: ["arn:aws:bedrock:*::foundation-model/*"],
+          resources: [
+            \`arn:aws:bedrock:\${cdk.Aws.REGION}::foundation-model/anthropic.claude-*\`,
+            \`arn:aws:bedrock:\${cdk.Aws.REGION}::foundation-model/amazon.titan-*\`,
+          ],
         }),
       ],
     });

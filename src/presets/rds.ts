@@ -26,6 +26,7 @@ export class RdsInstance extends Construct {
       databaseName: "app",
       multiAz: false,
       storageEncrypted: true,
+      publiclyAccessible: false,
       allocatedStorage: 20,
       maxAllocatedStorage: 100,
       backupRetention: cdk.Duration.days(7),
@@ -63,6 +64,7 @@ const RDS_TF = `resource "aws_db_instance" "this" {
   vpc_security_group_ids = [aws_security_group.rds.id]
 
   multi_az            = false
+  publicly_accessible = false
   skip_final_snapshot = false
   final_snapshot_identifier = "\${var.project_name}-rds-final"
   backup_retention_period   = 7

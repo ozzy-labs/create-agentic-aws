@@ -686,6 +686,7 @@ export function applyCloudWatchWidgets(
   iac: IacPresetName,
   files: Map<string, string>,
 ): void {
+  const ctx = "applyCloudWatchWidgets";
   const widgets: string[] = [];
 
   if (presetNames.has("lambda")) {
@@ -708,14 +709,70 @@ export function applyCloudWatchWidgets(
   if (widgets.length === 0) return;
 
   if (iac === "cdk") {
-    const construct = files.get("infra/lib/constructs/cloudwatch.ts");
-    if (construct) {
-      // Add a comment listing which widgets are expected
-      const patched = construct.replace(
-        "defaultInterval: cdk.Duration.hours(3),",
-        `defaultInterval: cdk.Duration.hours(3),\n      // Widgets are available via addWidgets() — see app-stack.ts`,
-      );
-      files.set("infra/lib/constructs/cloudwatch.ts", patched);
+    const appStack = files.get("infra/lib/app-stack.ts");
+    if (appStack) {
+      // Build addWidgets() calls for app-stack.ts
+      const cdkWidgets: string[] = [];
+      if (presetNames.has("lambda")) {
+        cdkWidgets.push(
+          `    cloudWatchDashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: "Lambda Invocations & Errors",
+        left: [lambdaFunction.handler.metricInvocations()],
+        right: [lambdaFunction.handler.metricErrors()],
+      }),
+    );`,
+        );
+      }
+      if (presetNames.has("ecs")) {
+        cdkWidgets.push(
+          `    cloudWatchDashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: "ECS CPU & Memory",
+        left: [
+          ecsService.service.metricCpuUtilization(),
+          ecsService.service.metricMemoryUtilization(),
+        ],
+      }),
+    );`,
+        );
+      }
+      if (presetNames.has("dynamodb")) {
+        cdkWidgets.push(
+          `    cloudWatchDashboard.addWidgets(
+      new cloudwatch.GraphWidget({
+        title: "DynamoDB Throttled Requests",
+        left: [dynamoDbTable.table.metric("ThrottledRequests")],
+      }),
+    );`,
+        );
+      }
+
+      if (cdkWidgets.length > 0) {
+        // Ensure CloudWatch dashboard is stored in a variable
+        let patched = appStack;
+        if (!patched.includes("const cloudWatchDashboard")) {
+          patched = safeReplace(
+            patched,
+            '    new CloudWatchDashboard(this, "CloudWatchDashboard");',
+            '    const cloudWatchDashboard = new CloudWatchDashboard(this, "CloudWatchDashboard");',
+            ctx,
+          );
+        }
+        // Add cloudwatch import
+        if (!patched.includes('import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch"')) {
+          patched = safeReplace(
+            patched,
+            'import { CloudWatchDashboard } from "./constructs/cloudwatch";',
+            'import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch";\nimport { CloudWatchDashboard } from "./constructs/cloudwatch";',
+            ctx,
+          );
+        }
+        // Insert widget calls before the closing brace of the constructor
+        const widgetBlock = cdkWidgets.join("\n");
+        patched = patched.replace(/(\n {2}}\n}\n?)$/, `\n${widgetBlock}$1`);
+        files.set("infra/lib/app-stack.ts", patched);
+      }
     }
   } else {
     const cwTf = files.get("infra/cloudwatch.tf");

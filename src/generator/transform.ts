@@ -957,3 +957,44 @@ resource "aws_iam_role_policy" "ecs_dynamodb" {
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// ECS load balancer option (ALB → NLB or None)
+// ---------------------------------------------------------------------------
+
+export function applyEcsLoadBalancerOption(
+  iac: IacPresetName,
+  loadBalancer: string,
+  files: Map<string, string>,
+): void {
+  const ctx = "applyEcsLoadBalancerOption";
+  if (loadBalancer === "alb") return; // default — no change needed
+
+  if (iac === "cdk") {
+    const construct = requireFile(files, "infra/lib/constructs/ecs.ts", ctx);
+    if (loadBalancer === "nlb") {
+      const patched = safeReplace(
+        construct,
+        "ApplicationLoadBalancedFargateService",
+        "NetworkLoadBalancedFargateService",
+        ctx,
+      );
+      files.set("infra/lib/constructs/ecs.ts", patched);
+    }
+    // loadBalancer === "none": keep ALB construct as-is (full refactor to
+    // plain FargateService is out of scope for this fix)
+  } else {
+    const ecsTf = requireFile(files, "infra/ecs.tf", ctx);
+    if (loadBalancer === "nlb") {
+      const patched = safeReplace(
+        ecsTf,
+        'load_balancer_type = "application"',
+        'load_balancer_type = "network"',
+        ctx,
+      );
+      files.set("infra/ecs.tf", patched);
+    }
+    // loadBalancer === "none": keep ALB config as-is (full removal requires
+    // restructuring the entire ECS TF template)
+  }
+}

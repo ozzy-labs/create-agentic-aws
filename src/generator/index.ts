@@ -17,6 +17,7 @@ import {
   applyCognitoApiGatewayAuth,
   applyDynamoDbLambdaIntegration,
   applyEcsDynamoDbAccess,
+  applyEcsLoadBalancerOption,
   applyEventBridgeLambdaWiring,
   applyKinesisLambdaWiring,
   applyLambdaPythonDeps,
@@ -102,6 +103,9 @@ export function generate(
   }
   if (presetNames.has("cloudwatch")) {
     applyCloudWatchWidgets(presetNames, answers.iac, files);
+  }
+  if (presetNames.has("ecs") && answers.ecsOptions?.loadBalancer) {
+    applyEcsLoadBalancerOption(answers.iac, answers.ecsOptions.loadBalancer, files);
   }
   if (presetNames.has("ecs") && presetNames.has("dynamodb")) {
     applyEcsDynamoDbAccess(answers.iac, files);

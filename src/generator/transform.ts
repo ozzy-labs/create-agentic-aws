@@ -391,11 +391,14 @@ export function applyLambdaPythonDeps(files: Map<string, string>): void {
 
   const toml = files.get("pyproject.toml");
   if (toml) {
+    const ctx = "applyLambdaPythonDeps";
     files.set(
       "pyproject.toml",
-      toml.replace(
+      safeReplace(
+        toml,
         'requires-python = ">=3.12"',
         'requires-python = ">=3.12"\ndependencies = ["aws-lambda-powertools>=3"]',
+        ctx,
       ),
     );
   }
@@ -529,10 +532,15 @@ export function applyBedrockAgentKbWiring(iac: IacPresetName, files: Map<string,
       ctx,
     );
     // Ensure BedrockKnowledgeBase is stored in a variable
-    if (!patched.includes("const bedrockKb")) {
-      patched = patched.replace(
+    if (
+      !patched.includes("const bedrockKb") &&
+      patched.includes("new BedrockKnowledgeBase(this,")
+    ) {
+      patched = safeReplace(
+        patched,
         "new BedrockKnowledgeBase(this,",
         "const bedrockKb = new BedrockKnowledgeBase(this,",
+        ctx,
       );
     }
     files.set("infra/lib/app-stack.ts", patched);
@@ -563,17 +571,24 @@ export function applyKinesisLambdaWiring(iac: IacPresetName, files: Map<string, 
     const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
     // Store Kinesis and Lambda references, then connect
     let patched = appStack;
-    if (!patched.includes("const kinesisStream")) {
-      patched = patched.replace(
+    if (
+      !patched.includes("const kinesisStream") &&
+      patched.includes('new KinesisStream(this, "KinesisStream");')
+    ) {
+      patched = safeReplace(
+        patched,
         '    new KinesisStream(this, "KinesisStream");',
         '    const kinesisStream = new KinesisStream(this, "KinesisStream");\n    lambdaFunction.handler.addEventSourceMapping("KinesisConsumer", {\n      eventSourceArn: kinesisStream.stream.streamArn,\n      startingPosition: lambda.StartingPosition.TRIM_HORIZON,\n      batchSize: 100,\n      reportBatchItemFailures: true,\n    });\n    kinesisStream.stream.grantRead(lambdaFunction.handler);',
+        ctx,
       );
     }
     // Add lambda import if needed
-    if (!patched.includes("import * as lambda")) {
-      patched = patched.replace(
+    if (!patched.includes("import * as lambda") && patched.includes("import { KinesisStream }")) {
+      patched = safeReplace(
+        patched,
         "import { KinesisStream }",
         'import * as lambda from "aws-cdk-lib/aws-lambda";\nimport { KinesisStream }',
+        ctx,
       );
     }
     files.set("infra/lib/app-stack.ts", patched);
@@ -605,10 +620,15 @@ export function applySqsLambdaWiring(iac: IacPresetName, files: Map<string, stri
   if (iac === "cdk") {
     const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
     let patched = appStack;
-    if (!patched.includes("const sqsQueue")) {
-      patched = patched.replace(
+    if (
+      !patched.includes("const sqsQueue") &&
+      patched.includes('new SqsQueue(this, "SqsQueue");')
+    ) {
+      patched = safeReplace(
+        patched,
         '    new SqsQueue(this, "SqsQueue");',
         '    const sqsQueue = new SqsQueue(this, "SqsQueue");\n    lambdaFunction.handler.addEventSourceMapping("SqsConsumer", {\n      eventSourceArn: sqsQueue.queue.queueArn,\n      batchSize: 10,\n      reportBatchItemFailures: true,\n    });\n    sqsQueue.queue.grantConsumeMessages(lambdaFunction.handler);',
+        ctx,
       );
     }
     files.set("infra/lib/app-stack.ts", patched);
@@ -637,10 +657,15 @@ export function applyEventBridgeLambdaWiring(iac: IacPresetName, files: Map<stri
   if (iac === "cdk") {
     const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
     let patched = appStack;
-    if (!patched.includes("const eventBus")) {
-      patched = patched.replace(
+    if (
+      !patched.includes("const eventBus") &&
+      patched.includes('new EventBus(this, "EventBus");')
+    ) {
+      patched = safeReplace(
+        patched,
         '    new EventBus(this, "EventBus");',
         '    const eventBus = new EventBus(this, "EventBus");\n    eventBus.grantLambdaPublish(lambdaFunction.handler);',
+        ctx,
       );
     }
     files.set("infra/lib/app-stack.ts", patched);
@@ -751,7 +776,10 @@ export function applyCloudWatchWidgets(
       if (cdkWidgets.length > 0) {
         // Ensure CloudWatch dashboard is stored in a variable
         let patched = appStack;
-        if (!patched.includes("const cloudWatchDashboard")) {
+        if (
+          !patched.includes("const cloudWatchDashboard") &&
+          patched.includes('new CloudWatchDashboard(this, "CloudWatchDashboard");')
+        ) {
           patched = safeReplace(
             patched,
             '    new CloudWatchDashboard(this, "CloudWatchDashboard");',
@@ -760,7 +788,10 @@ export function applyCloudWatchWidgets(
           );
         }
         // Add cloudwatch import
-        if (!patched.includes('import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch"')) {
+        if (
+          !patched.includes('import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch"') &&
+          patched.includes('import { CloudWatchDashboard } from "./constructs/cloudwatch";')
+        ) {
           patched = safeReplace(
             patched,
             'import { CloudWatchDashboard } from "./constructs/cloudwatch";',
@@ -770,7 +801,7 @@ export function applyCloudWatchWidgets(
         }
         // Insert widget calls before the closing brace of the constructor
         const widgetBlock = cdkWidgets.join("\n");
-        patched = patched.replace(/(\n {2}}\n}\n?)$/, `\n${widgetBlock}$1`);
+        patched = safeReplace(patched, /(\n {2}}\n}\n?)$/, `\n${widgetBlock}$1`, ctx);
         files.set("infra/lib/app-stack.ts", patched);
       }
     }
@@ -842,7 +873,12 @@ export function applyCloudWatchWidgets(
       if (tfWidgets.length > 0) {
         // Insert additional widgets after the base text widget
         const widgetList = tfWidgets.join(",\n");
-        const patched = cwTf.replace("      }\n    ]", `      },\n${widgetList}\n    ]`);
+        const patched = safeReplace(
+          cwTf,
+          "      }\n    ]",
+          `      },\n${widgetList}\n    ]`,
+          "applyCloudWatchWidgets",
+        );
         files.set("infra/cloudwatch.tf", patched);
       }
     }
@@ -867,7 +903,7 @@ export function applyEcsDynamoDbAccess(iac: IacPresetName, files: Map<string, st
       );
       const grantLine =
         "    dynamoDbTable.table.grantReadWriteData(ecsService.service.taskDefinition.taskRole);";
-      patched = patched.replace(/(\n {2}}\n}\n?)$/, `\n${grantLine}$1`);
+      patched = safeReplace(patched, /(\n {2}}\n}\n?)$/, `\n${grantLine}$1`, ctx);
       files.set("infra/lib/app-stack.ts", patched);
     }
   } else {

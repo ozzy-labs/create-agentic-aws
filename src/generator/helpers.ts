@@ -23,7 +23,7 @@ export function safeReplace(
   const result = content.replace(search, replacement);
   if (result === content) {
     const pattern = search instanceof RegExp ? search.source : search;
-    throw new Error(`[${context}] Replacement pattern not found: "${pattern.slice(0, 80)}"`);
+    throw new Error(`[${context}] Replacement pattern not found: "${pattern.slice(0, 200)}"`);
   }
   return result;
 }

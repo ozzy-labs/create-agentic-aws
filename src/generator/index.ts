@@ -5,6 +5,7 @@ import {
   distributeMcpServers,
   expandMarkdownTemplates,
   mergeSharedFiles,
+  normalizePackageJsonKeys,
   stripMergeMarkers,
 } from "./finalize.js";
 import { substituteVars } from "./helpers.js";
@@ -118,6 +119,7 @@ export function generate(
 
   // --- Phase 4: Merge, distribute, expand, clean up ---
   mergeSharedFiles(presets, files, vars);
+  normalizePackageJsonKeys(files);
 
   if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {
     applyLambdaPythonDeps(files);

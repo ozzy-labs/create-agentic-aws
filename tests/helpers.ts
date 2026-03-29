@@ -95,6 +95,20 @@ export function expectNoMergeMarkers(result: GenerateResult): void {
   }
 }
 
+/** Assert package.json has dependencies before devDependencies when both exist. */
+export function expectPackageJsonKeyOrder(result: GenerateResult): void {
+  if (!result.hasFile("package.json")) return;
+  const pkg = result.readJson<Record<string, unknown>>("package.json");
+  const keys = Object.keys(pkg);
+  const depsIdx = keys.indexOf("dependencies");
+  const devDepsIdx = keys.indexOf("devDependencies");
+  if (depsIdx !== -1 && devDepsIdx !== -1) {
+    expect(depsIdx, "dependencies should come before devDependencies in package.json").toBeLessThan(
+      devDepsIdx,
+    );
+  }
+}
+
 /** Runtime packages that must NOT be in devDependencies. */
 const RUNTIME_PACKAGES = ["@aws-lambda-powertools/", "@aws-sdk/", "@middy/"];
 

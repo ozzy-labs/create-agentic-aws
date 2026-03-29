@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   collectIacContributions,
   expandMarkdownTemplates,
+  normalizePackageJsonKeys,
   stripMergeMarkers,
 } from "../src/generator/finalize.js";
 import { resolvePresets } from "../src/generator/resolve.js";
@@ -122,6 +123,44 @@ describe("stripMergeMarkers", () => {
     const files = new Map([["file.md", content]]);
     stripMergeMarkers(files);
     expect(files.get("file.md")).toBe(content);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// normalizePackageJsonKeys
+// ---------------------------------------------------------------------------
+
+describe("normalizePackageJsonKeys", () => {
+  it("reorders devDependencies after dependencies", () => {
+    const pkg = JSON.stringify(
+      { name: "test", devDependencies: { a: "1" }, pnpm: {}, dependencies: { b: "2" } },
+      null,
+      2,
+    );
+    const files = new Map([["package.json", `${pkg}\n`]]);
+    normalizePackageJsonKeys(files);
+    const keys = Object.keys(JSON.parse(files.get("package.json") ?? "{}"));
+    expect(keys.indexOf("dependencies")).toBeLessThan(keys.indexOf("devDependencies"));
+    expect(keys.indexOf("devDependencies")).toBeLessThan(keys.indexOf("pnpm"));
+  });
+
+  it("preserves unknown keys after known keys", () => {
+    const pkg = JSON.stringify(
+      { name: "test", custom: true, devDependencies: { a: "1" } },
+      null,
+      2,
+    );
+    const files = new Map([["package.json", `${pkg}\n`]]);
+    normalizePackageJsonKeys(files);
+    const keys = Object.keys(JSON.parse(files.get("package.json") ?? "{}"));
+    expect(keys.indexOf("name")).toBeLessThan(keys.indexOf("devDependencies"));
+    expect(keys.indexOf("devDependencies")).toBeLessThan(keys.indexOf("custom"));
+  });
+
+  it("does nothing when package.json is absent", () => {
+    const files = new Map<string, string>();
+    normalizePackageJsonKeys(files);
+    expect(files.size).toBe(0);
   });
 });
 

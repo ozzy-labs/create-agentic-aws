@@ -5,6 +5,7 @@ import {
   expectNoExcessiveBlankLines,
   expectNoLeftoverPlaceholders,
   expectNoMergeMarkers,
+  expectPackageJsonKeyOrder,
   expectPresetsIncluded,
   expectRuntimeDepsCorrect,
   generateProject,
@@ -242,6 +243,10 @@ describe("smoke tests", () => {
 
     it("puts runtime packages in dependencies, not devDependencies", () => {
       expectRuntimeDepsCorrect(result);
+    });
+
+    it("has dependencies before devDependencies in package.json", () => {
+      expectPackageJsonKeyOrder(result);
     });
 
     it("has no excessive blank lines in markdown files", () => {

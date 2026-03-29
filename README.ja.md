@@ -53,6 +53,8 @@ bash scripts/setup.sh
 
 各 AWS サービスプリセットは IaC 固有の貢献を提供します。CDK は Construct を生成し、Terraform は .tf ファイルを生成します。合計: 17 サービス x 2 IaC = 34 テンプレート。
 
+ウィザードの選択と生成される AWS リソースの対応表は [docs/resource-map.md](docs/resource-map.md) を参照してください。
+
 詳細は [docs/design.md](docs/design.md) を参照してください。
 
 ## 生成されるもの

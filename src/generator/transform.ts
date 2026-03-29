@@ -786,16 +786,16 @@ export function applyEcsDynamoDbAccess(iac: IacPresetName, files: Map<string, st
     const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
     // Grant ECS task role access to DynamoDB
     if (appStack.includes("DynamoDbTable") && appStack.includes("EcsService")) {
-      const patched = safeReplace(
+      let patched = safeReplace(
         appStack,
         '    new EcsService(this, "EcsService"',
         '    const ecsService = new EcsService(this, "EcsService"',
         ctx,
       );
-      files.set(
-        "infra/lib/app-stack.ts",
-        `${patched}\n    dynamoDbTable.table.grantReadWriteData(ecsService.service.taskDefinition.taskRole);\n`,
-      );
+      const grantLine =
+        "    dynamoDbTable.table.grantReadWriteData(ecsService.service.taskDefinition.taskRole);";
+      patched = patched.replace(/(\n {2}}\n}\n?)$/, `\n${grantLine}$1`);
+      files.set("infra/lib/app-stack.ts", patched);
     }
   } else {
     const ecsTf = files.get("infra/ecs.tf");

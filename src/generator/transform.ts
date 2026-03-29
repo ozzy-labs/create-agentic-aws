@@ -775,3 +775,61 @@ export function applyCloudWatchWidgets(
     }
   }
 }
+
+// ---------------------------------------------------------------------------
+// #326: ECS/EKS → DynamoDB cross-access
+// ---------------------------------------------------------------------------
+
+export function applyEcsDynamoDbAccess(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyEcsDynamoDbAccess";
+  if (iac === "cdk") {
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    // Grant ECS task role access to DynamoDB
+    if (appStack.includes("DynamoDbTable") && appStack.includes("EcsService")) {
+      const patched = safeReplace(
+        appStack,
+        '    new EcsService(this, "EcsService"',
+        '    const ecsService = new EcsService(this, "EcsService"',
+        ctx,
+      );
+      files.set(
+        "infra/lib/app-stack.ts",
+        `${patched}\n    dynamoDbTable.table.grantReadWriteData(ecsService.service.taskDefinition.taskRole);\n`,
+      );
+    }
+  } else {
+    const ecsTf = files.get("infra/ecs.tf");
+    const dynamoTf = files.get("infra/dynamodb.tf");
+    if (ecsTf && dynamoTf) {
+      // Add IAM policy for ECS task role to access DynamoDB
+      const policy =
+        `
+resource "aws_iam_role_policy" "ecs_dynamodb" {
+  name = "ecs-dynamodb-access"
+  role = aws_iam_role.ecs_execution.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+      ]
+      Resource = [
+        aws_dynamodb_table.this.arn,
+        "$` +
+        `{aws_dynamodb_table.this.arn}/index/*",
+      ]
+    }]
+  })
+}
+`;
+      files.set("infra/ecs.tf", ecsTf + policy);
+    }
+  }
+}

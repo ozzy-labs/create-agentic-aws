@@ -98,6 +98,40 @@ resource "aws_ecs_task_definition" "this" {
   }])
 }
 
+resource "aws_lb" "ecs" {
+  name               = "\${var.project_name}-\${var.environment}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.ecs_alb.id]
+  subnets            = aws_subnet.public[*].id
+}
+
+resource "aws_lb_target_group" "ecs" {
+  name        = "\${var.project_name}-\${var.environment}-tg"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.this.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/health"
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    interval            = 30
+  }
+}
+
+resource "aws_lb_listener" "ecs" {
+  load_balancer_arn = aws_lb.ecs.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ecs.arn
+  }
+}
+
 resource "aws_ecs_service" "this" {
   name            = "\${var.project_name}-\${var.environment}-service"
   cluster         = aws_ecs_cluster.this.id
@@ -111,9 +145,36 @@ resource "aws_ecs_service" "this" {
     assign_public_ip = false
   }
 
+  load_balancer {
+    target_group_arn = aws_lb_target_group.ecs.arn
+    container_name   = "app"
+    container_port   = 3000
+  }
+
   deployment_circuit_breaker {
     enable   = true
     rollback = true
+  }
+
+  depends_on = [aws_lb_listener.ecs]
+}
+
+resource "aws_security_group" "ecs_alb" {
+  name_prefix = "\${var.project_name}-ecs-alb-"
+  vpc_id      = aws_vpc.this.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -122,10 +183,10 @@ resource "aws_security_group" "ecs" {
   vpc_id      = aws_vpc.this.id
 
   ingress {
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = [var.vpc_cidr]
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.ecs_alb.id]
   }
 
   egress {
@@ -187,6 +248,11 @@ const ECS_TF_OUTPUTS = `output "ecs_cluster_name" {
 output "ecs_service_name" {
   description = "ECS service name"
   value       = aws_ecs_service.this.name
+}
+
+output "ecs_alb_dns_name" {
+  description = "ECS ALB DNS name"
+  value       = aws_lb.ecs.dns_name
 }
 `;
 

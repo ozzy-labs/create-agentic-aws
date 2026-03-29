@@ -206,7 +206,22 @@ export interface Preset {
   /** Owned files (path → content). No other preset writes to these paths. */
   readonly files: Readonly<Record<string, string>>;
 
-  /** Merge contributions to shared files (deep-merged). */
+  /**
+   * Merge contributions to shared files (deep-merged).
+   *
+   * Keys are file paths relative to the project root. Values are deep-merged
+   * into the target file using type-specific strategies:
+   *
+   * - `"package.json"` — Deep-merged as JSON. Expected shape: `{ dependencies, devDependencies, scripts, ... }`
+   * - `".mise.toml"` — Deep-merged as TOML. Expected shape: `{ tools: Record<string, string> }`
+   * - `"lefthook.yaml"` — Deep-merged as YAML. Expected shape matches lefthook config.
+   * - `".gitignore"` — Appended as text with line deduplication.
+   * - `"infra/lib/app-stack.ts"` — Marker-based injection (`imports`, `constructs` keys).
+   * - `"infra/variables.tf"`, `"infra/outputs.tf"` — HCL block append.
+   *
+   * Merge order follows `PRESET_ORDER` in `resolve.ts`. Last writer wins for
+   * conflicting scalar values; arrays are union-merged.
+   */
   readonly merge: Readonly<Record<string, unknown>>;
 
   /** IaC-specific contributions keyed by IaC type. */

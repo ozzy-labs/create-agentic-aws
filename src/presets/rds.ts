@@ -148,6 +148,11 @@ export function createRdsPreset(): Preset {
           content:
             "- **Amazon RDS**: PostgreSQL relational database\n- **Secrets Manager**: Database credentials management",
         },
+        {
+          heading: "## Setup Checklist",
+          content:
+            "- [ ] **RDS (prod)**: Enable `multiAz: true` for automatic failover\n- [ ] **RDS (prod)**: Review backup retention period (default: 7 days)",
+        },
       ],
     },
   };

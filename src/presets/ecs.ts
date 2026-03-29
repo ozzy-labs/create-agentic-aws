@@ -329,7 +329,8 @@ export function createEcsPreset(): Preset {
         },
         {
           heading: "## Setup Checklist",
-          content: "- [ ] **ECS**: Run `pnpm install` before Docker build (lock file required)",
+          content:
+            "- [ ] **ECS**: Run `pnpm install` before Docker build (lock file required)\n- [ ] **ECS (prod)**: Set `desiredCount` >= 2 and configure Auto Scaling",
         },
       ],
     },

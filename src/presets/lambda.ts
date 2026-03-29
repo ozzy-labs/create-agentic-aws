@@ -182,6 +182,11 @@ export function createLambdaPreset(): Preset {
           content:
             "- **AWS Lambda**: Serverless compute (Node.js 24)\n- **Lambda Powertools**: Structured logging, metrics, tracing",
         },
+        {
+          heading: "## Setup Checklist",
+          content:
+            "- [ ] **Lambda (prod)**: Adjust memory size (default: 256 MB) and configure reserved concurrency",
+        },
       ],
     },
   };

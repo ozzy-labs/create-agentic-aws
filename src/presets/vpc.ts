@@ -283,6 +283,10 @@ export function createVpcPreset(): Preset {
           content:
             "- **Amazon VPC**: Virtual private cloud (2 AZs, public/private/isolated subnets)",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **VPC (prod)**: Set NAT Gateways to one per AZ for high availability",
+        },
       ],
     },
   };

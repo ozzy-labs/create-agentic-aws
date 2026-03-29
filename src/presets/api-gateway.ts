@@ -12,10 +12,29 @@ const API_GATEWAY_TF = `resource "aws_apigatewayv2_api" "this" {
   }
 }
 
+resource "aws_cloudwatch_log_group" "api_gateway" {
+  name              = "/aws/apigateway/\${var.project_name}-\${var.environment}"
+  retention_in_days = 30
+}
+
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.this.id
   name        = "$default"
   auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gateway.arn
+    format          = jsonencode({
+      requestId      = "$context.requestId"
+      ip             = "$context.identity.sourceIp"
+      requestTime    = "$context.requestTime"
+      httpMethod     = "$context.httpMethod"
+      routeKey       = "$context.routeKey"
+      status         = "$context.status"
+      protocol       = "$context.protocol"
+      responseLength = "$context.responseLength"
+    })
+  }
 }
 
 # --- Lambda integration ---
@@ -52,6 +71,7 @@ const API_GATEWAY_TF_OUTPUTS = `output "api_gateway_url" {
 const API_GATEWAY_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
+import * as logs from "aws-cdk-lib/aws-logs";
 import type * as cognito from "aws-cdk-lib/aws-cognito";
 import type * as lambda from "aws-cdk-lib/aws-lambda";
 import type { Construct } from "constructs";
@@ -71,11 +91,18 @@ export class ApiGateway extends Construct {
     super(scope, id);
 
     if (props.type === "rest") {
+      const accessLogGroup = new logs.LogGroup(this, "AccessLog", {
+        retention: logs.RetentionDays.ONE_MONTH,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      });
+
       this.restApi = new apigateway.RestApi(this, "RestApi", {
         restApiName: id,
         deployOptions: {
           stageName: "prod",
           tracingEnabled: true,
+          accessLogDestination: new apigateway.LogGroupLogDestination(accessLogGroup),
+          accessLogFormat: apigateway.AccessLogFormat.jsonWithStandardFields(),
         },
         defaultCorsPreflightOptions: {
           // NEXT: Restrict to your domain in production (e.g. ['https://example.com'])

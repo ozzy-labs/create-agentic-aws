@@ -46,7 +46,7 @@ export class OpenSearchCollection extends Construct {
                 Resource: [\`collection/\${cdk.Names.uniqueId(this).toLowerCase().slice(0, 28)}\`],
               },
             ],
-            AllowFromPublic: true,
+            AllowFromPublic: false,
           },
         ]),
       },
@@ -153,7 +153,7 @@ resource "aws_opensearchserverless_security_policy" "network" {
           Resource     = ["collection/\${var.project_name}-\${var.environment}"]
         }
       ]
-      AllowFromPublic = true
+      AllowFromPublic = false
     }
   ])
 }

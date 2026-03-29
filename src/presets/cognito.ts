@@ -14,6 +14,12 @@ const COGNITO_TF = `resource "aws_cognito_user_pool" "this" {
     require_symbols   = true
   }
 
+  mfa_configuration = "OPTIONAL"
+
+  software_token_mfa_configuration {
+    enabled = true
+  }
+
   account_recovery_setting {
     recovery_mechanism {
       name     = "verified_email"
@@ -62,6 +68,8 @@ export class CognitoAuth extends Construct {
       selfSignUpEnabled: true,
       signInAliases: { email: true },
       autoVerify: { email: true },
+      mfa: cognito.Mfa.OPTIONAL,
+      mfaSecondFactor: { sms: false, otp: true },
       passwordPolicy: {
         minLength: 8,
         requireLowercase: true,

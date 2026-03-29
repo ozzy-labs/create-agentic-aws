@@ -30,6 +30,9 @@ export class Vpc extends Construct {
           cidrMask: 24,
         },
       ],
+      flowLogs: {
+        cloudwatch: { destination: ec2.FlowLogDestination.toCloudWatchLogs() },
+      },
     });
 
     new cdk.CfnOutput(this, "VpcId", {
@@ -136,6 +139,53 @@ resource "aws_route_table_association" "private" {
   count          = 2
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
+}
+
+# --- VPC Flow Logs ---
+
+resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
+  name              = "/aws/vpc/\${var.project_name}-\${var.environment}-flow-logs"
+  retention_in_days = 30
+}
+
+resource "aws_iam_role" "vpc_flow_logs" {
+  name = "\${var.project_name}-\${var.environment}-vpc-flow-logs"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "vpc-flow-logs.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "vpc_flow_logs" {
+  name = "vpc-flow-logs"
+  role = aws_iam_role.vpc_flow_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+      ]
+      Resource = "*"
+    }]
+  })
+}
+
+resource "aws_flow_log" "vpc" {
+  iam_role_arn    = aws_iam_role.vpc_flow_logs.arn
+  log_destination = aws_cloudwatch_log_group.vpc_flow_logs.arn
+  traffic_type    = "ALL"
+  vpc_id          = aws_vpc.this.id
 }
 `;
 

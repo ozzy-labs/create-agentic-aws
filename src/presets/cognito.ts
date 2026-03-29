@@ -156,6 +156,10 @@ export function createCognitoPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon Cognito**: User authentication and authorization",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **Cognito**: Configure allowed sign-up domains and MFA settings",
+        },
       ],
     },
   };

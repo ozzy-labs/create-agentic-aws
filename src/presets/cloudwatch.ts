@@ -139,6 +139,10 @@ export function createCloudWatchPreset(): Preset {
           content:
             "- [ ] **CloudWatch**: Add an SNS subscription (email, Slack, PagerDuty, etc.) to the alarms topic",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **CloudWatch**: Configure SNS subscription for alarm notifications",
+        },
       ],
     },
   };

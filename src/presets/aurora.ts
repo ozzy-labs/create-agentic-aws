@@ -154,6 +154,10 @@ export function createAuroraPreset(): Preset {
           content:
             "- **Amazon Aurora**: PostgreSQL-compatible serverless v2\n- **Secrets Manager**: Database credentials management",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **Aurora (prod)**: Review Serverless v2 min/max ACU for your workload",
+        },
       ],
     },
   };

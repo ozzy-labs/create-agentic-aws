@@ -117,6 +117,10 @@ export function createKinesisPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon Kinesis Data Streams**: Real-time data streaming (on-demand mode)",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **Kinesis**: Review shard count and retention period",
+        },
       ],
     },
   };

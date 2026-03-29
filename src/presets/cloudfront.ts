@@ -199,6 +199,10 @@ export function createCloudFrontPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon CloudFront**: CDN distribution",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **CloudFront**: Configure custom domain and ACM certificate",
+        },
       ],
     },
   };

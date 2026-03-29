@@ -12,11 +12,15 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as path from "node:path";
 import type { Construct } from "constructs";
 
+export interface BedrockAgentProps {
+  readonly knowledgeBaseId?: string;
+}
+
 export class BedrockAgent extends Construct {
   public readonly agent: bedrock.CfnAgent;
   public readonly actionGroupLambda: lambda.Function;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props?: BedrockAgentProps) {
     super(scope, id);
 
     // Action Group Lambda
@@ -83,6 +87,15 @@ export class BedrockAgent extends Construct {
           },
         },
       ],
+      knowledgeBases: props?.knowledgeBaseId
+        ? [
+            {
+              knowledgeBaseId: props.knowledgeBaseId,
+              knowledgeBaseState: "ENABLED",
+              description: "Knowledge Base association",
+            },
+          ]
+        : undefined,
     });
 
     // Grant the agent permission to invoke the Lambda

@@ -45,6 +45,11 @@ export class EcsService extends Construct {
 
     this.service = fargateService.service;
 
+    // Match Terraform container security settings
+    const cfnTaskDef = this.service.taskDefinition.node.defaultChild as ecs.CfnTaskDefinition;
+    cfnTaskDef.addPropertyOverride("ContainerDefinitions.0.ReadonlyRootFilesystem", true);
+    cfnTaskDef.addPropertyOverride("ContainerDefinitions.0.User", "1000:1000");
+
     fargateService.targetGroup.configureHealthCheck({
       path: "/health",
     });

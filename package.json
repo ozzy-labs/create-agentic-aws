@@ -11,7 +11,7 @@
     "templates"
   ],
   "scripts": {
-    "prepare": "lefthook install",
+    "prepare": "lefthook install || true",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "lint": "biome check .",
@@ -31,6 +31,10 @@
     "node": ">=22"
   },
   "packageManager": "pnpm@10.12.1",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "license": "MIT",
   "repository": {
     "type": "git",

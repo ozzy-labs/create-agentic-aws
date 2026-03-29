@@ -118,7 +118,7 @@ export function createTypescriptPreset(): Preset {
       ".github/PULL_REQUEST_TEMPLATE.md": [
         {
           heading: "## Checklist",
-          content: "- [ ] Tests pass (`pnpm test`)\n- [ ] Linters pass (`pnpm run lint:all`)",
+          content: "- [ ] Tests pass (`pnpm test`)\n- [ ] Linters pass (`pnpm run lint`)",
         },
       ],
     },

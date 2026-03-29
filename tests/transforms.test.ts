@@ -73,13 +73,14 @@ describe("transforms", () => {
       expect(cwTf).toContain("Lambda Invocations & Errors");
     });
 
-    it("CDK: adds widget comment to construct", () => {
+    it("CDK: adds addWidgets() calls to app-stack.ts", () => {
       const result = generateProject({
         compute: ["lambda"],
         observability: ["cloudwatch"],
       });
-      const construct = result.readText("infra/lib/constructs/cloudwatch.ts");
-      expect(construct).toContain("Widgets are available via addWidgets()");
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("cloudWatchDashboard.addWidgets");
+      expect(appStack).toContain("Lambda Invocations & Errors");
     });
 
     it("TF: no extra widgets when no services selected", () => {

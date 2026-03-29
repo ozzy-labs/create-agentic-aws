@@ -14,20 +14,25 @@ export interface InvokeOptions {
 export async function invokeModel(options: InvokeOptions): Promise<string> {
   const { modelId = DEFAULT_MODEL_ID, messages, systemPrompt, maxTokens = 1024 } = options;
 
-  const response = await bedrockClient.send(
-    new ConverseCommand({
-      modelId,
-      messages,
-      ...(systemPrompt
-        ? { system: [{ text: systemPrompt }] }
-        : {}),
-      inferenceConfig: { maxTokens },
-    }),
-  );
+  try {
+    const response = await bedrockClient.send(
+      new ConverseCommand({
+        modelId,
+        messages,
+        ...(systemPrompt
+          ? { system: [{ text: systemPrompt }] }
+          : {}),
+        inferenceConfig: { maxTokens },
+      }),
+    );
 
-  const content = response.output?.message?.content;
-  if (!content?.[0] || !("text" in content[0])) {
-    throw new Error("Unexpected response format from Bedrock");
+    const content = response.output?.message?.content;
+    if (!content?.[0] || !("text" in content[0])) {
+      throw new Error("Unexpected response format from Bedrock");
+    }
+    return content[0].text ?? "";
+  } catch (err) {
+    console.error("Bedrock invocation error:", err);
+    throw err;
   }
-  return content[0].text ?? "";
 }

@@ -187,6 +187,10 @@ export function createEc2Preset(): Preset {
           content:
             "- **Amazon EC2**: Virtual server (Amazon Linux 2023)\n- **SSM**: Session Manager for secure access",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **EC2**: Add ingress rules to the security group for your use case",
+        },
       ],
     },
   };

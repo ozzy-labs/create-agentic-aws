@@ -1,7 +1,8 @@
 import { GetCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { docClient } from "./client";
 
-const TABLE_NAME = process.env.TABLE_NAME ?? "";
+const TABLE_NAME = process.env.TABLE_NAME;
+if (!TABLE_NAME) throw new Error("TABLE_NAME environment variable is required");
 
 export interface Item {
   pk: string;

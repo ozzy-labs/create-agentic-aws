@@ -44,9 +44,9 @@ describe("eks preset", () => {
       expect(eks.files["eks/Dockerfile"]).toContain("FROM node:24-slim");
     });
 
-    it("includes app entry with /healthz", () => {
+    it("includes app entry with /health", () => {
       expect(eks.files["eks/src/index.ts"]).toBeDefined();
-      expect(eks.files["eks/src/index.ts"]).toContain("/healthz");
+      expect(eks.files["eks/src/index.ts"]).toContain("/health");
     });
 
     it("includes K8s deployment manifest", () => {

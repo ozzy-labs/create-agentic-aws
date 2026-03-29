@@ -32,6 +32,10 @@ pnpm run build       # Build
 | `scripts/configure-repo.sh` | Configure GitHub repository settings |
 | `scripts/apply-rulesets.sh` | Apply branch protection rulesets |
 
+## Setup Checklist
+
+After generating your project, complete these service-specific steps:
+
 ## License
 
 MIT

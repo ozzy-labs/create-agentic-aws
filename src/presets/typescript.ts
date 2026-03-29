@@ -27,7 +27,7 @@ export function createTypescriptPreset(): Preset {
       },
       ".mise.toml": {
         tools: {
-          biome: "latest",
+          biome: "2",
         },
       },
       "lefthook.yaml": {

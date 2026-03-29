@@ -16,8 +16,8 @@ export function createTerraformPreset(): Preset {
         "# Terraform\ninfra/.terraform/\ninfra/*.tfstate\ninfra/*.tfstate.backup\ninfra/.terraform.lock.hcl",
       ".mise.toml": {
         tools: {
-          terraform: "latest",
-          tflint: "latest",
+          terraform: "1",
+          tflint: "0",
         },
       },
       "lefthook.yaml": {

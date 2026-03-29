@@ -8,6 +8,4 @@
 
 ## Checklist
 
-- [ ] Tests pass (`pnpm test`)
-- [ ] Linters pass (`pnpm run lint:all`)
 - [ ] No secrets committed

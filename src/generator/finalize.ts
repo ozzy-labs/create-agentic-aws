@@ -143,7 +143,8 @@ export function expandMarkdownTemplates(
   }
 
   for (const [path, sections] of sectionsByPath) {
-    const template = files.get(path) ?? "";
+    const template = files.get(path);
+    if (template === undefined) continue;
     files.set(path, mergeMarkdown(template, sections));
   }
 }

@@ -495,3 +495,283 @@ export function applyCognitoApiGatewayAuth(files: Map<string, string>): void {
   const replacement = `  route_key          = "$default"\n  target             = "integrations/${lambdaRef}"\n  authorization_type = "JWT"\n  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id`;
   files.set("infra/api-gateway.tf", safeReplace(apigwTf, search, replacement, ctx));
 }
+
+// ---------------------------------------------------------------------------
+// #327: Bedrock Agent + KB wiring
+// ---------------------------------------------------------------------------
+
+export function applyBedrockAgentKbWiring(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyBedrockAgentKbWiring";
+  if (iac === "cdk") {
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    // Store KB reference and pass to Agent
+    let patched = safeReplace(
+      appStack,
+      '    new BedrockAgent(this, "BedrockAgent");',
+      '    new BedrockAgent(this, "BedrockAgent", {\n      knowledgeBaseId: bedrockKb.knowledgeBase.attrKnowledgeBaseId,\n    });',
+      ctx,
+    );
+    // Ensure BedrockKnowledgeBase is stored in a variable
+    if (!patched.includes("const bedrockKb")) {
+      patched = patched.replace(
+        "new BedrockKnowledgeBase(this,",
+        "const bedrockKb = new BedrockKnowledgeBase(this,",
+      );
+    }
+    files.set("infra/lib/app-stack.ts", patched);
+  } else {
+    // Terraform: add knowledge_base association to agent
+    const agentTf = files.get("infra/bedrock-agents.tf");
+    if (agentTf) {
+      const kbAssociation = `
+resource "aws_bedrockagent_agent_knowledge_base_association" "this" {
+  agent_id             = aws_bedrockagent_agent.this.agent_id
+  knowledge_base_id    = aws_bedrockagent_knowledge_base.this.id
+  description          = "Knowledge Base association"
+  knowledge_base_state = "ENABLED"
+}
+`;
+      files.set("infra/bedrock-agents.tf", agentTf + kbAssociation);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// #317: Kinesis consumer → Lambda event source mapping
+// ---------------------------------------------------------------------------
+
+export function applyKinesisLambdaWiring(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyKinesisLambdaWiring";
+  if (iac === "cdk") {
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    // Store Kinesis and Lambda references, then connect
+    let patched = appStack;
+    if (!patched.includes("const kinesisStream")) {
+      patched = patched.replace(
+        '    new KinesisStream(this, "KinesisStream");',
+        '    const kinesisStream = new KinesisStream(this, "KinesisStream");\n    lambdaFunction.handler.addEventSourceMapping("KinesisConsumer", {\n      eventSourceArn: kinesisStream.stream.streamArn,\n      startingPosition: lambda.StartingPosition.TRIM_HORIZON,\n      batchSize: 100,\n      reportBatchItemFailures: true,\n    });\n    kinesisStream.stream.grantRead(lambdaFunction.handler);',
+      );
+    }
+    // Add lambda import if needed
+    if (!patched.includes("import * as lambda")) {
+      patched = patched.replace(
+        "import { KinesisStream }",
+        'import * as lambda from "aws-cdk-lib/aws-lambda";\nimport { KinesisStream }',
+      );
+    }
+    files.set("infra/lib/app-stack.ts", patched);
+  } else {
+    const kinesisTf = files.get("infra/kinesis.tf");
+    if (kinesisTf) {
+      const mapping = `
+resource "aws_lambda_event_source_mapping" "kinesis" {
+  event_source_arn                   = aws_kinesis_stream.this.arn
+  function_name                      = aws_lambda_function.this.arn
+  starting_position                  = "TRIM_HORIZON"
+  batch_size                         = 100
+  bisect_batch_on_function_error     = true
+  maximum_retry_attempts             = 3
+  function_response_types            = ["ReportBatchItemFailures"]
+}
+`;
+      files.set("infra/kinesis.tf", kinesisTf + mapping);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// #325: SQS → Lambda event source mapping
+// ---------------------------------------------------------------------------
+
+export function applySqsLambdaWiring(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applySqsLambdaWiring";
+  if (iac === "cdk") {
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    let patched = appStack;
+    if (!patched.includes("const sqsQueue")) {
+      patched = patched.replace(
+        '    new SqsQueue(this, "SqsQueue");',
+        '    const sqsQueue = new SqsQueue(this, "SqsQueue");\n    lambdaFunction.handler.addEventSourceMapping("SqsConsumer", {\n      eventSourceArn: sqsQueue.queue.queueArn,\n      batchSize: 10,\n      reportBatchItemFailures: true,\n    });\n    sqsQueue.queue.grantConsumeMessages(lambdaFunction.handler);',
+      );
+    }
+    files.set("infra/lib/app-stack.ts", patched);
+  } else {
+    const sqsTf = files.get("infra/sqs.tf");
+    if (sqsTf) {
+      const mapping = `
+resource "aws_lambda_event_source_mapping" "sqs" {
+  event_source_arn                   = aws_sqs_queue.this.arn
+  function_name                      = aws_lambda_function.this.arn
+  batch_size                         = 10
+  function_response_types            = ["ReportBatchItemFailures"]
+}
+`;
+      files.set("infra/sqs.tf", sqsTf + mapping);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// #325: EventBridge → Lambda target
+// ---------------------------------------------------------------------------
+
+export function applyEventBridgeLambdaWiring(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyEventBridgeLambdaWiring";
+  if (iac === "cdk") {
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    let patched = appStack;
+    if (!patched.includes("const eventBus")) {
+      patched = patched.replace(
+        '    new EventBus(this, "EventBus");',
+        '    const eventBus = new EventBus(this, "EventBus");\n    eventBus.grantLambdaPublish(lambdaFunction.handler);',
+      );
+    }
+    files.set("infra/lib/app-stack.ts", patched);
+  } else {
+    const ebTf = files.get("infra/eventbridge.tf");
+    if (ebTf) {
+      const resources =
+        `
+resource "aws_cloudwatch_event_rule" "lambda" {
+  name           = "$` +
+        `{var.project_name}-$` +
+        `{var.environment}-lambda-rule"
+  event_bus_name = aws_cloudwatch_event_bus.this.name
+  event_pattern  = jsonencode({ source = ["$` +
+        `{var.project_name}"] })
+}
+
+resource "aws_cloudwatch_event_target" "lambda" {
+  rule           = aws_cloudwatch_event_rule.lambda.name
+  event_bus_name = aws_cloudwatch_event_bus.this.name
+  arn            = aws_lambda_function.this.arn
+}
+
+resource "aws_lambda_permission" "eventbridge" {
+  statement_id  = "AllowEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.this.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.lambda.arn
+}
+`;
+      files.set("infra/eventbridge.tf", ebTf + resources);
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// #324: CloudWatch dashboard widgets based on selected services
+// ---------------------------------------------------------------------------
+
+export function applyCloudWatchWidgets(
+  presetNames: ReadonlySet<string>,
+  iac: IacPresetName,
+  files: Map<string, string>,
+  vars: Record<string, string>,
+): void {
+  const widgets: string[] = [];
+
+  if (presetNames.has("lambda")) {
+    widgets.push(
+      `{ type: "metric", properties: { title: "Lambda Invocations", metrics: [["AWS/Lambda", "Invocations"]], period: 300, stat: "Sum" } }`,
+      `{ type: "metric", properties: { title: "Lambda Errors", metrics: [["AWS/Lambda", "Errors"]], period: 300, stat: "Sum" } }`,
+    );
+  }
+  if (presetNames.has("ecs")) {
+    widgets.push(
+      `{ type: "metric", properties: { title: "ECS CPU", metrics: [["AWS/ECS", "CPUUtilization"]], period: 300, stat: "Average" } }`,
+    );
+  }
+  if (presetNames.has("dynamodb")) {
+    widgets.push(
+      `{ type: "metric", properties: { title: "DynamoDB Throttles", metrics: [["AWS/DynamoDB", "ThrottledRequests"]], period: 300, stat: "Sum" } }`,
+    );
+  }
+
+  if (widgets.length === 0) return;
+
+  if (iac === "cdk") {
+    const construct = files.get("infra/lib/constructs/cloudwatch.ts");
+    if (construct) {
+      // Add a comment listing which widgets are expected
+      const patched = construct.replace(
+        "defaultInterval: cdk.Duration.hours(3),",
+        `defaultInterval: cdk.Duration.hours(3),\n      // Widgets are available via addWidgets() — see app-stack.ts`,
+      );
+      files.set("infra/lib/constructs/cloudwatch.ts", patched);
+    }
+  } else {
+    const cwTf = files.get("infra/cloudwatch.tf");
+    if (cwTf) {
+      // Build Terraform widget JSON
+      const tfWidgets = [];
+      let y = 1;
+      if (presetNames.has("lambda")) {
+        tfWidgets.push(`      {
+        type   = "metric"
+        x      = 0
+        y      = ${y}
+        width  = 12
+        height = 6
+        properties = {
+          title   = "Lambda Invocations & Errors"
+          metrics = [
+            ["AWS/Lambda", "Invocations", "FunctionName", "${vars.projectName}"],
+            ["AWS/Lambda", "Errors", "FunctionName", "${vars.projectName}"]
+          ]
+          period = 300
+          stat   = "Sum"
+          region = "\${var.aws_region}"
+        }
+      }`);
+        y += 6;
+      }
+      if (presetNames.has("ecs")) {
+        tfWidgets.push(`      {
+        type   = "metric"
+        x      = 0
+        y      = ${y}
+        width  = 12
+        height = 6
+        properties = {
+          title   = "ECS CPU & Memory"
+          metrics = [
+            ["AWS/ECS", "CPUUtilization", "ClusterName", "${vars.projectName}"],
+            ["AWS/ECS", "MemoryUtilization", "ClusterName", "${vars.projectName}"]
+          ]
+          period = 300
+          stat   = "Average"
+          region = "\${var.aws_region}"
+        }
+      }`);
+        y += 6;
+      }
+      if (presetNames.has("dynamodb")) {
+        tfWidgets.push(`      {
+        type   = "metric"
+        x      = 0
+        y      = ${y}
+        width  = 12
+        height = 6
+        properties = {
+          title   = "DynamoDB Throttled Requests"
+          metrics = [
+            ["AWS/DynamoDB", "ThrottledRequests", "TableName", "${vars.projectName}"]
+          ]
+          period = 300
+          stat   = "Sum"
+          region = "\${var.aws_region}"
+        }
+      }`);
+      }
+
+      if (tfWidgets.length > 0) {
+        // Replace the widgets array in the dashboard
+        const widgetList = tfWidgets.join(",\n");
+        const patched = cwTf.replace("    ]\n  })\n}", `,\n${widgetList}\n    ]\n  })\n}`);
+        files.set("infra/cloudwatch.tf", patched);
+      }
+    }
+  }
+}

@@ -10,9 +10,13 @@ import {
 import { substituteVars } from "./helpers.js";
 import { resolvePresets } from "./resolve.js";
 import {
+  applyBedrockAgentKbWiring,
   applyBedrockKbOpenSearchWiring,
+  applyCloudWatchWidgets,
   applyCognitoApiGatewayAuth,
   applyDynamoDbLambdaIntegration,
+  applyEventBridgeLambdaWiring,
+  applyKinesisLambdaWiring,
   applyLambdaPythonDeps,
   applyLambdaPythonRuntime,
   applyLambdaVpcPlacement,
@@ -20,6 +24,7 @@ import {
   applyRdsEngineOption,
   applyReadmeLabels,
   applyRedshiftProvisionedMode,
+  applySqsLambdaWiring,
   ensureTsconfigBase,
 } from "./transform.js";
 
@@ -77,6 +82,21 @@ export function generate(
   }
   if (presetNames.has("cognito") && presetNames.has("api-gateway") && answers.iac === "terraform") {
     applyCognitoApiGatewayAuth(files);
+  }
+  if (presetNames.has("bedrock-agents") && presetNames.has("bedrock-kb")) {
+    applyBedrockAgentKbWiring(answers.iac, files);
+  }
+  if (presetNames.has("kinesis") && presetNames.has("lambda")) {
+    applyKinesisLambdaWiring(answers.iac, files);
+  }
+  if (presetNames.has("sqs") && presetNames.has("lambda")) {
+    applySqsLambdaWiring(answers.iac, files);
+  }
+  if (presetNames.has("eventbridge") && presetNames.has("lambda")) {
+    applyEventBridgeLambdaWiring(answers.iac, files);
+  }
+  if (presetNames.has("cloudwatch")) {
+    applyCloudWatchWidgets(presetNames, answers.iac, files, vars);
   }
   ensureTsconfigBase(presets, files);
 

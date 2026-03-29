@@ -18,6 +18,7 @@ import {
   applyDynamoDbLambdaIntegration,
   applyEcsDynamoDbAccess,
   applyEcsLoadBalancerOption,
+  applyEksModeOption,
   applyEventBridgeLambdaWiring,
   applyKinesisLambdaWiring,
   applyLambdaPythonDeps,
@@ -103,6 +104,9 @@ export function generate(
   }
   if (presetNames.has("cloudwatch")) {
     applyCloudWatchWidgets(presetNames, answers.iac, files);
+  }
+  if (presetNames.has("eks") && answers.eksOptions?.mode) {
+    applyEksModeOption(answers.iac, answers.eksOptions.mode, files);
   }
   if (presetNames.has("ecs") && answers.ecsOptions?.loadBalancer) {
     applyEcsLoadBalancerOption(answers.iac, answers.ecsOptions.loadBalancer, files);

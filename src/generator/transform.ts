@@ -998,3 +998,77 @@ export function applyEcsLoadBalancerOption(
     // restructuring the entire ECS TF template)
   }
 }
+
+// ---------------------------------------------------------------------------
+// EKS mode option (Managed Node Group → Fargate)
+// ---------------------------------------------------------------------------
+
+export function applyEksModeOption(
+  iac: IacPresetName,
+  mode: string,
+  files: Map<string, string>,
+): void {
+  const ctx = "applyEksModeOption";
+  if (mode === "managed-node-group") return; // default — no change needed
+
+  if (mode === "fargate") {
+    if (iac === "cdk") {
+      const construct = requireFile(files, "infra/lib/constructs/eks.ts", ctx);
+      let patched = safeReplace(
+        construct,
+        "defaultCapacity: 2,\n      defaultCapacityInstance: ec2.InstanceType.of(\n        ec2.InstanceClass.T3,\n        ec2.InstanceSize.MEDIUM,\n      ),",
+        "defaultCapacity: 0,",
+        ctx,
+      );
+      // Add Fargate profile after cluster creation
+      patched = safeReplace(
+        patched,
+        '    new cdk.CfnOutput(this, "ClusterName"',
+        `    this.cluster.addFargateProfile("DefaultProfile", {\n      selectors: [{ namespace: "default" }, { namespace: "kube-system" }],\n    });\n\n    new cdk.CfnOutput(this, "ClusterName"`,
+        ctx,
+      );
+      files.set("infra/lib/constructs/eks.ts", patched);
+    } else {
+      const eksTf = requireFile(files, "infra/eks.tf", ctx);
+      // Replace node group with Fargate profile
+      const nodeGroupPattern = /resource "aws_eks_node_group" "this" \{[\s\S]*?\n\}\n/;
+      const fargateProfile = `resource "aws_eks_fargate_profile" "default" {
+  cluster_name           = aws_eks_cluster.this.name
+  fargate_profile_name   = "\${var.project_name}-\${var.environment}-fargate"
+  pod_execution_role_arn = aws_iam_role.eks_fargate.arn
+  subnet_ids             = aws_subnet.private[*].id
+
+  selector {
+    namespace = "default"
+  }
+
+  selector {
+    namespace = "kube-system"
+  }
+}
+
+resource "aws_iam_role" "eks_fargate" {
+  name = "\${var.project_name}-eks-fargate-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = { Service = "eks-fargate-pods.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "eks_fargate_pod_execution" {
+  role       = aws_iam_role.eks_fargate.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy"
+}
+`;
+      const patched = safeReplace(eksTf, nodeGroupPattern, fargateProfile, ctx);
+      files.set("infra/eks.tf", patched);
+    }
+  }
+  // mode === "auto-mode": keep default template (Auto Mode is a console-level
+  // setting, CDK/TF templates use standard node groups as baseline)
+}

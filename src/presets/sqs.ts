@@ -117,6 +117,11 @@ export function createSqsPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon SQS**: Message queue with dead-letter queue",
         },
+        {
+          heading: "## Setup Checklist",
+          content:
+            "- [ ] **SQS**: Review DLQ retention period and redrive policy in the construct/`.tf` file",
+        },
       ],
     },
   };

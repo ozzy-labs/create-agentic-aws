@@ -170,6 +170,11 @@ export function createStepFunctionsPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **AWS Step Functions**: Workflow orchestration",
         },
+        {
+          heading: "## Setup Checklist",
+          content:
+            "- [ ] **Step Functions**: Define your workflow states in the state machine definition",
+        },
       ],
     },
   };

@@ -88,6 +88,10 @@ export function createSnsPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon SNS**: Pub/sub messaging",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **SNS**: Add subscriptions (email, SQS, Lambda, etc.) to the topic",
+        },
       ],
     },
   };

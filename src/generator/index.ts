@@ -97,7 +97,7 @@ export function generate(
     applyEventBridgeLambdaWiring(answers.iac, files);
   }
   if (presetNames.has("cloudwatch")) {
-    applyCloudWatchWidgets(presetNames, answers.iac, files, vars);
+    applyCloudWatchWidgets(presetNames, answers.iac, files);
   }
   if (presetNames.has("ecs") && presetNames.has("dynamodb")) {
     applyEcsDynamoDbAccess(answers.iac, files);

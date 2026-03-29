@@ -668,7 +668,6 @@ export function applyCloudWatchWidgets(
   presetNames: ReadonlySet<string>,
   iac: IacPresetName,
   files: Map<string, string>,
-  vars: Record<string, string>,
 ): void {
   const widgets: string[] = [];
 
@@ -717,8 +716,8 @@ export function applyCloudWatchWidgets(
         properties = {
           title   = "Lambda Invocations & Errors"
           metrics = [
-            ["AWS/Lambda", "Invocations", "FunctionName", "${vars.projectName}"],
-            ["AWS/Lambda", "Errors", "FunctionName", "${vars.projectName}"]
+            ["AWS/Lambda", "Invocations", "FunctionName", "\${aws_lambda_function.this.function_name}"],
+            ["AWS/Lambda", "Errors", "FunctionName", "\${aws_lambda_function.this.function_name}"]
           ]
           period = 300
           stat   = "Sum"
@@ -737,8 +736,8 @@ export function applyCloudWatchWidgets(
         properties = {
           title   = "ECS CPU & Memory"
           metrics = [
-            ["AWS/ECS", "CPUUtilization", "ClusterName", "${vars.projectName}"],
-            ["AWS/ECS", "MemoryUtilization", "ClusterName", "${vars.projectName}"]
+            ["AWS/ECS", "CPUUtilization", "ClusterName", "\${aws_ecs_cluster.this.name}"],
+            ["AWS/ECS", "MemoryUtilization", "ClusterName", "\${aws_ecs_cluster.this.name}"]
           ]
           period = 300
           stat   = "Average"
@@ -757,7 +756,7 @@ export function applyCloudWatchWidgets(
         properties = {
           title   = "DynamoDB Throttled Requests"
           metrics = [
-            ["AWS/DynamoDB", "ThrottledRequests", "TableName", "${vars.projectName}"]
+            ["AWS/DynamoDB", "ThrottledRequests", "TableName", "\${aws_dynamodb_table.this.name}"]
           ]
           period = 300
           stat   = "Sum"

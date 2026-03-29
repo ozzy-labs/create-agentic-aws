@@ -149,4 +149,47 @@ describe("transforms", () => {
       expect(appStack).toContain("grantLambdaAccess");
     });
   });
+
+  describe("variable scope — referenced constructs must be declared with const", () => {
+    it("CDK: ecsService is declared when ECS + CloudWatch (no DynamoDB)", () => {
+      const result = generateProject({
+        compute: ["ecs"],
+        ecsOptions: { launchType: "fargate", loadBalancer: "alb" },
+        observability: ["cloudwatch"],
+      });
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("const ecsService = new EcsService");
+    });
+
+    it("CDK: ecsService is declared when ECS + DynamoDB + CloudWatch", () => {
+      const result = generateProject({
+        compute: ["lambda", "ecs"],
+        ecsOptions: { launchType: "fargate", loadBalancer: "alb" },
+        data: ["dynamodb"],
+        observability: ["cloudwatch"],
+      });
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("const ecsService = new EcsService");
+      // Should NOT have duplicate const declarations
+      const matches = appStack.match(/const ecsService/g);
+      expect(matches?.length).toBe(1);
+    });
+
+    it("CDK: cloudWatchDashboard is declared when CloudWatch + Lambda", () => {
+      const result = generateProject({
+        compute: ["lambda"],
+        observability: ["cloudwatch"],
+      });
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("const cloudWatchDashboard = new CloudWatchDashboard");
+    });
+
+    it("CDK: lambdaFunction is declared by preset (always const)", () => {
+      const result = generateProject({
+        compute: ["lambda"],
+      });
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain("const lambdaFunction = new LambdaFunction");
+    });
+  });
 });

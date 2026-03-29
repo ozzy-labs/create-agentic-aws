@@ -43,11 +43,15 @@ export class BedrockAgent extends Construct {
 
     agentRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: [
-          "bedrock:InvokeModel",
-          "bedrock:Retrieve",
-        ],
-        resources: ["*"],
+        actions: ["bedrock:InvokeModel"],
+        resources: [\`arn:aws:bedrock:\${cdk.Stack.of(this).region}::foundation-model/*\`],
+      }),
+    );
+
+    agentRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["bedrock:Retrieve"],
+        resources: [\`arn:aws:bedrock:\${cdk.Stack.of(this).region}:\${cdk.Stack.of(this).account}:knowledge-base/*\`],
       }),
     );
 
@@ -120,11 +124,13 @@ const BEDROCK_AGENTS_TF = `data "aws_iam_policy_document" "agent_trust" {
 
 data "aws_iam_policy_document" "agent_policy" {
   statement {
-    actions = [
-      "bedrock:InvokeModel",
-      "bedrock:Retrieve",
-    ]
-    resources = ["*"]
+    actions   = ["bedrock:InvokeModel"]
+    resources = ["arn:aws:bedrock:\${var.aws_region}::foundation-model/*"]
+  }
+
+  statement {
+    actions   = ["bedrock:Retrieve"]
+    resources = ["arn:aws:bedrock:\${var.aws_region}:*:knowledge-base/*"]
   }
 }
 

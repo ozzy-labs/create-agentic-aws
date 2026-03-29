@@ -236,9 +236,21 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 14. Data pipeline (CDK) ─────────────────────────────────────────
+  // ── 14. AI + managed OpenSearch (CDK) ───────────────────────────────
   {
-    name: "15-data-pipeline-cdk",
+    name: "15-ai-managed-cdk",
+    description:
+      "Bedrock Agents + OpenSearch Managed Cluster (CDK) — parity with 14, tests #459 fix",
+    overrides: {
+      projectName: "ai-managed-cdk",
+      ai: ["bedrock-agents", "opensearch"],
+      openSearchOptions: { mode: "managed-cluster" },
+    },
+  },
+
+  // ── 15. Data pipeline (CDK) ─────────────────────────────────────────
+  {
+    name: "16-data-pipeline-cdk",
     description: "Kinesis + Glue + Redshift Serverless + S3 (CDK)",
     overrides: {
       projectName: "data-pipeline-cdk",
@@ -249,9 +261,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 15. Data warehouse (Terraform) ──────────────────────────────────
+  // ── 16. Data warehouse (Terraform) ──────────────────────────────────
   {
-    name: "16-data-warehouse-terraform",
+    name: "17-data-warehouse-terraform",
     description: "Redshift Provisioned + Glue + S3 (Terraform)",
     overrides: {
       projectName: "data-warehouse-terraform",
@@ -263,10 +275,10 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 16. Kitchen sink (CDK) ──────────────────────────────────────────
+  // ── 17. Kitchen sink (CDK) ──────────────────────────────────────────
   {
-    name: "17-kitchen-sink-cdk",
-    description: "All agents + all services + CDK (maximum combination)",
+    name: "18-kitchen-sink-cdk",
+    description: "All services + CDK (maximum combination)",
     overrides: {
       projectName: "kitchen-sink-cdk",
       agents: ["claude-code", "amazon-q", "copilot"],
@@ -291,10 +303,10 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 17. Kitchen sink (Terraform) ────────────────────────────────────
+  // ── 18. Kitchen sink (Terraform) ────────────────────────────────────
   {
-    name: "18-kitchen-sink-terraform",
-    description: "All agents + all services + Terraform (maximum combination)",
+    name: "19-kitchen-sink-terraform",
+    description: "All services + Terraform (maximum combination)",
     overrides: {
       projectName: "kitchen-sink-terraform",
       iac: "terraform",
@@ -320,9 +332,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 18. Lambda in VPC ───────────────────────────────────────────────
+  // ── 19. Lambda in VPC ───────────────────────────────────────────────
   {
-    name: "19-lambda-vpc",
+    name: "20-lambda-vpc",
     description: "Lambda with VPC placement + S3 (CDK)",
     overrides: {
       projectName: "lambda-vpc",
@@ -332,9 +344,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 19. Dual language ───────────────────────────────────────────────
+  // ── 20. Dual language ───────────────────────────────────────────────
   {
-    name: "20-dual-language",
+    name: "21-dual-language",
     description: "TypeScript + Python with Lambda (CDK)",
     overrides: {
       projectName: "dual-language",
@@ -344,9 +356,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 20. Serverless API parity — CDK HTTP ──────────────────────────
+  // ── 21. Serverless API parity — CDK HTTP ──────────────────────────
   {
-    name: "21-serverless-api-http-cdk",
+    name: "22-serverless-api-http-cdk",
     description:
       "Lambda + DynamoDB + API Gateway (HTTP) + Cognito + CloudWatch (CDK) — parity with 05",
     overrides: {
@@ -362,9 +374,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 21. Container + RDB parity — CDK RDS MySQL ────────────────────
+  // ── 22. Container + RDB parity — CDK RDS MySQL ────────────────────
   {
-    name: "22-container-rdb-parity-cdk",
+    name: "23-container-rdb-parity-cdk",
     description: "ECS Fargate + RDS MySQL + CloudWatch (CDK) — parity with 07",
     overrides: {
       projectName: "container-rdb-parity-cdk",
@@ -376,9 +388,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 22. EKS Fargate (Terraform) ───────────────────────────────────
+  // ── 23. EKS Fargate (Terraform) ───────────────────────────────────
   {
-    name: "23-eks-fargate-terraform",
+    name: "24-eks-fargate-terraform",
     description: "EKS Fargate + Aurora Serverless v2 PostgreSQL (Terraform) — EKS Fargate coverage",
     overrides: {
       projectName: "eks-fargate-terraform",
@@ -391,9 +403,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 23. Lambda Python-only + Copilot (Terraform) ──────────────────
+  // ── 24. Lambda Python-only + Copilot (Terraform) ──────────────────
   {
-    name: "24-lambda-python-copilot",
+    name: "25-lambda-python-copilot",
     description: "Lambda (Python only) + S3 + Copilot agent (Terraform)",
     overrides: {
       projectName: "lambda-python-copilot",
@@ -407,9 +419,9 @@ const projects: TestProject[] = [
     },
   },
 
-  // ── 24. ECS NLB (CDK) ─────────────────────────────────────────────
+  // ── 25. ECS NLB (CDK) ─────────────────────────────────────────────
   {
-    name: "25-ecs-nlb-cdk",
+    name: "26-ecs-nlb-cdk",
     description: "ECS Fargate + NLB + VPC + CloudWatch (CDK) — NLB coverage",
     overrides: {
       projectName: "ecs-nlb-cdk",

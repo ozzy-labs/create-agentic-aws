@@ -71,6 +71,7 @@ const API_GATEWAY_TF_OUTPUTS = `output "api_gateway_url" {
 const API_GATEWAY_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as apigatewayv2 from "aws-cdk-lib/aws-apigatewayv2";
+import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import * as logs from "aws-cdk-lib/aws-logs";
 import type * as cognito from "aws-cdk-lib/aws-cognito";
 import type * as lambda from "aws-cdk-lib/aws-lambda";
@@ -121,6 +122,8 @@ export class ApiGateway extends Construct {
         description: "REST API URL",
       });
     } else {
+      const lambdaIntegration = new HttpLambdaIntegration("LambdaIntegration", props.handler);
+
       this.httpApi = new apigatewayv2.HttpApi(this, "HttpApi", {
         apiName: id,
         corsPreflight: {
@@ -129,6 +132,12 @@ export class ApiGateway extends Construct {
           allowMethods: [apigatewayv2.CorsHttpMethod.ANY],
           allowHeaders: ["Content-Type", "Authorization"],
         },
+      });
+
+      this.httpApi.addRoutes({
+        path: "/{proxy+}",
+        methods: [apigatewayv2.HttpMethod.ANY],
+        integration: lambdaIntegration,
       });
 
       new cdk.CfnOutput(this, "HttpApiUrl", {

@@ -774,7 +774,7 @@ export function applyCloudWatchWidgets(
       }
 
       if (cdkWidgets.length > 0) {
-        // Ensure CloudWatch dashboard is stored in a variable
+        // Ensure referenced constructs are stored in variables
         let patched = appStack;
         if (
           !patched.includes("const cloudWatchDashboard") &&
@@ -784,6 +784,17 @@ export function applyCloudWatchWidgets(
             patched,
             '    new CloudWatchDashboard(this, "CloudWatchDashboard");',
             '    const cloudWatchDashboard = new CloudWatchDashboard(this, "CloudWatchDashboard");',
+            ctx,
+          );
+        }
+        if (
+          !patched.includes("const ecsService") &&
+          patched.includes('new EcsService(this, "EcsService"')
+        ) {
+          patched = safeReplace(
+            patched,
+            "    new EcsService(this,",
+            "    const ecsService = new EcsService(this,",
             ctx,
           );
         }
@@ -895,12 +906,16 @@ export function applyEcsDynamoDbAccess(iac: IacPresetName, files: Map<string, st
     const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
     // Grant ECS task role access to DynamoDB
     if (appStack.includes("DynamoDbTable") && appStack.includes("EcsService")) {
-      let patched = safeReplace(
-        appStack,
-        '    new EcsService(this, "EcsService"',
-        '    const ecsService = new EcsService(this, "EcsService"',
-        ctx,
-      );
+      let patched = appStack;
+      // Ensure ecsService is stored in a variable (may already be done by applyCloudWatchWidgets)
+      if (!patched.includes("const ecsService") && patched.includes("new EcsService(this,")) {
+        patched = safeReplace(
+          patched,
+          "    new EcsService(this,",
+          "    const ecsService = new EcsService(this,",
+          ctx,
+        );
+      }
       const grantLine =
         "    dynamoDbTable.table.grantReadWriteData(ecsService.service.taskDefinition.taskRole);";
       patched = safeReplace(patched, /(\n {2}}\n}\n?)$/, `\n${grantLine}$1`, ctx);

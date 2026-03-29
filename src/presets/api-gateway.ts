@@ -200,7 +200,7 @@ export function createApiGatewayPreset(): Preset {
           "infra/lib/app-stack.ts": {
             imports: 'import { ApiGateway } from "./constructs/api-gateway";',
             constructs:
-              '    const apiGateway = new ApiGateway(this, "ApiGateway", {\n      type: "rest",\n      handler: lambdaFunction.handler,\n    });',
+              '    const apiGateway = new ApiGateway(this, "ApiGateway", {\n      type: "http",\n      handler: lambdaFunction.handler,\n    });',
           },
         },
       },

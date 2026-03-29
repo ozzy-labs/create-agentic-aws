@@ -80,6 +80,17 @@ resource "aws_subnet" "private" {
   }
 }
 
+resource "aws_subnet" "isolated" {
+  count             = 2
+  vpc_id            = aws_vpc.this.id
+  cidr_block        = cidrsubnet(var.vpc_cidr, 8, count.index + 4)
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+
+  tags = {
+    Name = "\${var.project_name}-isolated-\${count.index}"
+  }
+}
+
 resource "aws_internet_gateway" "this" {
   vpc_id = aws_vpc.this.id
 
@@ -139,6 +150,20 @@ resource "aws_route_table_association" "private" {
   count          = 2
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table" "isolated" {
+  vpc_id = aws_vpc.this.id
+
+  tags = {
+    Name = "\${var.project_name}-isolated-rt"
+  }
+}
+
+resource "aws_route_table_association" "isolated" {
+  count          = 2
+  subnet_id      = aws_subnet.isolated[count.index].id
+  route_table_id = aws_route_table.isolated.id
 }
 
 # --- VPC Flow Logs ---
@@ -209,6 +234,11 @@ output "public_subnet_ids" {
 output "private_subnet_ids" {
   description = "Private subnet IDs"
   value       = aws_subnet.private[*].id
+}
+
+output "isolated_subnet_ids" {
+  description = "Isolated subnet IDs (no internet access)"
+  value       = aws_subnet.isolated[*].id
 }
 `;
 

@@ -43,7 +43,7 @@ const KINESIS_TF = `resource "aws_kinesis_stream" "this" {
   stream_mode_details {
     stream_mode = "ON_DEMAND"
   }
-  encryption_type = "KMS"
+  encryption_type = "KMS"                # AWS-managed encryption (equivalent to CDK StreamEncryption.MANAGED)
   kms_key_id      = "alias/aws/kinesis"
   retention_period = 24
 

@@ -24,6 +24,12 @@ const DYNAMODB_TF = `resource "aws_dynamodb_table" "this" {
   server_side_encryption {
     enabled = true
   }
+
+  deletion_protection_enabled = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 `;
 

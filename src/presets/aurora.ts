@@ -73,7 +73,7 @@ resource "aws_rds_cluster_instance" "writer" {
 
 resource "aws_db_subnet_group" "this" {
   name       = "\${var.project_name}-\${var.environment}-aurora-subnet"
-  subnet_ids = aws_subnet.private[*].id
+  subnet_ids = aws_subnet.isolated[*].id
 
   tags = {
     Name = "\${var.project_name}-aurora-subnet-group"

@@ -249,6 +249,13 @@ export function createGluePreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "Glue", type: "Database" },
+      { service: "Glue", type: "Job (ETL)" },
+      { service: "S3", type: "Bucket (Glue scripts)" },
+      { service: "IAM", type: "Role (Glue)" },
+    ],
+
     markdown: {
       "README.md": [
         {

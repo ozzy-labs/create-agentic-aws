@@ -276,6 +276,15 @@ export function createVpcPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "VPC", type: "VPC" },
+      { service: "VPC", type: "Subnet" },
+      { service: "VPC", type: "Internet Gateway" },
+      { service: "VPC", type: "NAT Gateway" },
+      { service: "VPC", type: "Route Table" },
+      { service: "CloudWatch", type: "VPC Flow Log" },
+    ],
+
     markdown: {
       "README.md": [
         {

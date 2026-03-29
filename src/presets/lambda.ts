@@ -176,6 +176,11 @@ export function createLambdaPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "Lambda", type: "Function" },
+      { service: "IAM", type: "Role (Lambda execution)" },
+    ],
+
     markdown: {
       "README.md": [
         {

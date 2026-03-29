@@ -222,6 +222,13 @@ export function createEksPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "EKS", type: "Cluster" },
+      { service: "EKS", type: "Node Group" },
+      { service: "IAM", type: "Role (EKS cluster)" },
+      { service: "IAM", type: "Role (EKS node)" },
+    ],
+
     markdown: {
       "README.md": [
         {

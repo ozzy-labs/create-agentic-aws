@@ -165,6 +165,12 @@ export function createStepFunctionsPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "Step Functions", type: "State Machine" },
+      { service: "CloudWatch", type: "Log Group" },
+      { service: "IAM", type: "Role (Step Functions)" },
+    ],
+
     markdown: {
       "README.md": [
         {

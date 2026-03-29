@@ -147,6 +147,12 @@ export function createAuroraPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "Aurora", type: "Cluster" },
+      { service: "Aurora", type: "Instance" },
+      { service: "EC2", type: "Security Group" },
+    ],
+
     markdown: {
       "README.md": [
         {

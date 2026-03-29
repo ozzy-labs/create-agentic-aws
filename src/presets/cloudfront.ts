@@ -193,6 +193,8 @@ export function createCloudFrontPreset(): Preset {
       },
     },
 
+    awsResources: [{ service: "CloudFront", type: "Distribution" }],
+
     markdown: {
       "README.md": [
         {

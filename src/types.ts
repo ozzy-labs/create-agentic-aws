@@ -241,6 +241,16 @@ export interface Preset {
 
   /** MCP servers to register in agent config files. */
   readonly mcpServers?: Readonly<Record<string, McpServerConfig>>;
+
+  /** AWS resource types created by this preset (for --dry-run display). */
+  readonly awsResources?: readonly AwsResource[];
+}
+
+export interface AwsResource {
+  /** AWS service display name (e.g. "Lambda", "DynamoDB"). */
+  readonly service: string;
+  /** Resource type (e.g. "Function", "Table", "IAM Role"). */
+  readonly type: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -251,8 +261,15 @@ export class GenerateResult {
   /** All generated files (relative path → content). */
   readonly files: ReadonlyMap<string, string>;
 
-  constructor(files: ReadonlyMap<string, string>) {
+  /** AWS resources grouped by service (for --dry-run display). */
+  readonly awsResources: ReadonlyMap<string, readonly string[]>;
+
+  constructor(
+    files: ReadonlyMap<string, string>,
+    awsResources?: ReadonlyMap<string, readonly string[]>,
+  ) {
     this.files = files;
+    this.awsResources = awsResources ?? new Map();
   }
 
   /** Check whether a file exists in the output. */

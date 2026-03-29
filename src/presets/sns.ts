@@ -82,6 +82,8 @@ export function createSnsPreset(): Preset {
       },
     },
 
+    awsResources: [{ service: "SNS", type: "Topic" }],
+
     markdown: {
       "README.md": [
         {

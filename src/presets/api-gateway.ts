@@ -223,6 +223,8 @@ export function createApiGatewayPreset(): Preset {
       },
     },
 
+    awsResources: [{ service: "API Gateway", type: "HTTP API" }],
+
     markdown: {
       "README.md": [
         {

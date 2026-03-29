@@ -141,6 +141,10 @@ export const en = {
   autoResolvedVpc: "VPC auto-resolved (required by {{service}})",
   autoResolvedTypescript: "TypeScript auto-resolved (required by CDK)",
   skippedLanguages: "Language selection skipped (all resolved)",
+
+  // Dry-run
+  dryRunFiles: "Files to generate (dry-run)",
+  dryRunResources: "AWS resources to create",
 } as const;
 
 export type MessageKey = keyof typeof en;

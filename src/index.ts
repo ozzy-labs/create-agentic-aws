@@ -98,9 +98,17 @@ async function main(): Promise<void> {
   const result = generate(answers, registry);
 
   if (args.dryRun) {
-    // Dry-run: show file tree only
+    // Dry-run: show file tree and AWS resources
     const tree = renderTree(answers.projectName, [...result.files.keys()]);
-    p.note(tree, "Files to generate (dry-run)");
+    p.note(tree, t("dryRunFiles"));
+
+    if (result.awsResources.size > 0) {
+      const lines: string[] = [];
+      for (const [service, types] of result.awsResources) {
+        lines.push(`${pc.bold(service)}: ${types.join(", ")}`);
+      }
+      p.note(lines.join("\n"), t("dryRunResources"));
+    }
   } else {
     // Write files
     const outputDir = resolve(args.parentDir, answers.projectName);

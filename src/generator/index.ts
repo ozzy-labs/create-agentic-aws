@@ -130,5 +130,16 @@ export function generate(
   applyReadmeLabels(answers, presetNames, files);
   stripMergeMarkers(files);
 
-  return new GenerateResult(files);
+  // --- Collect AWS resources for dry-run display ---
+  const resourceMap = new Map<string, string[]>();
+  for (const preset of presets) {
+    if (!preset.awsResources) continue;
+    for (const res of preset.awsResources) {
+      const existing = resourceMap.get(res.service) ?? [];
+      if (!existing.includes(res.type)) existing.push(res.type);
+      resourceMap.set(res.service, existing);
+    }
+  }
+
+  return new GenerateResult(files, resourceMap);
 }

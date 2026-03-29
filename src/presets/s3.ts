@@ -102,6 +102,8 @@ export function createS3Preset(): Preset {
       },
     },
 
+    awsResources: [{ service: "S3", type: "Bucket" }],
+
     markdown: {
       "README.md": [
         {

@@ -141,6 +141,11 @@ export function createRdsPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "RDS", type: "Instance" },
+      { service: "EC2", type: "Security Group" },
+    ],
+
     markdown: {
       "README.md": [
         {

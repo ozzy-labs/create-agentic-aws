@@ -111,6 +111,8 @@ export function createKinesisPreset(): Preset {
       },
     },
 
+    awsResources: [{ service: "Kinesis", type: "Data Stream" }],
+
     markdown: {
       "README.md": [
         {

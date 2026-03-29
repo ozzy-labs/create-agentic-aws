@@ -180,6 +180,13 @@ export function createEc2Preset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "EC2", type: "Instance" },
+      { service: "EC2", type: "Security Group" },
+      { service: "IAM", type: "Role (EC2)" },
+      { service: "IAM", type: "Instance Profile" },
+    ],
+
     markdown: {
       "README.md": [
         {

@@ -325,6 +325,8 @@ export function createOpenSearchPreset(): Preset {
       },
     },
 
+    awsResources: [{ service: "OpenSearch", type: "Collection (Serverless)" }],
+
     markdown: {
       "README.md": [
         {

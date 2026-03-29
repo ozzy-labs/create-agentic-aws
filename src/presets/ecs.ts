@@ -330,6 +330,14 @@ export function createEcsPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "ECS", type: "Cluster" },
+      { service: "ECS", type: "Service (Fargate)" },
+      { service: "ECS", type: "Task Definition" },
+      { service: "ELB", type: "Load Balancer" },
+      { service: "IAM", type: "Role (ECS execution)" },
+    ],
+
     markdown: {
       "README.md": [
         {

@@ -94,6 +94,33 @@ export function createTypescriptPreset(): Preset {
             "```bash\npnpm run lint        # Run linters\npnpm run lint:fix    # Fix lint issues\npnpm test            # Run tests\npnpm run build       # Build\n```",
         },
       ],
+      "CLAUDE.md": [
+        {
+          heading: "## Commands",
+          content:
+            "```bash\npnpm run lint         # Run linters\npnpm test             # Run tests\npnpm run build        # Build\n```",
+        },
+      ],
+      ".amazonq/rules/project.md": [
+        {
+          heading: "## Commands",
+          content:
+            "```bash\npnpm run lint         # Run linters\npnpm test             # Run tests\npnpm run build        # Build\n```",
+        },
+      ],
+      ".github/copilot-instructions.md": [
+        {
+          heading: "## Commands",
+          content:
+            "```bash\npnpm run lint         # Run linters\npnpm test             # Run tests\npnpm run build        # Build\n```",
+        },
+      ],
+      ".github/PULL_REQUEST_TEMPLATE.md": [
+        {
+          heading: "## Checklist",
+          content: "- [ ] Tests pass (`pnpm test`)\n- [ ] Linters pass (`pnpm run lint:all`)",
+        },
+      ],
     },
   };
 }

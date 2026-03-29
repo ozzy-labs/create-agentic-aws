@@ -356,7 +356,23 @@ describe("generate — Markdown expansion", () => {
     expect(readme).toContain("- TypeScript");
   });
 
-  it("handles markdown for non-existent file (creates new)", () => {
+  it("handles markdown injection into existing file", () => {
+    const registry = makeRegistry(
+      makePreset("base"),
+      makePreset("cdk"),
+      makePreset("claude-code", {
+        files: { "CLAUDE.md": "# CLAUDE.md\n\n## Commands\n" },
+        markdown: {
+          "CLAUDE.md": [{ heading: "## Commands", content: "pnpm test" }],
+        },
+      }),
+    );
+    const result = generate(makeAnswers({ agents: ["claude-code"] }), registry);
+    expect(result.hasFile("CLAUDE.md")).toBe(true);
+    expect(result.readText("CLAUDE.md")).toContain("pnpm test");
+  });
+
+  it("skips markdown injection when target file does not exist", () => {
     const registry = makeRegistry(
       makePreset("base"),
       makePreset("cdk"),
@@ -367,8 +383,7 @@ describe("generate — Markdown expansion", () => {
       }),
     );
     const result = generate(makeAnswers({ agents: ["claude-code"] }), registry);
-    expect(result.hasFile("CLAUDE.md")).toBe(true);
-    expect(result.readText("CLAUDE.md")).toContain("pnpm test");
+    expect(result.hasFile("CLAUDE.md")).toBe(false);
   });
 });
 

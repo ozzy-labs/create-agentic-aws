@@ -13,9 +13,7 @@ This is an AWS project managed with Infrastructure as Code.
 
 ```bash
 pnpm install          # Install dependencies
-pnpm run lint         # Run linters
-pnpm test             # Run tests
-pnpm run build        # Build
+pnpm run prepare      # Set up git hooks
 ```
 
 ## Coding Conventions

@@ -253,6 +253,12 @@ export function createRedshiftPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "Redshift", type: "Namespace (Serverless)" },
+      { service: "Redshift", type: "Workgroup (Serverless)" },
+      { service: "EC2", type: "Security Group" },
+    ],
+
     markdown: {
       "README.md": [
         {

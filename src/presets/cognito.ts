@@ -150,6 +150,11 @@ export function createCognitoPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "Cognito", type: "User Pool" },
+      { service: "Cognito", type: "User Pool Client" },
+    ],
+
     markdown: {
       "README.md": [
         {

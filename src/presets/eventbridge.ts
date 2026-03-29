@@ -114,6 +114,11 @@ export function createEventBridgePreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "EventBridge", type: "Event Bus" },
+      { service: "EventBridge", type: "Archive" },
+    ],
+
     markdown: {
       "README.md": [
         {

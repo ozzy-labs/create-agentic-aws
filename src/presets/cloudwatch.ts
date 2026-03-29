@@ -111,6 +111,11 @@ export function createCloudWatchPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "CloudWatch", type: "Dashboard" },
+      { service: "SNS", type: "Topic (alarms)" },
+    ],
+
     markdown: {
       "README.md": [
         {

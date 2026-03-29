@@ -249,6 +249,13 @@ export function createBedrockKbPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "Bedrock", type: "Knowledge Base" },
+      { service: "Bedrock", type: "Data Source" },
+      { service: "S3", type: "Bucket (KB data)" },
+      { service: "IAM", type: "Role (Knowledge Base)" },
+    ],
+
     markdown: {
       "README.md": [
         {

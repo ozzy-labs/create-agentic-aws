@@ -143,4 +143,8 @@ export const ja: Record<MessageKey, string> = {
   autoResolvedVpc: "VPC を自動追加しました（{{service}} が必要とするため）",
   autoResolvedTypescript: "TypeScript を自動追加しました（CDK が必要とするため）",
   skippedLanguages: "言語選択をスキップしました（全て解決済み）",
+
+  // Dry-run
+  dryRunFiles: "生成されるファイル（dry-run）",
+  dryRunResources: "作成される AWS リソース",
 };

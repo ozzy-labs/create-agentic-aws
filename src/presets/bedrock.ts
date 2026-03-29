@@ -112,6 +112,8 @@ export function createBedrockPreset(): Preset {
       },
     },
 
+    awsResources: [{ service: "IAM", type: "Policy (Bedrock access)" }],
+
     markdown: {
       "README.md": [
         {

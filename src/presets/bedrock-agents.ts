@@ -317,6 +317,13 @@ export function createBedrockAgentsPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "Bedrock", type: "Agent" },
+      { service: "Bedrock", type: "Action Group" },
+      { service: "Lambda", type: "Function (action group)" },
+      { service: "IAM", type: "Role (Agent)" },
+    ],
+
     markdown: {
       "README.md": [
         {

@@ -111,6 +111,11 @@ export function createSqsPreset(): Preset {
       },
     },
 
+    awsResources: [
+      { service: "SQS", type: "Queue" },
+      { service: "SQS", type: "Dead-Letter Queue" },
+    ],
+
     markdown: {
       "README.md": [
         {

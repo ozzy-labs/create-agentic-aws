@@ -133,6 +133,8 @@ export function createDynamoDbPreset(): Preset {
       },
     },
 
+    awsResources: [{ service: "DynamoDB", type: "Table" }],
+
     markdown: {
       "README.md": [
         {

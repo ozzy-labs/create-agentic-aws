@@ -2,7 +2,7 @@ import {
   EventBridgeClient,
   PutEventsCommand,
 } from "@aws-sdk/client-eventbridge";
-import type { AppEvent } from "./events";
+import type { AppEvent } from "./events.js";
 
 const client = new EventBridgeClient({});
 

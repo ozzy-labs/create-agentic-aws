@@ -1,4 +1,6 @@
 import type { Handler } from "aws-lambda";
+import { withObservability } from "../../lib/observability/middleware";
+import { logger } from "../powertools";
 
 interface ActionGroupEvent {
   readonly messageVersion: string;
@@ -42,10 +44,10 @@ interface ActionGroupResponse {
   readonly promptSessionAttributes: Record<string, string>;
 }
 
-export const handler: Handler<ActionGroupEvent, ActionGroupResponse> = async (event) => {
+const baseHandler: Handler<ActionGroupEvent, ActionGroupResponse> = async (event) => {
   const { actionGroup, apiPath, httpMethod, parameters } = event;
 
-  console.log("Action Group invoked", { actionGroup, apiPath, httpMethod });
+  logger.info("Action Group invoked", { actionGroup, apiPath, httpMethod });
 
   // NEXT: Implement your action group logic based on apiPath and httpMethod
   const result = {
@@ -70,3 +72,5 @@ export const handler: Handler<ActionGroupEvent, ActionGroupResponse> = async (ev
     promptSessionAttributes: event.promptSessionAttributes,
   };
 };
+
+export const handler = withObservability(baseHandler);

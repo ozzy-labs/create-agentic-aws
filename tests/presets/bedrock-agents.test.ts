@@ -71,7 +71,13 @@ describe("bedrock-agents preset", () => {
       const construct = cdkContrib?.files["infra/lib/constructs/bedrock-agents.ts"];
       expect(construct).toContain("new lambda.Function");
       expect(construct).toContain("ActionGroupFunction");
-      expect(construct).not.toContain("BedrockAgentProps");
+    });
+
+    it("construct accepts optional BedrockAgentProps", () => {
+      const construct = cdkContrib?.files["infra/lib/constructs/bedrock-agents.ts"];
+      expect(construct).toContain("BedrockAgentProps");
+      expect(construct).toContain("knowledgeBaseId");
+      expect(construct).toContain("props?: BedrockAgentProps");
     });
 
     it("construct includes action group configuration", () => {

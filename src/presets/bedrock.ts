@@ -27,7 +27,8 @@ const BEDROCK_TF_OUTPUTS = `output "bedrock_policy_arn" {
 }
 `;
 
-const BEDROCK_CONSTRUCT = `import * as iam from "aws-cdk-lib/aws-iam";
+const BEDROCK_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
+import * as iam from "aws-cdk-lib/aws-iam";
 import type { Construct } from "constructs";
 
 export class BedrockAccess extends Construct {

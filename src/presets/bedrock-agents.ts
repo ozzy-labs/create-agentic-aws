@@ -280,6 +280,11 @@ export function createBedrockAgentsPreset(): Preset {
             imports: 'import { BedrockAgent } from "./constructs/bedrock-agents";',
             constructs: '    new BedrockAgent(this, "BedrockAgent");',
           },
+          "infra/package.json": {
+            devDependencies: {
+              esbuild: "^0.25.0",
+            },
+          },
         },
       },
       terraform: {

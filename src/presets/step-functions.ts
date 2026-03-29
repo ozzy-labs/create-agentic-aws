@@ -122,6 +122,7 @@ resource "aws_iam_role_policy" "sfn_logging" {
         "logs:DescribeResourcePolicies",
         "logs:DescribeLogGroups",
       ]
+      # Log delivery APIs require Resource = "*" per AWS documentation
       Resource = "*"
     }]
   })

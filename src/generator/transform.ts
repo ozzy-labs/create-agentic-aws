@@ -497,6 +497,23 @@ export function applyCognitoApiGatewayAuth(files: Map<string, string>): void {
 }
 
 // ---------------------------------------------------------------------------
+// API Gateway REST type override (CDK default is HTTP; switch to REST when selected)
+// ---------------------------------------------------------------------------
+
+export function applyApiGatewayRestType(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyApiGatewayRestType";
+  if (iac === "cdk") {
+    const appStack = requireFile(files, "infra/lib/app-stack.ts", ctx);
+    files.set(
+      "infra/lib/app-stack.ts",
+      safeReplace(appStack, '      type: "http",', '      type: "rest",', ctx),
+    );
+  }
+  // Terraform REST API is not yet supported — HTTP API is the only TF template.
+  // REST selection with Terraform will keep the HTTP API template.
+}
+
+// ---------------------------------------------------------------------------
 // #327: Bedrock Agent + KB wiring
 // ---------------------------------------------------------------------------
 

@@ -93,10 +93,11 @@ describe("api-gateway preset", () => {
       expect(appStack).toContain('import { ApiGateway } from "./constructs/api-gateway"');
     });
 
-    it("injects api-gateway construct into app-stack.ts", () => {
+    it("injects api-gateway construct into app-stack.ts with http type by default", () => {
       const result = generate(makeAnswers(), registry);
       const appStack = result.readText("infra/lib/app-stack.ts");
       expect(appStack).toContain("new ApiGateway");
+      expect(appStack).toContain('type: "http"');
     });
 
     it("construct includes CORS configuration", () => {

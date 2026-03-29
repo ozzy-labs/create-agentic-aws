@@ -10,6 +10,7 @@ import {
 import { substituteVars } from "./helpers.js";
 import { resolvePresets } from "./resolve.js";
 import {
+  applyApiGatewayRestType,
   applyBedrockAgentKbWiring,
   applyBedrockKbOpenSearchWiring,
   applyCloudWatchWidgets,
@@ -80,6 +81,9 @@ export function generate(
   }
   if (presetNames.has("dynamodb") && presetNames.has("lambda")) {
     applyDynamoDbLambdaIntegration(answers.iac, files);
+  }
+  if (presetNames.has("api-gateway") && answers.apiGatewayOptions?.type === "rest") {
+    applyApiGatewayRestType(answers.iac, files);
   }
   if (presetNames.has("cognito") && presetNames.has("api-gateway") && answers.iac === "terraform") {
     applyCognitoApiGatewayAuth(files);

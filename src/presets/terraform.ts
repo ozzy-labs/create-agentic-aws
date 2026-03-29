@@ -97,6 +97,11 @@ export function createTerraformPreset(): Preset {
           content:
             "- **Terraform**: Infrastructure as Code\n- **tflint**: Terraform linting (AWS plugin)",
         },
+        {
+          heading: "## Development",
+          content:
+            "```bash\ncd infra\nterraform fmt       # Format Terraform files\nterraform validate  # Validate configuration\nterraform plan      # Preview changes\nterraform apply     # Apply changes\n```",
+        },
       ],
       "docs/cd-setup.md": [
         {

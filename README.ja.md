@@ -41,7 +41,9 @@ bash scripts/setup.sh
 | Agent | Amazon Q, Claude Code, GitHub Copilot |
 | IaC | CDK (TypeScript), Terraform |
 | Compute | Lambda, ECS, EKS, EC2 |
+| AI | Bedrock, Bedrock Knowledge Bases, Bedrock Agents, OpenSearch |
 | Data & Storage | S3, DynamoDB, Aurora, RDS |
+| Data Pipeline & Analytics | Kinesis, Glue, Redshift |
 | Application Integration | SQS, SNS, EventBridge, Step Functions |
 | Networking & API | API Gateway, CloudFront |
 | Security & Identity | Cognito |
@@ -51,7 +53,7 @@ bash scripts/setup.sh
 
 ### Service x IaC マトリクス
 
-各 AWS サービスプリセットは IaC 固有の貢献を提供します。CDK は Construct を生成し、Terraform は .tf ファイルを生成します。合計: 17 サービス x 2 IaC = 34 テンプレート。
+各 AWS サービスプリセットは IaC 固有の貢献を提供します。CDK は Construct を生成し、Terraform は .tf ファイルを生成します。合計: 24 サービス x 2 IaC = 48 テンプレート。
 
 ウィザードの選択と生成される AWS リソースの対応表は [docs/resource-map.md](docs/resource-map.md) を参照してください。
 
@@ -99,22 +101,13 @@ pnpm run verify       # 生成出力の検証
 
 ### ロードマップ
 
-開発は [GitHub Milestones](https://github.com/ozzy-labs/create-agentic-aws/milestones) と [GitHub Projects](https://github.com/orgs/ozzy-labs/projects) で管理しています。
-
-| Milestone | テーマ |
-|-----------|-------|
-| M1 | プロジェクト基盤（GitHub 管理 + 開発環境 + CI） |
-| M2 | コアエンジン、base プリセット、ウィザード、エージェント、言語、i18n |
-| M3 | CDK + サーバーレスサービス (Lambda, API GW, S3, DynamoDB, SQS, CloudFront, Cognito, CloudWatch) |
-| M4 | M3 サービスの Terraform 対応 |
-| M5 | コンテナ/サーバー + RDB (ECS, EKS, EC2, VPC, Aurora, RDS) |
-| M6 | イベント駆動 (SNS, EventBridge, Step Functions) |
+開発は [GitHub Milestones](https://github.com/ozzy-labs/create-agentic-aws/milestones) で管理しています。
 
 ## アーキテクチャ
 
 - `src/presets/*.ts` — プリセットロジック（マージ貢献、IaC 貢献、依存関係）
 - `templates/*/` — プリセットのファイルアセット（そのまま出力にコピー）
-- `src/generator.ts` — 合成エンジン（解決 → マージ → 出力）
+- `src/generator/` — 合成エンジン（解決 → 変換 → ファイナライズ → 出力）
 - `src/merge.ts` — ファイルタイプ別マージロジック（JSON, YAML, TOML, HCL, Markdown）
 
 詳細は [docs/design.md](docs/design.md) を参照してください。

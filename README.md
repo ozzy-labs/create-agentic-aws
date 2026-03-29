@@ -41,7 +41,9 @@ Composable presets across 13 layers. Each provides owned files + IaC contributio
 | Agent | Amazon Q, Claude Code, GitHub Copilot |
 | IaC | CDK (TypeScript), Terraform |
 | Compute | Lambda, ECS, EKS, EC2 |
+| AI | Bedrock, Bedrock Knowledge Bases, Bedrock Agents, OpenSearch |
 | Data & Storage | S3, DynamoDB, Aurora, RDS |
+| Data Pipeline & Analytics | Kinesis, Glue, Redshift |
 | Application Integration | SQS, SNS, EventBridge, Step Functions |
 | Networking & API | API Gateway, CloudFront |
 | Security & Identity | Cognito |
@@ -51,7 +53,7 @@ Composable presets across 13 layers. Each provides owned files + IaC contributio
 
 ### Service x IaC matrix
 
-Each AWS service preset provides IaC-specific contributions. CDK generates Constructs; Terraform generates .tf files. Total: 17 services x 2 IaC = 34 templates.
+Each AWS service preset provides IaC-specific contributions. CDK generates Constructs; Terraform generates .tf files. Total: 24 services x 2 IaC = 48 templates.
 
 See [docs/resource-map.md](docs/resource-map.md) for a complete mapping of wizard selections to generated AWS resources (CDK constructs and Terraform resource types).
 
@@ -99,22 +101,13 @@ pnpm run verify       # Verify generated output
 
 ### Roadmap
 
-Development is tracked via [GitHub Milestones](https://github.com/ozzy-labs/create-agentic-aws/milestones) and [GitHub Projects](https://github.com/orgs/ozzy-labs/projects).
-
-| Milestone | Theme |
-|-----------|-------|
-| M1 | Project foundation (GitHub management + dev environment + CI) |
-| M2 | Core engine, base preset, wizard, agents, languages, i18n |
-| M3 | CDK + serverless services (Lambda, API GW, S3, DynamoDB, SQS, CloudFront, Cognito, CloudWatch) |
-| M4 | Terraform support for M3 services |
-| M5 | Container/Server + RDB (ECS, EKS, EC2, VPC, Aurora, RDS) |
-| M6 | Event-driven (SNS, EventBridge, Step Functions) |
+Development is tracked via [GitHub Milestones](https://github.com/ozzy-labs/create-agentic-aws/milestones).
 
 ## Architecture
 
 - `src/presets/*.ts` — Preset logic (merge contributions, IaC contributions, dependencies)
 - `templates/*/` — Preset file assets (copied as-is to output)
-- `src/generator.ts` — Composition engine (resolve → merge → output)
+- `src/generator/` — Composition engine (resolve → transform → finalize → output)
 - `src/merge.ts` — Per-filetype merge logic (JSON, YAML, TOML, HCL, Markdown)
 
 See [docs/design.md](docs/design.md) for the full design document.

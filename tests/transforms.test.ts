@@ -247,6 +247,62 @@ describe("transforms", () => {
       expect(appStack).toContain('type: "rest"');
     });
 
+    it("CDK: Aurora MySQL engine option switches to auroraMysql", () => {
+      const result = generateProject({
+        data: ["aurora"],
+        auroraOptions: { capacity: "serverless-v2", engine: "mysql" },
+      });
+      const construct = result.readText("infra/lib/constructs/aurora.ts");
+      expect(construct).toContain("auroraMysql");
+      expect(construct).toContain("AuroraMysqlEngineVersion");
+      expect(construct).not.toContain("auroraPostgres");
+    });
+
+    it("TF: Aurora MySQL engine option switches engine and port", () => {
+      const result = generateProject({
+        iac: "terraform",
+        data: ["aurora"],
+        auroraOptions: { capacity: "serverless-v2", engine: "mysql" },
+      });
+      const tf = result.readText("infra/aurora.tf");
+      expect(tf).toContain('"aurora-mysql"');
+      expect(tf).toContain("3306");
+      expect(tf).not.toContain("5432");
+    });
+
+    it("CDK: Aurora provisioned capacity option removes serverless settings", () => {
+      const result = generateProject({
+        data: ["aurora"],
+        auroraOptions: { capacity: "provisioned", engine: "postgresql" },
+      });
+      const construct = result.readText("infra/lib/constructs/aurora.ts");
+      expect(construct).toContain("ClusterInstance.provisioned");
+      expect(construct).toContain("InstanceClass.R6G");
+      expect(construct).not.toContain("serverlessV2MinCapacity");
+    });
+
+    it("TF: Aurora provisioned capacity option removes serverless config", () => {
+      const result = generateProject({
+        iac: "terraform",
+        data: ["aurora"],
+        auroraOptions: { capacity: "provisioned", engine: "postgresql" },
+      });
+      const tf = result.readText("infra/aurora.tf");
+      expect(tf).toContain('"db.r6g.large"');
+      expect(tf).not.toContain("serverlessv2_scaling_configuration");
+      expect(tf).not.toContain('"db.serverless"');
+    });
+
+    it("CDK: Aurora MySQL + provisioned combines both options", () => {
+      const result = generateProject({
+        data: ["aurora"],
+        auroraOptions: { capacity: "provisioned", engine: "mysql" },
+      });
+      const construct = result.readText("infra/lib/constructs/aurora.ts");
+      expect(construct).toContain("auroraMysql");
+      expect(construct).toContain("ClusterInstance.provisioned");
+    });
+
     it("CDK: OpenSearch managed-cluster patches bedrock-kb storageConfiguration", () => {
       const result = generateProject({
         ai: ["bedrock", "bedrock-kb", "opensearch"],

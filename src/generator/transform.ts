@@ -98,6 +98,69 @@ export function applyRdsEngineOption(iac: IacPresetName, files: Map<string, stri
 }
 
 // ---------------------------------------------------------------------------
+// Aurora engine option (PostgreSQL → MySQL)
+// ---------------------------------------------------------------------------
+
+export function applyAuroraEngineOption(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyAuroraEngineOption";
+  if (iac === "cdk") {
+    const construct = requireFile(files, "infra/lib/constructs/aurora.ts", ctx);
+    const patched = safeReplace(
+      construct,
+      "engine: rds.DatabaseClusterEngine.auroraPostgres({\n        version: rds.AuroraPostgresEngineVersion.VER_16_4,\n      })",
+      "engine: rds.DatabaseClusterEngine.auroraMysql({\n        version: rds.AuroraMysqlEngineVersion.VER_3_08_0,\n      })",
+      ctx,
+    );
+    files.set("infra/lib/constructs/aurora.ts", patched);
+  } else {
+    let tf = requireFile(files, "infra/aurora.tf", ctx);
+    tf = safeReplace(tf, '"aurora-postgresql"', '"aurora-mysql"', ctx);
+    tf = safeReplace(
+      tf,
+      'engine_version         = "16.4"',
+      'engine_version         = "3.08.0"',
+      ctx,
+    );
+    tf = safeReplace(tf, "from_port   = 5432", "from_port   = 3306", ctx);
+    tf = safeReplace(tf, "to_port     = 5432", "to_port     = 3306", ctx);
+    files.set("infra/aurora.tf", tf);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Aurora capacity option (Serverless v2 → Provisioned)
+// ---------------------------------------------------------------------------
+
+export function applyAuroraCapacityOption(iac: IacPresetName, files: Map<string, string>): void {
+  const ctx = "applyAuroraCapacityOption";
+  if (iac === "cdk") {
+    const construct = requireFile(files, "infra/lib/constructs/aurora.ts", ctx);
+    const patched = safeReplace(
+      construct,
+      '      serverlessV2MinCapacity: 0.5,\n      serverlessV2MaxCapacity: 4,\n      writer: rds.ClusterInstance.serverlessV2("writer"),',
+      '      writer: rds.ClusterInstance.provisioned("writer", {\n        instanceType: ec2.InstanceType.of(ec2.InstanceClass.R6G, ec2.InstanceSize.LARGE),\n      }),',
+      ctx,
+    );
+    files.set("infra/lib/constructs/aurora.ts", patched);
+  } else {
+    let tf = requireFile(files, "infra/aurora.tf", ctx);
+    tf = safeReplace(
+      tf,
+      `\n  serverlessv2_scaling_configuration {\n    min_capacity = 0.5\n    max_capacity = 4\n  }`,
+      "",
+      ctx,
+    );
+    tf = safeReplace(
+      tf,
+      '  instance_class      = "db.serverless"',
+      '  instance_class      = "db.r6g.large"',
+      ctx,
+    );
+    files.set("infra/aurora.tf", tf);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // OpenSearch managed-cluster mode
 // ---------------------------------------------------------------------------
 
@@ -470,6 +533,40 @@ export function applyReadmeLabels(
         "readmeRdsLabel",
       ),
     );
+  }
+
+  if (answers.auroraOptions?.engine === "mysql") {
+    const readme = requireFile(files, "README.md", "readmeAuroraEngineLabel");
+    files.set(
+      "README.md",
+      safeReplace(
+        readme,
+        "PostgreSQL-compatible serverless v2",
+        "MySQL-compatible serverless v2",
+        "readmeAuroraEngineLabel",
+      ),
+    );
+  }
+
+  if (answers.auroraOptions?.capacity === "provisioned") {
+    const readme = requireFile(files, "README.md", "readmeAuroraCapacityLabel");
+    let patched = safeReplace(
+      readme,
+      answers.auroraOptions?.engine === "mysql"
+        ? "MySQL-compatible serverless v2"
+        : "PostgreSQL-compatible serverless v2",
+      answers.auroraOptions?.engine === "mysql"
+        ? "MySQL-compatible provisioned cluster"
+        : "PostgreSQL-compatible provisioned cluster",
+      "readmeAuroraCapacityLabel",
+    );
+    patched = safeReplace(
+      patched,
+      "Review Serverless v2 min/max ACU for your workload",
+      "Review instance class and storage settings for your workload",
+      "readmeAuroraCapacityLabel",
+    );
+    files.set("README.md", patched);
   }
 
   if (presetNames.has("lambda") && presetNames.has("python") && !presetNames.has("typescript")) {

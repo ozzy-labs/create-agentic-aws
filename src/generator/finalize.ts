@@ -150,6 +150,45 @@ export function expandMarkdownTemplates(
 }
 
 // ---------------------------------------------------------------------------
+// Normalize package.json key order
+// ---------------------------------------------------------------------------
+
+const PACKAGE_JSON_KEY_ORDER = [
+  "name",
+  "version",
+  "private",
+  "type",
+  "description",
+  "scripts",
+  "engines",
+  "dependencies",
+  "devDependencies",
+  "pnpm",
+];
+
+export function normalizePackageJsonKeys(files: Map<string, string>): void {
+  const raw = files.get("package.json");
+  if (!raw) return;
+
+  let obj: Record<string, unknown>;
+  try {
+    obj = JSON.parse(raw) as Record<string, unknown>;
+  } catch {
+    return;
+  }
+
+  const ordered: Record<string, unknown> = {};
+  for (const key of PACKAGE_JSON_KEY_ORDER) {
+    if (key in obj) ordered[key] = obj[key];
+  }
+  for (const key of Object.keys(obj)) {
+    if (!(key in ordered)) ordered[key] = obj[key];
+  }
+
+  files.set("package.json", `${JSON.stringify(ordered, null, 2)}\n`);
+}
+
+// ---------------------------------------------------------------------------
 // Strip merge markers
 // ---------------------------------------------------------------------------
 

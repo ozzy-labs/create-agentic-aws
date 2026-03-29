@@ -766,9 +766,9 @@ export function applyCloudWatchWidgets(
       }
 
       if (tfWidgets.length > 0) {
-        // Replace the widgets array in the dashboard
+        // Insert additional widgets after the base text widget
         const widgetList = tfWidgets.join(",\n");
-        const patched = cwTf.replace("    ]\n  })\n}", `,\n${widgetList}\n    ]\n  })\n}`);
+        const patched = cwTf.replace("      }\n    ]", `      },\n${widgetList}\n    ]`);
         files.set("infra/cloudwatch.tf", patched);
       }
     }

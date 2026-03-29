@@ -5,7 +5,6 @@ import type { Preset } from "../types.js";
 // ---------------------------------------------------------------------------
 
 const OPENSEARCH_SERVERLESS_CONSTRUCT = `import * as cdk from "aws-cdk-lib";
-import * as iam from "aws-cdk-lib/aws-iam";
 import * as opensearchserverless from "aws-cdk-lib/aws-opensearchserverless";
 import type { Construct } from "constructs";
 
@@ -55,7 +54,6 @@ export class OpenSearchCollection extends Construct {
       },
     );
 
-    const callerArn = new iam.ArnPrincipal(cdk.Aws.ACCOUNT_ID);
     const accessPolicy = new opensearchserverless.CfnAccessPolicy(
       this,
       "AccessPolicy",

@@ -53,6 +53,8 @@ Composable presets across 13 layers. Each provides owned files + IaC contributio
 
 Each AWS service preset provides IaC-specific contributions. CDK generates Constructs; Terraform generates .tf files. Total: 17 services x 2 IaC = 34 templates.
 
+See [docs/resource-map.md](docs/resource-map.md) for a complete mapping of wizard selections to generated AWS resources (CDK constructs and Terraform resource types).
+
 See [docs/design.md](docs/design.md) for the full preset details, dependency chains, and file ownership.
 
 ## What You Get

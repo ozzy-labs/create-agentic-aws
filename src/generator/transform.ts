@@ -668,7 +668,6 @@ export function applyCloudWatchWidgets(
   presetNames: ReadonlySet<string>,
   iac: IacPresetName,
   files: Map<string, string>,
-  vars: Record<string, string>,
 ): void {
   const widgets: string[] = [];
 

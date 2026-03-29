@@ -120,6 +120,10 @@ export function createKinesisPreset(): Preset {
           content: "- **Amazon Kinesis Data Streams**: Real-time data streaming (on-demand mode)",
         },
         {
+          heading: "## Project Structure",
+          content: "- **`lib/`** — Shared library code",
+        },
+        {
           heading: "## Setup Checklist",
           content: "- [ ] **Kinesis**: Review shard count and retention period",
         },

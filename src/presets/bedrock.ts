@@ -121,6 +121,10 @@ export function createBedrockPreset(): Preset {
           content: "- **Amazon Bedrock**: Foundation model API (Claude, Titan, etc.)",
         },
         {
+          heading: "## Project Structure",
+          content: "- **`lib/`** — Shared library code",
+        },
+        {
           heading: "## Setup Checklist",
           content: "- [ ] **Bedrock**: Enable model access in the AWS Bedrock console",
         },

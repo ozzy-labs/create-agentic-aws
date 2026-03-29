@@ -126,6 +126,10 @@ export function createEventBridgePreset(): Preset {
           content: "- **Amazon EventBridge**: Event bus with archive",
         },
         {
+          heading: "## Project Structure",
+          content: "- **`lib/`** — Shared library code",
+        },
+        {
           heading: "## Setup Checklist",
           content: "- [ ] **EventBridge**: Define event rules and targets for your event bus",
         },

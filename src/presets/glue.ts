@@ -150,9 +150,23 @@ resource "aws_iam_role_policy_attachment" "glue_service" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-resource "aws_iam_role_policy_attachment" "glue_s3" {
-  role       = aws_iam_role.glue.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
+resource "aws_iam_role_policy" "glue_s3" {
+  name = "\${var.project_name}-\${var.environment}-glue-s3"
+  role = aws_iam_role.glue.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = ["s3:GetObject", "s3:PutObject", "s3:ListBucket"]
+        Resource = [
+          aws_s3_bucket.glue_scripts.arn,
+          "\${aws_s3_bucket.glue_scripts.arn}/*",
+        ]
+      },
+    ]
+  })
 }
 
 resource "aws_glue_job" "etl" {

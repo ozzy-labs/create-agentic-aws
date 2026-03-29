@@ -60,10 +60,10 @@ export async function runWizard(defaultName?: string): Promise<WizardAnswers> {
       placeholder: t("projectNamePlaceholder"),
       initialValue: defaultName ?? "",
       validate(value) {
-        if (!value.trim()) return "Required";
-        if (value.length > 100) return "Must be 100 characters or fewer";
+        if (!value.trim()) return t("validationRequired");
+        if (value.length > 100) return t("validationMaxLength");
         if (!/^[a-z0-9][a-z0-9._-]*$/.test(value)) {
-          return "Must start with lowercase letter/number, then lowercase letters, numbers, dots, hyphens, or underscores";
+          return t("validationProjectNameFormat");
         }
         return undefined;
       },

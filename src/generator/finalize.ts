@@ -99,7 +99,14 @@ export function distributeMcpServers(
     if (!configPath) continue;
 
     const raw = files.get(configPath);
-    const existing = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+    let existing: Record<string, unknown> = {};
+    if (raw) {
+      try {
+        existing = JSON.parse(raw) as Record<string, unknown>;
+      } catch {
+        existing = {};
+      }
+    }
 
     const merged = {
       ...existing,

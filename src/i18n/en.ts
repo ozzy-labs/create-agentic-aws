@@ -8,32 +8,27 @@ export const en = {
   outroNextMiseInstall: "  mise install",
   outroNextPnpmInstall: "  pnpm install",
   outroNextGitInit: '  git init && git add -A && git commit -m "init"',
+  directoryExists: "Directory {{path}} already exists. Overwrite?",
+  cancelled: "Operation cancelled.",
 
   // Wizard questions
   projectName: "Project name",
   projectNamePlaceholder: "my-aws-project",
+  validationRequired: "Required",
+  validationMaxLength: "Must be 100 characters or fewer",
+  validationProjectNameFormat:
+    "Must start with lowercase letter/number, then lowercase letters, numbers, dots, hyphens, or underscores",
   agents: "AI agent tools",
-  agentsHint: "Select all that apply",
   iac: "Infrastructure as Code",
   compute: "Compute",
-  computeHint: "Select all that apply",
   ai: "AI",
-  aiHint: "Select all that apply",
-
   data: "Data & Storage",
-  dataHint: "Select all that apply",
   dataPipeline: "Data Pipeline & Analytics",
-  dataPipelineHint: "Select all that apply",
   integration: "Application Integration",
-  integrationHint: "Select all that apply",
   networking: "Networking & API",
-  networkingHint: "Select all that apply",
   security: "Security & Identity",
-  securityHint: "Select all that apply",
   observability: "Observability",
-  observabilityHint: "Select all that apply",
   languages: "Language toolchain",
-  languagesHint: "Select additional languages",
 
   // Wizard choices — Agents
   "agent.amazon-q": "Amazon Q Developer",
@@ -146,9 +141,6 @@ export const en = {
   autoResolvedVpc: "VPC auto-resolved (required by {{service}})",
   autoResolvedTypescript: "TypeScript auto-resolved (required by CDK)",
   skippedLanguages: "Language selection skipped (all resolved)",
-
-  // Errors
-  cancelled: "Operation cancelled.",
 } as const;
 
 export type MessageKey = keyof typeof en;

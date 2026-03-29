@@ -168,7 +168,11 @@ export function applyBedrockKbOpenSearchWiring(
     const lines = patched.split("\n");
     const osIdx = lines.findIndex((l) => l.includes(`const ${varName} = new ${constructClass}(`));
     const kbIdx = lines.findIndex((l) => l.includes("new BedrockKnowledgeBase("));
-    if (osIdx !== -1 && kbIdx !== -1 && osIdx > kbIdx) {
+    if (osIdx === -1 || kbIdx === -1) {
+      console.warn(
+        `[${ctx}] Could not reorder constructs: ${constructClass} (idx=${osIdx}), BedrockKnowledgeBase (idx=${kbIdx})`,
+      );
+    } else if (osIdx > kbIdx) {
       const [osLine] = lines.splice(osIdx, 1);
       lines.splice(kbIdx, 0, osLine);
       patched = lines.join("\n");

@@ -220,6 +220,10 @@ export function createApiGatewayPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **Amazon API Gateway**: REST / HTTP API",
         },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **API Gateway**: Update CORS `allow_origins` to your production domain",
+        },
       ],
     },
   };

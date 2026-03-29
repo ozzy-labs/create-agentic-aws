@@ -239,7 +239,8 @@ export function createGluePreset(): Preset {
       "README.md": [
         {
           heading: "## Tech Stack",
-          content: "- **AWS Glue**: Serverless ETL with PySpark (Glue 4.0)",
+          content:
+            "- **AWS Glue**: Serverless ETL with PySpark (Glue 4.0) — creates its own S3 bucket for scripts and output",
         },
       ],
     },

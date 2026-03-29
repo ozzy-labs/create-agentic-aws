@@ -70,8 +70,8 @@ resource "aws_ecs_task_definition" "this" {
   family                   = "\${var.project_name}-\${var.environment}-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
+  cpu                      = var.ecs_cpu
+  memory                   = var.ecs_memory
   execution_role_arn       = aws_iam_role.ecs_execution.arn
 
   container_definitions = jsonencode([{
@@ -102,7 +102,7 @@ resource "aws_ecs_service" "this" {
   name            = "\${var.project_name}-\${var.environment}-service"
   cluster         = aws_ecs_cluster.this.id
   task_definition = aws_ecs_task_definition.this.arn
-  desired_count   = 1
+  desired_count   = var.ecs_desired_count
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -160,7 +160,24 @@ resource "aws_cloudwatch_log_group" "ecs" {
 }
 `;
 
-const ECS_TF_VARS = "";
+const ECS_TF_VARS = `variable "ecs_cpu" {
+  description = "CPU units for ECS task"
+  type        = number
+  default     = 256
+}
+
+variable "ecs_memory" {
+  description = "Memory (MiB) for ECS task"
+  type        = number
+  default     = 512
+}
+
+variable "ecs_desired_count" {
+  description = "Desired number of ECS tasks"
+  type        = number
+  default     = 1
+}
+`;
 
 const ECS_TF_OUTPUTS = `output "ecs_cluster_name" {
   description = "ECS cluster name"
@@ -243,6 +260,10 @@ export function createEcsPreset(): Preset {
           heading: "## Tech Stack",
           content:
             "- **Amazon ECS**: Container orchestration (Fargate)\n- **Docker**: Container runtime",
+        },
+        {
+          heading: "## Setup Checklist",
+          content: "- [ ] **ECS**: Run `pnpm install` before Docker build (lock file required)",
         },
       ],
     },

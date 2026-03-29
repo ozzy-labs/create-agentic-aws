@@ -72,7 +72,7 @@ const RDS_TF = `resource "aws_db_instance" "this" {
 
 resource "aws_db_subnet_group" "rds" {
   name       = "\${var.project_name}-\${var.environment}-rds-subnet"
-  subnet_ids = aws_subnet.private[*].id
+  subnet_ids = aws_subnet.isolated[*].id
 
   tags = {
     Name = "\${var.project_name}-rds-subnet-group"

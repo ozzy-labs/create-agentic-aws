@@ -2,6 +2,11 @@ import type { Preset } from "../types.js";
 
 const S3_TF = `resource "aws_s3_bucket" "this" {
   bucket_prefix = "\${var.project_name}-\${var.environment}-"
+  force_destroy = false
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_s3_bucket_versioning" "this" {

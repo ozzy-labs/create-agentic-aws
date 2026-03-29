@@ -167,7 +167,7 @@ export function createEksPreset(): Preset {
     merge: {
       ".mise.toml": {
         tools: {
-          hadolint: "0",
+          hadolint: "2",
         },
       },
       ".devcontainer/devcontainer.json": {

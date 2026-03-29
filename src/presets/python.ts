@@ -100,6 +100,11 @@ export function createPythonPreset(): Preset {
           content:
             "- **Python**: 3.12+, strict mypy\n- **Ruff**: Lint + format\n- **uv**: Package manager",
         },
+        {
+          heading: "## Development",
+          content:
+            "```bash\nruff check .         # Lint Python\nruff format .        # Format Python\nmypy .               # Type check Python\n```",
+        },
       ],
     },
   };

@@ -598,7 +598,7 @@ export function applyKinesisLambdaWiring(iac: IacPresetName, files: Map<string, 
       const mapping = `
 resource "aws_lambda_event_source_mapping" "kinesis" {
   event_source_arn                   = aws_kinesis_stream.this.arn
-  function_name                      = aws_lambda_function.this.arn
+  function_name                      = aws_lambda_function.this.function_name
   starting_position                  = "TRIM_HORIZON"
   batch_size                         = 100
   bisect_batch_on_function_error     = true
@@ -638,7 +638,7 @@ export function applySqsLambdaWiring(iac: IacPresetName, files: Map<string, stri
       const mapping = `
 resource "aws_lambda_event_source_mapping" "sqs" {
   event_source_arn                   = aws_sqs_queue.this.arn
-  function_name                      = aws_lambda_function.this.arn
+  function_name                      = aws_lambda_function.this.function_name
   batch_size                         = 10
   function_response_types            = ["ReportBatchItemFailures"]
 }

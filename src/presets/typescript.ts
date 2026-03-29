@@ -88,6 +88,11 @@ export function createTypescriptPreset(): Preset {
           heading: "## Tech Stack",
           content: "- **TypeScript**: Strict mode, ESM\n- **Biome**: Lint + format",
         },
+        {
+          heading: "## Development",
+          content:
+            "```bash\npnpm run lint        # Run linters\npnpm run lint:fix    # Fix lint issues\npnpm test            # Run tests\npnpm run build       # Build\n```",
+        },
       ],
     },
   };

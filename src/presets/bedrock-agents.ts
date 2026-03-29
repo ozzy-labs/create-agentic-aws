@@ -28,7 +28,7 @@ export class BedrockAgent extends Construct {
     });
 
     this.actionGroupLambda = new lambda.Function(this, "ActionGroupFunction", {
-      runtime: lambda.Runtime.NODEJS_22_X,
+      runtime: lambda.Runtime.NODEJS_24_X,
       handler: "action-group.handler",
       code: lambda.Code.fromAsset(path.join(__dirname, "..", "..", "lambda", "handlers")),
       role: lambdaRole,
@@ -161,7 +161,7 @@ resource "aws_lambda_function" "action_group" {
   function_name    = "\${var.project_name}-\${var.environment}-action-group"
   role             = aws_iam_role.action_group_lambda.arn
   handler          = "action-group.handler"
-  runtime          = "nodejs22.x"
+  runtime          = "nodejs24.x"
   filename         = data.archive_file.action_group.output_path
   source_code_hash = data.archive_file.action_group.output_base64sha256
   memory_size      = 256

@@ -17,13 +17,6 @@ pnpm run prepare
 
 ## Development
 
-```bash
-pnpm run lint        # Run linters
-pnpm run lint:fix    # Fix lint issues
-pnpm test            # Run tests
-pnpm run build       # Build
-```
-
 ## Scripts
 
 | Script | Description |

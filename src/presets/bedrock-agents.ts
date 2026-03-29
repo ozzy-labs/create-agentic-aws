@@ -160,18 +160,19 @@ resource "aws_iam_role_policy" "agent" {
 
 resource "null_resource" "action_group_build" {
   triggers = {
-    source_hash = filemd5("lambda/handlers/action-group.ts")
+    source_hash = filemd5("\${path.module}/../lambda/handlers/action-group.ts")
   }
 
   provisioner "local-exec" {
-    command = "npx esbuild lambda/handlers/action-group.ts --bundle --platform=node --target=node24 --outfile=lambda/handlers/dist/action-group.mjs --format=esm"
+    working_dir = "\${path.module}/.."
+    command     = "npx esbuild lambda/handlers/action-group.ts --bundle --platform=node --target=node24 --outfile=lambda/handlers/dist/action-group.mjs --format=esm"
   }
 }
 
 data "archive_file" "action_group" {
   type        = "zip"
-  source_file = "lambda/handlers/dist/action-group.mjs"
-  output_path = "lambda/handlers/action-group.zip"
+  source_file = "\${path.module}/../lambda/handlers/dist/action-group.mjs"
+  output_path = "\${path.module}/.build/action-group.zip"
 
   depends_on = [null_resource.action_group_build]
 }

@@ -7,7 +7,8 @@ const LAMBDA_TF = `resource "null_resource" "lambda_build" {
   }
 
   provisioner "local-exec" {
-    command = "npx esbuild lambda/handlers/index.ts --bundle --platform=node --target=node24 --outfile=lambda/handlers/dist/index.mjs --format=esm"
+    working_dir = "\${path.module}/.."
+    command     = "npx esbuild lambda/handlers/index.ts --bundle --platform=node --target=node24 --outfile=lambda/handlers/dist/index.mjs --format=esm"
   }
 }
 

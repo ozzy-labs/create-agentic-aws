@@ -35,7 +35,7 @@ export function readTemplates(presetName: string): Record<string, string> {
       const fullPath = join(currentDir, entry.name);
       if (entry.isDirectory()) {
         walk(fullPath);
-      } else {
+      } else if (entry.name !== ".gitkeep") {
         const relPath = relative(dir, fullPath);
         files[relPath] = readFileSync(fullPath, "utf-8");
       }

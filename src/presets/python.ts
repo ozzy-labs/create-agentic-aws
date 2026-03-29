@@ -15,9 +15,9 @@ export function createPythonPreset(): Preset {
       ".mise.toml": {
         tools: {
           python: "3.12",
-          uv: "latest",
-          "pipx:ruff": "latest",
-          "pipx:mypy": "latest",
+          uv: "0",
+          "pipx:ruff": "0",
+          "pipx:mypy": "1",
         },
       },
       "lefthook.yaml": {

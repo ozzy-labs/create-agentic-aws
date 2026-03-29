@@ -17,7 +17,7 @@ export function createCdkPreset(): Preset {
       ".gitignore": "# CDK\ninfra/cdk.out/",
       ".mise.toml": {
         tools: {
-          "pipx:cfn-lint": "latest",
+          "pipx:cfn-lint": "1",
         },
       },
       "lefthook.yaml": {

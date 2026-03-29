@@ -72,14 +72,14 @@ const PACKAGE_JSON = `{
 const MISE_TOML = `[tools]
 node = "24"
 pnpm = "10"
-"pipx:yamllint" = "latest"
-yamlfmt = "latest"
-shellcheck = "latest"
-shfmt = "latest"
-taplo = "latest"
-actionlint = "latest"
-gitleaks = "latest"
-awscli = "latest"
+"pipx:yamllint" = "1"
+yamlfmt = "0"
+shellcheck = "0"
+shfmt = "3"
+taplo = "0"
+actionlint = "1"
+gitleaks = "8"
+awscli = "2"
 
 [env]
 _.path = ["./node_modules/.bin", "./scripts"]
@@ -165,6 +165,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: jdx/mise-action@v2
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.local/share/pnpm/store
+          key: pnpm-store-\${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

@@ -167,8 +167,10 @@ function injectMarkdownSection(template: string, section: MarkdownSection): stri
     }
   }
 
-  // Insert content before the next section (with blank line)
-  const contentLines = section.content.split("\n");
+  // Insert content before the next section (with blank line), deduplicating lines
+  const existingLines = new Set(lines.slice(headingIndex + 1, insertIndex).map((l) => l.trim()));
+  const contentLines = section.content.split("\n").filter((l) => !existingLines.has(l.trim()));
+  if (contentLines.length === 0) return template;
   const injection = ["", ...contentLines];
 
   // Remove trailing blank lines before injection point

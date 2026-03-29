@@ -192,4 +192,59 @@ describe("transforms", () => {
       expect(appStack).toContain("const lambdaFunction = new LambdaFunction");
     });
   });
+
+  describe("sub-option integration — options affect generated output", () => {
+    it("CDK: ECS NLB option switches to NetworkLoadBalancedFargateService", () => {
+      const result = generateProject({
+        compute: ["ecs"],
+        ecsOptions: { launchType: "fargate", loadBalancer: "nlb" },
+      });
+      const construct = result.readText("infra/lib/constructs/ecs.ts");
+      expect(construct).toContain("NetworkLoadBalancedFargateService");
+      expect(construct).not.toContain("ApplicationLoadBalancedFargateService");
+    });
+
+    it("TF: ECS NLB option changes load_balancer_type", () => {
+      const result = generateProject({
+        iac: "terraform",
+        compute: ["ecs"],
+        ecsOptions: { launchType: "fargate", loadBalancer: "nlb" },
+      });
+      const ecsTf = result.readText("infra/ecs.tf");
+      expect(ecsTf).toContain('"network"');
+      expect(ecsTf).not.toContain('"application"');
+    });
+
+    it("CDK: EKS Fargate mode sets defaultCapacity 0 and adds Fargate profile", () => {
+      const result = generateProject({
+        compute: ["eks"],
+        eksOptions: { mode: "fargate", loadBalancer: "alb" },
+      });
+      const construct = result.readText("infra/lib/constructs/eks.ts");
+      expect(construct).toContain("defaultCapacity: 0");
+      expect(construct).toContain("addFargateProfile");
+      expect(construct).not.toContain("defaultCapacityInstance");
+    });
+
+    it("TF: EKS Fargate mode replaces node group with Fargate profile", () => {
+      const result = generateProject({
+        iac: "terraform",
+        compute: ["eks"],
+        eksOptions: { mode: "fargate", loadBalancer: "alb" },
+      });
+      const eksTf = result.readText("infra/eks.tf");
+      expect(eksTf).toContain("aws_eks_fargate_profile");
+      expect(eksTf).not.toContain("aws_eks_node_group");
+    });
+
+    it("CDK: API Gateway REST option switches type", () => {
+      const result = generateProject({
+        compute: ["lambda"],
+        networking: ["api-gateway"],
+        apiGatewayOptions: { type: "rest" },
+      });
+      const appStack = result.readText("infra/lib/app-stack.ts");
+      expect(appStack).toContain('type: "rest"');
+    });
+  });
 });

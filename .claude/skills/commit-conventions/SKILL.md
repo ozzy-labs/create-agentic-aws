@@ -24,18 +24,14 @@ Conventional Commits 1.0.0 に準拠する（commitlint で検証される）。
 
 ## Scope の判定
 
-変更が特定のディレクトリに集中している場合、scope を付与する:
+変更が特定のディレクトリや機能に集中している場合、scope を付与する。ディレクトリ名や機能名から簡潔な scope を選ぶ:
 
-- `infra/` → `(infra)`
-- `scripts/` → `(scripts)`
-- `.github/workflows/` → `(ci)`
-- `.claude/skills/` → `(skills)`
-
-`src/` 配下にサブディレクトリがある場合はより具体的な scope を使用する。複数ディレクトリにまたがる場合は scope を省略する。
+- 例: `feat(blog):`, `fix(auth):`, `ci(deploy):`
+- 複数ディレクトリにまたがる場合は scope を省略する
 
 ## メッセージ本文
 
-- 1 行目: `type[(scope)]: 概要`（日本語 OK、50 文字以内目安）
+- 1 行目: `type[(scope)]: description`（英語で、50 文字以内目安）
 - 複数の論理的変更がある場合は body で補足
 
 ## 共通注意事項

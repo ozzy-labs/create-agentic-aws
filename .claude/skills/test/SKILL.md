@@ -1,17 +1,18 @@
 ---
-description: 全テストを実行し、結果を報告する
+description: ビルド・テスト・型チェックを実行し、結果を報告する
 disable-model-invocation: true
-allowed-tools: Bash, AskUserQuestion
+allowed-tools: Bash, Read, Edit, Write, AskUserQuestion
 ---
 
-# test - 全テストの実行
+# test - ビルド・テストの実行
 
-全テストを実行し、結果をレポートする。
+CLAUDE.md の「検証」セクションに記載されたコマンドを実行し、結果をレポートする。
 
 ## 手順
 
-1. `pnpm test` で vitest テスト実行（verify テストを含む全テスト）
-2. 全テスト結果のサマリーを報告する
+1. CLAUDE.md の「検証」セクションを Read し、実行すべきコマンドを特定する
+2. 各コマンドを順に実行する
+3. 全結果のサマリーを報告する
 
 ## 次のアクション提案（スキル完了後）
 

@@ -1,13 +1,11 @@
 # Contributing
 
-Thank you for your interest in `create-agentic-aws`!
-
-This is a personal project and is **not accepting external contributions** (pull requests, code changes, etc.) at this time.
+This is a personal project maintained by [ozzy-labs](https://github.com/ozzy-labs). External contributions are not currently accepted.
 
 ## Bug Reports & Feature Requests
 
-If you find a bug or have an idea for improvement, feel free to [open an issue](https://github.com/ozzy-labs/create-agentic-aws/issues). While I cannot guarantee a response or implementation timeline, your feedback is appreciated.
+If you find a bug or have an idea for improvement, please open an issue.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE). You are free to fork, modify, and use it in your own projects.
+By interacting with this project, you agree that any contributions you make will be licensed under the [MIT License](LICENSE).

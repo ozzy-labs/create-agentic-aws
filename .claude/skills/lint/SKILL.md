@@ -1,7 +1,7 @@
 ---
 description: 全リンターを自動修正付きで実行し、結果を報告する
 disable-model-invocation: true
-allowed-tools: Bash, Read, AskUserQuestion
+allowed-tools: Bash, Read, Edit, AskUserQuestion
 ---
 
 # lint - 全リンターの実行
@@ -20,9 +20,8 @@ allowed-tools: Bash, Read, AskUserQuestion
 
 **全て通過した場合:**
 
-- **「テストを実行する」** → `.claude/skills/test/SKILL.md` を Read し、その手順に従う
 - **「コミットする」** → `.claude/skills/commit/SKILL.md` を Read し、その手順に従う
-- **「テスト・コミット・PR まで一括実行する」** → `.claude/skills/ship/SKILL.md` を Read し、その手順に従う
+- **「コミット・PR まで一括実行する」** → `.claude/skills/ship/SKILL.md` を Read し、その手順に従う
 - **「追加の変更を行う」** → 終了する
 
 **エラーがある場合:**

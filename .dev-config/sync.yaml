@@ -1,0 +1,14 @@
+# Auto-updated by dev-config sync.sh
+# 'pinned' is user-editable — add or remove paths freely
+commit: c5ffa68
+synced_at: 2026-04-05T02:44:29Z
+pinned:
+  - CLAUDE.md
+  - lefthook.yaml
+  - .gitignore
+  - biome.json
+  - .yamlfmt.yaml
+  - .yamllint.yaml
+  - .markdownlint-cli2.yaml
+  - .github/ISSUE_TEMPLATE/bug_report.yaml
+  - .github/ISSUE_TEMPLATE/feature_request.yaml

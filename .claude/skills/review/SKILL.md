@@ -2,7 +2,7 @@
 description: コード変更や PR をレビューし、問題点・改善案を報告する
 argument-hint: "<#PR-number | (blank for working tree changes)>"
 disable-model-invocation: true
-allowed-tools: Bash, Read, Grep, Glob, AskUserQuestion
+allowed-tools: Bash, Read, Edit, Write, Grep, Glob, AskUserQuestion
 ---
 
 # review - コードレビュー
@@ -27,25 +27,19 @@ allowed-tools: Bash, Read, Grep, Glob, AskUserQuestion
 
 差分に含まれるファイルの周辺コードを Read で確認し、変更の意図と影響範囲を把握する:
 
-- 変更された関数・クラスの全体像を確認
+- 変更されたコンポーネント・ページの全体像を確認
 - インポート元やエクスポート先を確認
-- テストファイルの有無を確認
-- 変更に関連するドキュメントファイルを特定する（CLAUDE.md、README.md、SKILL.md、JSDoc/docstring 等）
+- 変更に関連するドキュメントファイルを特定する（CLAUDE.md、README.md 等）
 
 ### Step 3: レビュー実施
 
 以下の観点で差分を分析する:
 
-- **正確性:** ロジックの誤り、エッジケース、off-by-one エラー
-- **セキュリティ:** インジェクション、認証・認可の欠陥、機密情報の露出
-- **パフォーマンス:** 不要なループ、N+1 クエリ、メモリリーク
+- **正確性:** ロジックの誤り、エッジケース
+- **セキュリティ:** インジェクション、機密情報の露出
+- **パフォーマンス:** 不要なレンダリング、画像最適化
 - **コーディング規約:** CLAUDE.md の Coding Conventions との整合性
-- **テスト:** テストの有無・カバレッジの妥当性
-- **ドキュメント整合性:** 以下を確認する:
-  - コード変更がドキュメント（CLAUDE.md、README.md、SKILL.md 等）に正しく反映されているか
-  - ドキュメントの記述（コマンド、API、設定、構造等）が実際の実装と一致しているか
-  - 新規追加・変更・削除された機能やコマンドがドキュメントに反映されているか
-  - コード内のコメントや JSDoc/docstring が実装と矛盾していないか
+- **ドキュメント整合性:** コード変更がドキュメントに正しく反映されているか
 
 ### Step 4: レポート出力
 
@@ -72,13 +66,7 @@ allowed-tools: Bash, Read, Grep, Glob, AskUserQuestion
   提案: <具体的な修正案>
 ```
 
-#### 改善提案
-
-大きな改善提案がある場合、具体的なコード例を含めて提示する。
-
 #### 結論
-
-指摘事項の数をまとめる:
 
 ```text
 レビュー結果:
@@ -87,25 +75,18 @@ allowed-tools: Bash, Read, Grep, Glob, AskUserQuestion
   Info:     1 件
 ```
 
-**PR レビューの場合:** レポート全体（サマリー〜結論）を `gh pr comment <N> --body "<レポート>"` で PR にコメントとして投稿する。Claude Code の出力にもレポートを表示する（両方に出力する）。
+**PR レビューの場合:** レポート全体を `gh pr comment <N> --body "<レポート>"` で PR にコメントとして投稿する。
 
-### Step 5: 次のアクション確認
+### Step 5: 次のアクション提案
 
-AskUserQuestion を呼び出し、以下の選択肢を表示する。以下は基本選択肢であり、状況に応じて追加の選択肢を提示してよい:
+AskUserQuestion を呼び出す（`answers` パラメータは設定しない）。以下の選択肢を表示する:
 
-**PR レビューの場合:**
+**指摘ありの場合:**
 
-- **「指摘事項を修正する」**（指摘ありの場合） → 指摘事項に基づきコードを修正する。修正完了後、再度 AskUserQuestion で次のアクションを確認する:
-  - **「再レビューする」** → Step 1 に戻る
-  - **「コミット・push する」** → `.claude/skills/commit/SKILL.md` を Read し、その手順に従う。完了後、`.claude/skills/pr/SKILL.md` を Read し、その手順に従う
-  - **「追加の変更を行う」** → 終了する
+- **「指摘事項を修正する」** → 指摘事項に基づきコードを修正する
 - **「このまま進める」** → 終了する
 
-**ローカル変更レビューの場合:**
+**指摘なしの場合:**
 
-- **「指摘事項を修正する」**（指摘ありの場合） → 指摘事項に基づきコードを修正する。修正完了後、再度 AskUserQuestion で次のアクションを確認する:
-  - **「再レビューする」** → Step 1 に戻る
-  - **「lint・テスト・コミット・PR まで一括実行する」** → `.claude/skills/ship/SKILL.md` を Read し、その手順に従う
-  - **「追加の変更を行う」** → 終了する
-- **「lint・テスト・コミット・PR まで一括実行する」** → `.claude/skills/ship/SKILL.md` を Read し、その手順に従う
+- **「コミット・PR まで一括実行する」** → `.claude/skills/ship/SKILL.md` を Read し、その手順に従う
 - **「このまま進める」** → 終了する

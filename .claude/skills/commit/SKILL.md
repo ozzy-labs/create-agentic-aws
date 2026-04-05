@@ -25,9 +25,8 @@ allowed-tools: Bash, Read, Grep, Glob, AskUserQuestion
 
 ```text
 変更ファイル:
-  M src/index.ts
-  A infra/lib/new-stack.ts
-  M tests/test_placeholder.py
+  M src/pages/index.astro
+  A src/content/blog/new-post.md
 ```
 
 ### Step 2: ステージング＆コミット
@@ -43,14 +42,12 @@ allowed-tools: Bash, Read, Grep, Glob, AskUserQuestion
 
 ```text
 完了:
-  コミット: abc1234 feat: 認証機能を追加
+  コミット: abc1234 feat: add blog post
 ```
 
 ## 次のアクション提案（スキル完了後）
 
 完了報告の直後に AskUserQuestion を呼び出す（`answers` パラメータは設定しない）。報告の出力だけでスキルを終了しない。以下は基本選択肢であり、状況に応じて追加の選択肢を提示してよい:
 
-- **「テストを実行する」** → `.claude/skills/test/SKILL.md` を Read し、その手順に従う
 - **「PR を作成する」** → `.claude/skills/pr/SKILL.md` を Read し、その手順に従う
-- **「lint・テスト・コミット・PR まで一括実行する」** → `.claude/skills/ship/SKILL.md` を Read し、その手順に従う
 - **「追加の変更を行う」** → 終了する

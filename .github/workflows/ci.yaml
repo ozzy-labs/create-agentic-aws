@@ -14,7 +14,15 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: jdx/mise-action@v2
+        with:
+          install: true
+          cache: true
+          # Explicit token: authenticates mise's aqua / GitHub release lookups
+          # (defaults exist but normalize for clarity and future repo rollout).
+          github_token: ${{ secrets.GITHUB_TOKEN }}
         env:
+          # Belt-and-suspenders: some mise backends (aqua) read GITHUB_TOKEN
+          # from env rather than the action input.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # trivy はこのリポでは未使用。mise の aqua バックエンドが
           # GitHub API レート制限に頻繁に当たり CI を失敗させるため、

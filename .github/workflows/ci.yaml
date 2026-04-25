@@ -16,6 +16,10 @@ jobs:
       - uses: jdx/mise-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # trivy はこのリポでは未使用。mise の aqua バックエンドが
+          # GitHub API レート制限に頻繁に当たり CI を失敗させるため、
+          # 上流 commons で扱いを整理するまで CI ではスキップする。
+          MISE_DISABLE_TOOLS: trivy
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

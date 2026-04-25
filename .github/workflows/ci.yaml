@@ -13,12 +13,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4
+        with:
+          install: true
+          cache: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # trivy はこのリポでは未使用。mise の aqua バックエンドが
-          # GitHub API レート制限に頻繁に当たり CI を失敗させるため、
-          # 上流 commons で扱いを整理するまで CI ではスキップする。
           MISE_DISABLE_TOOLS: trivy
 
       - name: Install dependencies

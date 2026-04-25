@@ -17,3 +17,4 @@ pinned:
   - .markdownlint-cli2.yaml
   - .github/ISSUE_TEMPLATE/bug_report.yaml
   - .github/ISSUE_TEMPLATE/feature_request.yaml
+  - .github/workflows/ci.yaml

@@ -1,4 +1,4 @@
-# Shared base config from dev-config
+# Shared base config from commons
 # Extend this in your repo's lefthook.yaml:
 #
 #   extends:
@@ -11,7 +11,7 @@ glob_matcher: doublestar
 commit-msg:
   commands:
     commitlint:
-      run: npx commitlint --edit {1}
+      run: commitlint --edit {1}
 
 pre-commit:
   parallel: true
@@ -30,3 +30,5 @@ pre-commit:
       stage_fixed: true
     gitleaks:
       run: gitleaks protect --staged --no-banner
+    trivy:
+      run: trivy fs --scanners vuln,secret --exit-code 1 --no-progress .

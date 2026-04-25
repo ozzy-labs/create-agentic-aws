@@ -37,6 +37,8 @@ pre-commit:
       run: actionlint
     gitleaks:
       run: gitleaks protect --staged --no-banner
+    trivy:
+      run: trivy fs --scanners vuln --exit-code 1 --no-progress .
 
 pre-push:
   parallel: true

@@ -12,3 +12,4 @@ ignores:
   - "**/node_modules"
   - "**/templates"
   - "**/.claude/plans"
+  - "CHANGELOG.md"

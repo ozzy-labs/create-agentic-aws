@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.2.0](https://github.com/ozzy-labs/create-agentic-aws/compare/create-agentic-aws-v0.1.0...create-agentic-aws-v0.2.0) (2026-04-26)
+
+
+### Features
+
+* **renovate:** migrate to shared org preset ([#487](https://github.com/ozzy-labs/create-agentic-aws/issues/487)) ([a455e83](https://github.com/ozzy-labs/create-agentic-aws/commit/a455e83239d6c7290cd8d258bd580475e495bdfc))
+* **skills-sync:** migrate to adapter-aware sync via @ozzylabs/skills ([#495](https://github.com/ozzy-labs/create-agentic-aws/issues/495)) ([c959d01](https://github.com/ozzy-labs/create-agentic-aws/commit/c959d015e95831814cbc6cb8734652d8bfe80596))
+
+
+### Bug Fixes
+
+* **ci:** unblock CI by skipping unused trivy install and ignoring auto-generated CHANGELOG ([#492](https://github.com/ozzy-labs/create-agentic-aws/issues/492)) ([f23974a](https://github.com/ozzy-labs/create-agentic-aws/commit/f23974a0e9a6b22e7a4ca83fe27d6056771384af))
+
 ## 0.1.0 (2026-03-29)
 
 

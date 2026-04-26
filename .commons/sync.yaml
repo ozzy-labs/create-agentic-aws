@@ -1,16 +1,7 @@
 # Auto-updated by commons sync.sh
 # 'pinned' is user-editable — add or remove paths freely
-commit: 4f6de17bb3894eb2ad5d2f8f90e93dbc9d3b13ad
-synced_at: 2026-04-25T04:33:32Z
-# Auto-updated by Renovate (extends github>ozzy-labs/skills//skills-sync)
-skills_commit: d3ff883a9a47477a8b148b7b6b9cc6bbdd1635aa
-# Adapter opt-in for skills sync (consumed by commons/sync-skills.sh and the
-# Sync skills workflow). Valid values: claude-code, codex-cli, gemini-cli, copilot
-skills_adapters:
-  - claude-code
-  - codex-cli
-  - gemini-cli
-  - copilot
+commit: a32c498f106b8684e2419ab7861e95e1bbef5445
+synced_at: 2026-04-26T07:18:59Z
 pinned:
   - CLAUDE.md
   - lefthook.yaml

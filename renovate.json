@@ -1,4 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>ozzy-labs/.github", "github>ozzy-labs/skills//skills-sync"]
+  "extends": ["github>ozzy-labs/.github"]
 }

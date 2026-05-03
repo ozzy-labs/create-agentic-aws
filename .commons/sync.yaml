@@ -1,8 +1,8 @@
 # Auto-updated by commons sync.sh
 # 'pinned' is user-editable — add or remove paths freely
-commit: 346a41e4fa30713a49c7f6e3c6cadf212db06949
+commit: c3e83a735566be13946cdfd784c42a47f1351867
 synced_at: 2026-04-27T01:02:14Z
-skills_commit: 8c9074bd14bd7c8dd8f033af1f12efdd7c722097
+skills_commit: ba88440b598f85cb0c8888fa473fd024489e714d
 skills_adapters:
   - claude-code
   - codex-cli
@@ -20,3 +20,5 @@ pinned:
   - .github/ISSUE_TEMPLATE/bug_report.yaml
   - .github/ISSUE_TEMPLATE/feature_request.yaml
   - .github/workflows/ci.yaml
+  - .github/workflows/pr-check.yaml
+  - .github/workflows/sync-commons.yaml

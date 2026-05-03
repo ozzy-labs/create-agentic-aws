@@ -1,6 +1,8 @@
 # Claude Code
 .claude/settings.local.json
 .claude/plans/
+.claude/scheduled_tasks.lock
+.claude/worktrees/
 
 # Local testing
 tmp/

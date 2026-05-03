@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/ozzy-labs/create-agentic-aws/compare/create-agentic-aws-v0.2.0...create-agentic-aws-v0.2.1) (2026-05-03)
+
+
+### Bug Fixes
+
+* **release:** install latest npm before publishing for trusted publishing ([#515](https://github.com/ozzy-labs/create-agentic-aws/issues/515)) ([74b80ab](https://github.com/ozzy-labs/create-agentic-aws/commit/74b80ab0cfd32eaff92a2bd98268fe0c765c586a))
+
 ## [0.2.0](https://github.com/ozzy-labs/create-agentic-aws/compare/create-agentic-aws-v0.1.0...create-agentic-aws-v0.2.0) (2026-05-03)
 
 

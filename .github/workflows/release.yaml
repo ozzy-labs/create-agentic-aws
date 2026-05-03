@@ -1,15 +1,39 @@
-name: release
+name: Release
 
 on:
-  release:
-    types: [published]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force_publish:
+        description: "Publish current package.json version (recovery path; bypasses release-please gating)"
+        type: boolean
+        default: false
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
   id-token: write
 
 jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created || 'false' }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - id: release
+        if: github.event_name == 'push'
+        uses: googleapis/release-please-action@v4
+        with:
+          manifest-file: .release-please-manifest.json
+          config-file: release-please-config.json
+
   publish:
+    needs: release-please
+    if: |
+      needs.release-please.outputs.release_created == 'true' ||
+      (github.event_name == 'workflow_dispatch' && inputs.force_publish)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

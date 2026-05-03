@@ -60,41 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           SRC_ROOT=".sync-skills/dist"
-
-          # Helper: replace content between markers in a target file with snippet content.
-          # The snippet itself contains the begin/end markers, so we drop the original
-          # marker block (inclusive) and inject the snippet in its place.
-          replace_snippet() {
-            local target="$1"
-            local snippet="$2"
-            if [[ ! -f "${target}" ]]; then
-              echo "Error: ${target} does not exist (expected to contain @ozzylabs/skills markers)" >&2
-              return 1
-            fi
-            if [[ ! -f "${snippet}" ]]; then
-              echo "Error: ${snippet} not found in skills repo at recorded commit" >&2
-              return 1
-            fi
-            if ! grep -q '<!-- begin: @ozzylabs/skills -->' "${target}"; then
-              echo "Error: ${target} is missing the '<!-- begin: @ozzylabs/skills -->' marker" >&2
-              return 1
-            fi
-            awk -v snippet_file="${snippet}" '
-              BEGIN { in_block = 0 }
-              /<!-- begin: @ozzylabs\/skills -->/ && !in_block {
-                while ((getline line < snippet_file) > 0) print line
-                close(snippet_file)
-                in_block = 1
-                next
-              }
-              /<!-- end: @ozzylabs\/skills -->/ && in_block {
-                in_block = 0
-                next
-              }
-              !in_block { print }
-            ' "${target}" > "${target}.tmp"
-            mv "${target}.tmp" "${target}"
-          }
+          REPLACE_SNIPPET="${SRC_ROOT}/sync/replace-snippet.sh"
 
           # Helper: copy adapter skill directories one-by-one so consumer-only files
           # (e.g. .agents/skills/README.md, repo-specific skills like setup) survive sync.
@@ -121,10 +87,10 @@ jobs:
           sync_skill_dirs "${SRC_ROOT}/codex-cli/.agents/skills" ".agents/skills"
 
           # 3. AGENTS.md snippet (codex-cli と gemini-cli は同一 snippet)
-          replace_snippet "AGENTS.md" "${SRC_ROOT}/codex-cli/AGENTS.md.snippet"
+          "${REPLACE_SNIPPET}" "AGENTS.md" "${SRC_ROOT}/codex-cli/AGENTS.md.snippet"
 
-          # 4. GitHub Copilot snippet
-          replace_snippet \
+          # 4. GitHub Copilot snippet (marker 欠落時は append で auto-recovery)
+          "${REPLACE_SNIPPET}" \
             ".github/copilot-instructions.md" \
             "${SRC_ROOT}/copilot/.github/copilot-instructions.md.snippet"
 

@@ -2,7 +2,7 @@
 # 'pinned' is user-editable — add or remove paths freely
 commit: 346a41e4fa30713a49c7f6e3c6cadf212db06949
 synced_at: 2026-04-27T01:02:14Z
-skills_commit: 4d35fa3683789c8b4a8633bf6aa5bf8e5e7bc230
+skills_commit: 8c9074bd14bd7c8dd8f033af1f12efdd7c722097
 skills_adapters:
   - claude-code
   - codex-cli

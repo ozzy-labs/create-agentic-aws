@@ -25,4 +25,3 @@ pinned:
   - .github/ISSUE_TEMPLATE/feature_request.yaml
   - .github/workflows/ci.yaml
   - .github/workflows/pr-check.yaml
-  - .github/workflows/sync-commons.yaml

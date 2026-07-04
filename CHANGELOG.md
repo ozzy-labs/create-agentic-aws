@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/ozzy-labs/create-agentic-aws/compare/create-agentic-aws-v0.2.1...create-agentic-aws-v0.2.2) (2026-07-04)
+
+
+### Bug Fixes
+
+* gate pre-commit trivy on HIGH/CRITICAL severity ([#547](https://github.com/ozzy-labs/create-agentic-aws/issues/547)) ([0b19dcd](https://github.com/ozzy-labs/create-agentic-aws/commit/0b19dcd6e4b8c080027e256faa52e52548f99a3e))
+
 ## [0.2.1](https://github.com/ozzy-labs/create-agentic-aws/compare/create-agentic-aws-v0.2.0...create-agentic-aws-v0.2.1) (2026-05-03)
 
 
